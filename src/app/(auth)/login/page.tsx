@@ -57,6 +57,12 @@ function LoginForm() {
       </CardHeader>
 
       <CardContent>
+        {searchParams?.get('registered') === 'check-email' && (
+          <div className="mb-4 p-3 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-xs">
+            ✓ Registration successful! You can now sign in with your credentials below.
+          </div>
+        )}
+
         {errorMessage && (
           <div className="mb-4 p-3 rounded-lg bg-red-950/50 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />

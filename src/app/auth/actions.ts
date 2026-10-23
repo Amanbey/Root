@@ -1,7 +1,6 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { FarmerProfile, EthiopianRegion, AgroEcologicalZone, SupportedLanguage, EthiopianCrop } from '@/lib/types';
@@ -68,7 +67,10 @@ export async function signInAction(prevState: unknown, formData: FormData): Prom
   }
 
   revalidatePath('/', 'layout');
-  redirect(redirectTo);
+  return {
+    success: true,
+    redirectTo,
+  };
 }
 
 /**
@@ -154,17 +156,28 @@ export async function signUpAction(prevState: unknown, formData: FormData): Prom
   }
 
   revalidatePath('/', 'layout');
-  redirect('/profile');
+
+  if (authData.user && !authData.session) {
+    return {
+      success: true,
+      redirectTo: '/login?registered=check-email',
+    };
+  }
+
+  return {
+    success: true,
+    redirectTo: '/profile',
+  };
 }
 
 /**
  * Sign out action
  */
-export async function signOutAction() {
+export async function signOutAction(): Promise<{ success: boolean }> {
   const supabase = await createClient();
   await supabase.auth.signOut();
   revalidatePath('/', 'layout');
-  redirect('/login');
+  return { success: true };
 }
 
 /**

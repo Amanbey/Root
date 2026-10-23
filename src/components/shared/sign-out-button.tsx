@@ -1,6 +1,7 @@
 'use client';
 
 import { useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { LogOut, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { signOutAction } from '@/app/auth/actions';
@@ -16,11 +17,14 @@ export function SignOutButton({
   className = '',
   showText = true,
 }: SignOutButtonProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const handleSignOut = () => {
     startTransition(async () => {
       await signOutAction();
+      router.push('/login');
+      router.refresh();
     });
   };
 

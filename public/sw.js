@@ -1,4 +1,4 @@
-const CACHE_NAME = 'root-cache-v1';
+const CACHE_NAME = 'root-cache-v2';
 const OFFLINE_URL = '/offline';
 
 const PRECACHE_ASSETS = [
@@ -43,10 +43,25 @@ self.addEventListener('activate', (event) => {
 // Fetch: Strategy dispatch
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+
+  // RULE 1: Never intercept non-GET requests (POST, PUT, DELETE, Server Actions)!
+  if (request.method !== 'GET') {
+    return;
+  }
+
   const url = new URL(request.url);
 
   // Skip cross-origin and chrome-extension requests
   if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  // Skip Next.js internal fast refresh, webpack, and action headers
+  if (
+    url.pathname.includes('/_next/webpack-hmr') ||
+    url.pathname.includes('/__nextjs') ||
+    request.headers.get('next-action')
+  ) {
     return;
   }
 
@@ -55,7 +70,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          if (response.ok) {
+          if (response && response.ok) {
             const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           }
@@ -66,7 +81,6 @@ self.addEventListener('fetch', (event) => {
           if (cachedResponse) {
             return cachedResponse;
           }
-          // Return the dedicated offline page
           const offlinePage = await caches.match(OFFLINE_URL);
           if (offlinePage) {
             return offlinePage;
@@ -80,9 +94,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Static assets (_next/static, icons, images, fonts): Cache-first with stale-while-revalidate
+  // 2. Static assets (icons, images, fonts): Cache-first with stale-while-revalidate
   if (
-    url.pathname.startsWith('/_next/static/') ||
     url.pathname.startsWith('/icons/') ||
     url.pathname.endsWith('.png') ||
     url.pathname.endsWith('.svg') ||
@@ -91,10 +104,9 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(request).then((cached) => {
         if (cached) {
-          // Revalidate in background
           fetch(request)
             .then((res) => {
-              if (res.ok) {
+              if (res && res.ok) {
                 caches.open(CACHE_NAME).then((cache) => cache.put(request, res));
               }
             })
@@ -102,7 +114,7 @@ self.addEventListener('fetch', (event) => {
           return cached;
         }
         return fetch(request).then((res) => {
-          if (res.ok) {
+          if (res && res.ok) {
             const clone = res.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           }
@@ -113,7 +125,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. API requests: Let them pass to network (offline queue handles offline data in IndexedDB)
+  // 3. API requests: network-first with graceful offline fallback
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(request).catch(
@@ -122,7 +134,7 @@ self.addEventListener('fetch', (event) => {
             JSON.stringify({
               error: 'Offline',
               offline: true,
-              message: 'Device is offline. Request queued for sync.',
+              message: 'Device is offline.',
             }),
             {
               status: 503,
@@ -134,9 +146,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Default: Network with cache fallback
+  // Default: Network with safe cache fallback ensuring a valid Response is always returned
   event.respondWith(
-    fetch(request).catch(() => caches.match(request))
+    fetch(request).catch(async () => {
+      const cached = await caches.match(request);
+      if (cached) return cached;
+      return new Response('', { status: 408, statusText: 'Request timed out or offline' });
+    })
   );
 });
 

@@ -112,6 +112,7 @@ export interface AdviceCard {
   probable_causes: string[];
   immediate_actions: string[];
   organic_remedies: string[];
+  chemical_remedies?: string[];
   preventive_measures: string[];
   local_context_notes: string;
   recommended_season_action?: string;
