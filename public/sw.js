@@ -1,4 +1,4 @@
-const CACHE_NAME = 'root-cache-v3';
+const CACHE_NAME = 'root-cache-v5';
 const OFFLINE_URL = '/offline';
 
 const PRECACHE_ASSETS = [
@@ -150,24 +150,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Default: Network with safe cache fallback
-  event.respondWith(
-    fetch(request).catch(async (error) => {
-      // If the browser aborted the request (e.g. cancelled prefetch or client redirect), propagate abort
-      if (error && error.name === 'AbortError') {
-        throw error;
-      }
-      const cached = await caches.match(request);
-      if (cached) return cached;
-
-      if (request.mode === 'navigate') {
-        const offlinePage = await caches.match(OFFLINE_URL);
-        if (offlinePage) return offlinePage;
-      }
-
-      return new Response('', { status: 408, statusText: 'Request timed out or offline' });
-    })
-  );
+  // For any other requests, do not intercept — allow browser native network handling
 });
 
 // Support manual skip-waiting trigger

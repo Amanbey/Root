@@ -3,7 +3,7 @@
 import { useState, useTransition, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Leaf, Lock, Mail, ArrowRight, Loader2, Sparkles, AlertCircle } from 'lucide-react';
+import { Leaf, Lock, Mail, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,11 +20,6 @@ function LoginForm() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const handleDemoFill = () => {
-    setEmail('abebe.farmer@ethioroot.org');
-    setPassword('Ethiopia2026!');
-    setErrorMessage(null);
-  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -123,19 +118,6 @@ function LoginForm() {
             )}
           </Button>
         </form>
-
-        {/* Quick Demo Fill Button */}
-        <div className="mt-4 pt-4 border-t border-slate-800/80">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleDemoFill}
-            className="w-full min-h-[42px] border-dashed border-emerald-500/40 bg-emerald-950/20 hover:bg-emerald-950/40 text-emerald-300 text-xs sm:text-xs h-10 sm:h-9 flex items-center justify-center gap-2 touch-manipulation"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="truncate">Fill Demo Farmer Account (Abebe Bekele)</span>
-          </Button>
-        </div>
       </CardContent>
 
       <CardFooter className="flex flex-col space-y-2 text-center text-xs text-slate-400 pt-0">

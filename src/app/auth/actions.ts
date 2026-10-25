@@ -44,16 +44,6 @@ export async function signInAction(prevState: unknown, formData: FormData): Prom
 
   const supabase = await createClient();
 
-  // If using placeholder credentials, support seamless offline/demo preview
-  const isPlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder');
-  if (isPlaceholder) {
-    // Demo login simulation for immediate local evaluation
-    return {
-      success: true,
-      redirectTo,
-    };
-  }
-
   let { error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -121,15 +111,6 @@ export async function signUpAction(prevState: unknown, formData: FormData): Prom
 
   const supabase = await createClient();
   const adminClient = createAdminClient();
-
-  const isPlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder');
-  if (isPlaceholder) {
-    // Demo registration simulation
-    return {
-      success: true,
-      redirectTo: '/profile',
-    };
-  }
 
   let userId: string | null = null;
 
@@ -266,26 +247,6 @@ export async function signOutAction(): Promise<{ success: boolean }> {
 export async function getCurrentFarmerProfile(): Promise<FarmerProfile | null> {
   const supabase = await createClient();
 
-  const isPlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder');
-  if (isPlaceholder) {
-    // Return sample Ethiopian farmer profile for demo/offline evaluation
-    return {
-      id: 'demo-farmer-id',
-      full_name: 'Abebe Bekele',
-      email: 'abebe.farmer@ethioroot.org',
-      phone: '+251 91 123 4567',
-      region: 'Oromia',
-      zone_name: 'East Shewa',
-      woreda: 'Ada\'a (Debre Zeit)',
-      agro_ecological_zone: 'Weyna Dega',
-      main_crops: ['Teff', 'Wheat', 'Chickpea'],
-      preferred_language: 'am',
-      farm_size_hectares: 2.5,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-  }
-
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return null;
@@ -331,11 +292,6 @@ export async function updateFarmerProfileAction(profileUpdate: {
   farmSizeHectares?: number;
 }): Promise<AuthActionResult> {
   const supabase = await createClient();
-
-  const isPlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder');
-  if (isPlaceholder) {
-    return { success: true };
-  }
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {

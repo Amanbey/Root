@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { Suspense } from 'react';
 import { getCurrentFarmerProfile } from '@/app/auth/actions';
 import { Navbar } from '@/components/shared/navbar';

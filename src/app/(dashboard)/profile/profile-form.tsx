@@ -52,13 +52,13 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
     initialProfile?.agro_ecological_zone || 'Weyna Dega'
   );
   const [selectedCrops, setSelectedCrops] = useState<EthiopianCrop[]>(
-    initialProfile?.main_crops || ['Teff', 'Wheat']
+    initialProfile?.main_crops || []
   );
   const [preferredLanguage, setPreferredLanguage] = useState<SupportedLanguage>(
     initialProfile?.preferred_language || 'en'
   );
   const [farmSize, setFarmSize] = useState<number | undefined>(
-    initialProfile?.farm_size_hectares || 1.5
+    initialProfile?.farm_size_hectares || undefined
   );
 
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);

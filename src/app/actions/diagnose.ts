@@ -36,7 +36,7 @@ export async function submitCropQuestionAction(payload: SubmitQuestionPayload): 
     let photoUrl: string | null = null;
 
     // 1. Get user session if available
-    if (supabaseUrl && !supabaseUrl.includes('placeholder')) {
+    if (supabaseUrl && supabaseAnonKey) {
       const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
         cookies: {
           getAll() {

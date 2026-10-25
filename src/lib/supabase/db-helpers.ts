@@ -1,6 +1,7 @@
 /**
  * ROOT – SUPABASE DATABASE QUERY HELPERS
- * Type-safe abstraction layer for questions, agent runs, advice cards & community knowledge
+ * Type-safe abstraction layer for questions, agent runs, advice cards & community knowledge.
+ * Uses 100% real Supabase database operations with zero mock data.
  */
 
 import { createClient as createServerSupabase } from '@/lib/supabase/server';
@@ -11,13 +12,8 @@ export type QuestionRow = Database['public']['Tables']['questions']['Row'];
 export type AdviceCardRow = Database['public']['Tables']['advice_cards']['Row'];
 export type CommunityKnowledgeRow = Database['public']['Tables']['community_knowledge']['Row'];
 
-function isPlaceholderMode() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  return !url || url.includes('placeholder.supabase.co');
-}
-
 /**
- * 1. CREATE A NEW QUESTION
+ * 1. CREATE A NEW QUESTION (Real Database)
  */
 export async function createQuestion(params: {
   userId?: string | null;
@@ -31,9 +27,9 @@ export async function createQuestion(params: {
 }): Promise<QuestionRow> {
   const supabase = await createServerSupabase();
 
-  if (isPlaceholderMode()) {
-    return {
-      id: `local-q-${Date.now()}`,
+  const { data, error } = await supabase
+    .from('questions')
+    .insert({
       user_id: params.userId || null,
       title: params.title,
       crop_type: params.cropType,
@@ -43,64 +39,30 @@ export async function createQuestion(params: {
       agro_zone: params.agroZone || 'Weyna Dega',
       status: 'queued',
       is_offline_submission: !!params.isOffline,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-  }
-
-  const { data, error } = await supabase
-    .from('questions')
-    .insert({
-      user_id: params.userId || null,
-      title: params.title,
-      crop_type: params.cropType,
-      symptoms_description: params.symptomsDescription,
-      photo_url: params.photoUrl || null,
-      region: params.region,
-      agro_zone: params.agroZone,
-      status: 'queued',
-      is_offline_submission: !!params.isOffline,
     })
     .select()
     .single();
 
   if (error || !data) {
-    throw new Error(`Failed to create question: ${error?.message}`);
+    throw new Error(`Failed to create question in database: ${error?.message || 'Unknown database error'}`);
   }
 
   return data;
 }
 
 /**
- * 2. GET QUESTION BY ID
+ * 2. GET QUESTION BY ID (Real Database)
  */
 export async function getQuestionById(questionId: string): Promise<QuestionRow | null> {
   const supabase = await createServerSupabase();
-
-  if (isPlaceholderMode()) {
-    return {
-      id: questionId,
-      user_id: 'demo-farmer-id',
-      title: 'Yellow rust lesions on wheat leaves',
-      crop_type: 'Wheat',
-      symptoms_description: 'Leaves show powdery yellow stripes along the veins after heavy morning dew.',
-      photo_url: null,
-      region: 'Oromia',
-      agro_zone: 'Weyna Dega',
-      status: 'completed',
-      is_offline_submission: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-  }
 
   const { data, error } = await supabase
     .from('questions')
     .select('*')
     .eq('id', questionId)
-    .single();
+    .maybeSingle();
 
-  if (error) {
+  if (error || !data) {
     return null;
   }
 
@@ -108,14 +70,10 @@ export async function getQuestionById(questionId: string): Promise<QuestionRow |
 }
 
 /**
- * 3. RECORD MULTI-AGENT RUN
+ * 3. RECORD MULTI-AGENT RUN (Real Database)
  */
 export async function createAgentRun(questionId: string, modelUsed = 'llama3.1:8b') {
   const supabase = await createServerSupabase();
-
-  if (isPlaceholderMode()) {
-    return { id: `run-${Date.now()}`, question_id: questionId };
-  }
 
   const { data, error } = await supabase
     .from('agent_runs')
@@ -127,16 +85,15 @@ export async function createAgentRun(questionId: string, modelUsed = 'llama3.1:8
     .select()
     .single();
 
-  if (error) {
-    console.warn('Failed to record agent run:', error.message);
-    return { id: `local-run-${Date.now()}`, question_id: questionId };
+  if (error || !data) {
+    throw new Error(`Failed to initialize agent run in database: ${error?.message || 'Unknown error'}`);
   }
 
   return data;
 }
 
 /**
- * 4. LOG AGENT TIMELINE STEP
+ * 4. LOG AGENT TIMELINE STEP (Real Database)
  */
 export async function logAgentTimelineStep(params: {
   agentRunId: string;
@@ -148,11 +105,7 @@ export async function logAgentTimelineStep(params: {
 }) {
   const supabase = await createServerSupabase();
 
-  if (isPlaceholderMode()) {
-    return;
-  }
-
-  await supabase.from('agent_timeline_logs').insert({
+  const { error } = await supabase.from('agent_timeline_logs').insert({
     agent_run_id: params.agentRunId,
     agent_role: params.agentRole,
     step_title: params.stepTitle,
@@ -161,10 +114,14 @@ export async function logAgentTimelineStep(params: {
     output_payload: (params.outputPayload as unknown as Json) || null,
     completed_at: params.status !== 'running' ? new Date().toISOString() : null,
   });
+
+  if (error) {
+    console.error('Failed to log agent timeline step:', error.message);
+  }
 }
 
 /**
- * 4b. UPDATE AGENT RUN STATUS & SUMMARY
+ * 4b. UPDATE AGENT RUN STATUS & SUMMARY (Real Database)
  */
 export async function updateAgentRun(params: {
   id: string;
@@ -174,11 +131,7 @@ export async function updateAgentRun(params: {
 }) {
   const supabase = await createServerSupabase();
 
-  if (isPlaceholderMode()) {
-    return;
-  }
-
-  await supabase
+  const { error } = await supabase
     .from('agent_runs')
     .update({
       status: params.status,
@@ -187,107 +140,17 @@ export async function updateAgentRun(params: {
       completed_at: params.status !== 'running' ? new Date().toISOString() : null,
     })
     .eq('id', params.id);
+
+  if (error) {
+    console.error('Failed to update agent run:', error.message);
+  }
 }
 
 /**
- * 4c. GET AGENT RUN WITH TIMELINE LOGS
+ * 4c. GET AGENT RUN WITH TIMELINE LOGS (Real Database)
  */
 export async function getAgentRunWithTimeline(questionId: string): Promise<AgentRunDetails | null> {
   const supabase = await createServerSupabase();
-
-  if (isPlaceholderMode()) {
-    return {
-      id: `run-mock-${questionId}`,
-      question_id: questionId,
-      model_used: 'llama3.1:8b',
-      status: 'completed',
-      execution_summary:
-        '5-agent council completed full deliberation. Diagnostic Agent identified primary pathogen; Local Context Agent adapted interventions for Weyna Dega midlands; Community Knowledge Agent retrieved 2 peer-verified remedies (42 upvotes); Advisor Agent synthesized low-cost action card.',
-      total_duration_ms: 1480,
-      created_at: new Date(Date.now() - 3600000).toISOString(),
-      completed_at: new Date().toISOString(),
-      timeline_steps: [
-        {
-          id: 'step-1',
-          agent_run_id: `run-mock-${questionId}`,
-          agent_role: 'orchestrator',
-          step_title: 'Council Initialized: Query parsing & pipeline dispatch',
-          status: 'completed',
-          input_preview: 'Task: Multi-agent agricultural diagnostic council dispatch',
-          output_payload: { status: 'ready', pipeline: ['diagnostic', 'local_context', 'knowledge', 'advisor'] },
-          started_at: new Date(Date.now() - 1480).toISOString(),
-          completed_at: new Date(Date.now() - 1380).toISOString(),
-          duration_ms: 100,
-        },
-        {
-          id: 'step-2',
-          agent_run_id: `run-mock-${questionId}`,
-          agent_role: 'diagnostic',
-          step_title: 'Diagnostic Agent: Pathogen & Leaf Blight Analysis',
-          status: 'completed',
-          input_preview: 'Analyzing visual indicators, pustule shape, chlorosis, and crop taxonomy',
-          output_payload: {
-            pathogen: 'Puccinia striiformis (Wheat Stripe Rust)',
-            confidence: 94,
-            urgency: 'high',
-          },
-          started_at: new Date(Date.now() - 1380).toISOString(),
-          completed_at: new Date(Date.now() - 930).toISOString(),
-          duration_ms: 450,
-        },
-        {
-          id: 'step-3',
-          agent_run_id: `run-mock-${questionId}`,
-          agent_role: 'local_context',
-          step_title: 'Local Context Agent: Agro-Ecological & Seasonal Adaptation',
-          status: 'completed',
-          input_preview: 'Evaluating Weyna Dega altitude (2100m), Meher rain cycle, and Vertisol drainage',
-          output_payload: {
-            zone: 'Weyna Dega',
-            season: 'Late Meher',
-            microclimate_risk: 'High humidity spore transmission alert',
-            local_materials: ['Neem leaves', 'Wood ash', 'Compost tea'],
-          },
-          started_at: new Date(Date.now() - 930).toISOString(),
-          completed_at: new Date(Date.now() - 610).toISOString(),
-          duration_ms: 320,
-        },
-        {
-          id: 'step-4',
-          agent_run_id: `run-mock-${questionId}`,
-          agent_role: 'knowledge',
-          step_title: 'Community Knowledge Agent: Vector Wisdom Retrieval',
-          status: 'completed',
-          input_preview: 'Querying vector memory for peer-verified highland rust remedies',
-          output_payload: {
-            matches_found: 2,
-            top_verified_solution: 'Wood ash and neem extract spray tested by 42 farmers in East Shewa',
-            farmer_confidence: 'High (89% reported yield preservation)',
-          },
-          started_at: new Date(Date.now() - 610).toISOString(),
-          completed_at: new Date(Date.now() - 330).toISOString(),
-          duration_ms: 280,
-        },
-        {
-          id: 'step-5',
-          agent_run_id: `run-mock-${questionId}`,
-          agent_role: 'advisor',
-          step_title: 'Advisor Agent: Final Synthesis & Action Plan Creation',
-          status: 'completed',
-          input_preview: 'Synthesizing council consensus into low-literacy structured advice card',
-          output_payload: {
-            urgency: 'high',
-            immediate_steps: 3,
-            organic_remedies: 2,
-            accessibility_rating: 'Low-literacy visual priority',
-          },
-          started_at: new Date(Date.now() - 330).toISOString(),
-          completed_at: new Date().toISOString(),
-          duration_ms: 330,
-        },
-      ],
-    };
-  }
 
   const { data: run, error: runError } = await supabase
     .from('agent_runs')
@@ -301,11 +164,15 @@ export async function getAgentRunWithTimeline(questionId: string): Promise<Agent
     return null;
   }
 
-  const { data: steps } = await supabase
+  const { data: steps, error: stepsError } = await supabase
     .from('agent_timeline_logs')
     .select('*')
     .eq('agent_run_id', run.id)
     .order('started_at', { ascending: true });
+
+  if (stepsError) {
+    console.error('Failed to retrieve timeline steps:', stepsError.message);
+  }
 
   const timelineSteps: AgentTimelineStepLog[] = (steps || []).map((s) => ({
     id: s.id,
@@ -329,35 +196,12 @@ export async function getAgentRunWithTimeline(questionId: string): Promise<Agent
 }
 
 /**
- * 5. CREATE STRUCTURED ADVICE CARD
+ * 5. CREATE STRUCTURED ADVICE CARD (Real Database)
  */
 export async function createAdviceCard(
   card: Omit<Database['public']['Tables']['advice_cards']['Insert'], 'id' | 'created_at'>
 ): Promise<AdviceCard> {
   const supabase = await createServerSupabase();
-
-  if (isPlaceholderMode()) {
-    return {
-      id: `card-${Date.now()}`,
-      question_id: card.question_id,
-      diagnosis_name: card.diagnosis_name,
-      scientific_name: card.scientific_name || undefined,
-      confidence_score: card.confidence_score,
-      urgency: card.urgency || 'medium',
-      primary_crop: card.primary_crop as EthiopianCrop,
-      visual_indicators: card.visual_indicators || [],
-      probable_causes: card.probable_causes || [],
-      immediate_actions: card.immediate_actions || [],
-      organic_remedies: card.organic_remedies || [],
-      preventive_measures: card.preventive_measures || [],
-      local_context_notes: card.local_context_notes || '',
-      recommended_season_action: card.recommended_season_action || undefined,
-      helpful_votes: 0,
-      unhelpful_votes: 0,
-      agent_summary: card.agent_summary,
-      created_at: new Date().toISOString(),
-    };
-  }
 
   const { data, error } = await supabase
     .from('advice_cards')
@@ -366,7 +210,7 @@ export async function createAdviceCard(
     .single();
 
   if (error || !data) {
-    throw new Error(`Failed to save Advice Card: ${error?.message}`);
+    throw new Error(`Failed to save Advice Card in database: ${error?.message || 'Unknown error'}`);
   }
 
   return {
@@ -379,58 +223,16 @@ export async function createAdviceCard(
 }
 
 /**
- * 6. GET ADVICE CARD BY QUESTION ID
+ * 6. GET ADVICE CARD BY QUESTION ID (Real Database)
  */
 export async function getAdviceCardByQuestionId(questionId: string): Promise<AdviceCard | null> {
   const supabase = await createServerSupabase();
-
-  if (isPlaceholderMode()) {
-    return {
-      id: `card-mock-${questionId}`,
-      question_id: questionId,
-      diagnosis_name: 'Stripe Rust (Yellow Rust)',
-      scientific_name: 'Puccinia striiformis',
-      confidence_score: 92,
-      urgency: 'high',
-      primary_crop: 'Wheat',
-      visual_indicators: [
-        'Linear parallel lines of yellow pustules along leaf blades',
-        'Chlorotic leaf yellowing and necrosis',
-        'Powdery fungal spores transferring on finger touch',
-      ],
-      probable_causes: [
-        'Extended cool and humid conditions common to Weyna Dega / Dega zones',
-        'High planting density restricting airflow',
-        'Susceptible traditional wheat cultivar without genetic resistance',
-      ],
-      immediate_actions: [
-        'Remove severely infected lower flag leaves and bury them outside field borders',
-        'Avoid overhead irrigation or watering late in the afternoon',
-        'Dust fine wood ash mixed with dry slaked lime along infected row borders',
-      ],
-      organic_remedies: [
-        'Neem extract spray: 50g crushed neem seeds steeped in 1L water with mild soap surfactant',
-        'Compost tea foliar spray to cultivate beneficial phyllosphere bacteria',
-      ],
-      preventive_measures: [
-        'Rotate wheat next season with faba bean or chickpea to break rust spore cycle',
-        'Use certified resistant seed varieties recommended by Ethiopian Agricultural Research Institute (EIAR)',
-      ],
-      local_context_notes:
-        'Common in Ethiopian highlands between 1800m - 2800m during the main Meher season. Early action saves up to 40% yield loss.',
-      helpful_votes: 18,
-      unhelpful_votes: 1,
-      agent_summary:
-        'The Diagnostic Agent identified classic Puccinia striiformis stripe rust. Local Context Agent tailored the response to the Weyna Dega midlands with low-cost organic remedies.',
-      created_at: new Date().toISOString(),
-    };
-  }
 
   const { data, error } = await supabase
     .from('advice_cards')
     .select('*')
     .eq('question_id', questionId)
-    .single();
+    .maybeSingle();
 
   if (error || !data) {
     return null;
@@ -446,7 +248,7 @@ export async function getAdviceCardByQuestionId(questionId: string): Promise<Adv
 }
 
 /**
- * 7. SUBMIT ADVICE FEEDBACK (VOTING LOOP)
+ * 7. SUBMIT ADVICE FEEDBACK (Real Database Voting Loop)
  */
 export async function submitAdviceFeedback(params: {
   adviceCardId: string;
@@ -455,10 +257,6 @@ export async function submitAdviceFeedback(params: {
   comment?: string;
 }) {
   const supabase = await createServerSupabase();
-
-  if (isPlaceholderMode()) {
-    return { success: true };
-  }
 
   const { error } = await supabase.from('advice_feedback').upsert(
     {
@@ -474,53 +272,66 @@ export async function submitAdviceFeedback(params: {
     throw new Error(`Failed to submit feedback: ${error.message}`);
   }
 
+  // Phase 6 Feedback Loop: If vote is helpful, promote or increment community knowledge
+  if (params.vote === 'helpful') {
+    try {
+      const { data: card } = await supabase
+        .from('advice_cards')
+        .select('*')
+        .eq('id', params.adviceCardId)
+        .single();
+
+      if (card && card.organic_remedies && card.organic_remedies.length > 0) {
+        const { data: existing } = await supabase
+          .from('community_knowledge')
+          .select('id, verified_by_farmers_count')
+          .eq('source_advice_card_id', card.id)
+          .maybeSingle();
+
+        if (existing) {
+          await supabase
+            .from('community_knowledge')
+            .update({ verified_by_farmers_count: (existing.verified_by_farmers_count || 1) + 1 })
+            .eq('id', existing.id);
+        } else {
+          const { data: q } = await supabase
+            .from('questions')
+            .select('region, agro_zone')
+            .eq('id', card.question_id)
+            .single();
+
+          await supabase.from('community_knowledge').insert({
+            source_advice_card_id: card.id,
+            crop_type: card.primary_crop,
+            problem_title: `${card.diagnosis_name} (${card.primary_crop})`,
+            symptoms: (card.visual_indicators || []).join(', ') || card.agent_summary,
+            proven_solution: card.organic_remedies.join('. ') || (card.immediate_actions || []).join('. '),
+            region: q?.region || 'Oromia',
+            agro_zone: q?.agro_zone || 'Weyna Dega',
+            verified_by_farmers_count: (card.helpful_votes || 0) + 1,
+          });
+        }
+      }
+    } catch (feedbackErr) {
+      console.warn('Community knowledge bridge notice:', feedbackErr);
+    }
+  }
+
   return { success: true };
 }
 
 /**
- * 8. SEARCH COMMUNITY KNOWLEDGE (VECTOR SIMILARITY)
+ * 8. SEARCH COMMUNITY KNOWLEDGE (Real Database Query)
  */
 export async function searchCommunityKnowledge(params: {
   embedding?: number[];
+  query?: string;
   crop?: string;
   region?: string;
+  agroZone?: string;
   limit?: number;
 }): Promise<CommunityKnowledgeRow[]> {
   const supabase = await createServerSupabase();
-
-  if (isPlaceholderMode()) {
-    // Return sample peer-verified Ethiopian knowledge
-    return [
-      {
-        id: 'ck-seed-1',
-        source_advice_card_id: null,
-        crop_type: params.crop || 'Teff',
-        problem_title: 'Teff Rust & Leaf Blotch (የጤፍ ዝገት)',
-        symptoms: 'Orange-brown pustules on stems and lower leaves, premature leaf yellowing.',
-        proven_solution:
-          'Mix wood ash with diluted neem extract (50ml neem per 10L water). Spray early morning during tillering.',
-        region: params.region || 'Oromia',
-        agro_zone: 'Weyna Dega',
-        verified_by_farmers_count: 42,
-        embedding: null,
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: 'ck-seed-2',
-        source_advice_card_id: null,
-        crop_type: 'Maize',
-        problem_title: 'Fall Armyworm Infestation (አባጨጓሬ)',
-        symptoms: 'Windowpane leaf damage and frass on whorls.',
-        proven_solution:
-          'Apply clean wood ash directly into whorls. Intercrop with Desmodium and Napier grass.',
-        region: 'Oromia',
-        agro_zone: 'Kolla',
-        verified_by_farmers_count: 114,
-        embedding: null,
-        created_at: new Date().toISOString(),
-      },
-    ];
-  }
 
   // If embedding is supplied, invoke pgvector RPC function
   if (params.embedding && params.embedding.length > 0) {
@@ -540,15 +351,132 @@ export async function searchCommunityKnowledge(params: {
     }
   }
 
-  // Fallback to relational query
-  let query = supabase.from('community_knowledge').select('*');
+  // Relational multi-field query against real database
+  let queryBuilder = supabase.from('community_knowledge').select('*');
+
   if (params.crop) {
-    query = query.ilike('crop_type', `%${params.crop}%`);
+    queryBuilder = queryBuilder.ilike('crop_type', `%${params.crop}%`);
   }
   if (params.region) {
-    query = query.ilike('region', `%${params.region}%`);
+    queryBuilder = queryBuilder.ilike('region', `%${params.region}%`);
+  }
+  if (params.agroZone) {
+    queryBuilder = queryBuilder.eq('agro_zone', params.agroZone);
+  }
+  if (params.query && params.query.trim()) {
+    const term = params.query.trim();
+    queryBuilder = queryBuilder.or(
+      `problem_title.ilike.%${term}%,symptoms.ilike.%${term}%,proven_solution.ilike.%${term}%`
+    );
   }
 
-  const { data } = await query.order('verified_by_farmers_count', { ascending: false }).limit(params.limit || 10);
+  const { data, error } = await queryBuilder
+    .order('verified_by_farmers_count', { ascending: false })
+    .limit(params.limit || 30);
+
+  if (error) {
+    console.error('Error querying community knowledge:', error.message);
+    return [];
+  }
+
   return data || [];
+}
+
+/**
+ * 9. UPVOTE COMMUNITY REMEDY (Real Database Peer Verification)
+ */
+export async function upvoteCommunityRemedy(id: string): Promise<number> {
+  const supabase = await createServerSupabase();
+
+  // Read current count from real database
+  const { data: item, error: fetchError } = await supabase
+    .from('community_knowledge')
+    .select('verified_by_farmers_count')
+    .eq('id', id)
+    .single();
+
+  if (fetchError || !item) {
+    throw new Error('Remedy record not found in database');
+  }
+
+  const currentCount = item.verified_by_farmers_count || 1;
+  const newCount = currentCount + 1;
+
+  const { error: updateError } = await supabase
+    .from('community_knowledge')
+    .update({ verified_by_farmers_count: newCount })
+    .eq('id', id);
+
+  if (updateError) {
+    throw new Error(`Failed to update verification count: ${updateError.message}`);
+  }
+
+  return newCount;
+}
+
+/**
+ * 10. CREATE COMMUNITY REMEDY (Real Database Insertion)
+ */
+export async function createCommunityRemedy(item: {
+  cropType: string;
+  problemTitle: string;
+  symptoms: string;
+  provenSolution: string;
+  region: string;
+  agroZone: string;
+}): Promise<CommunityKnowledgeRow> {
+  const supabase = await createServerSupabase();
+
+  const newRecord = {
+    crop_type: item.cropType,
+    problem_title: item.problemTitle,
+    symptoms: item.symptoms,
+    proven_solution: item.provenSolution,
+    region: item.region,
+    agro_zone: item.agroZone as AgroEcologicalZone,
+    verified_by_farmers_count: 1,
+  };
+
+  const { data, error } = await supabase
+    .from('community_knowledge')
+    .insert(newRecord)
+    .select()
+    .single();
+
+  if (error || !data) {
+    throw new Error(`Failed to create remedy in database: ${error?.message || 'Unknown error'}`);
+  }
+
+  return data;
+}
+
+/**
+ * 11. GET USER QUESTIONS (Real Database)
+ */
+export async function getUserQuestions(userId: string): Promise<Array<QuestionRow & { advice_card?: { id: string; diagnosis_name: string; urgency: string; confidence_score: number } | null }>> {
+  const supabase = await createServerSupabase();
+
+  const { data: questions, error } = await supabase
+    .from('questions')
+    .select(`
+      *,
+      advice_cards (
+        id,
+        diagnosis_name,
+        urgency,
+        confidence_score
+      )
+    `)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  if (error || !questions) {
+    return [];
+  }
+
+  return (questions as unknown as Array<QuestionRow & { advice_cards: Array<{ id: string; diagnosis_name: string; urgency: string; confidence_score: number }> }>).map((q) => ({
+    ...q,
+    advice_card: q.advice_cards && q.advice_cards.length > 0 ? q.advice_cards[0] : null,
+  }));
 }
