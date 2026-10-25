@@ -9,17 +9,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { signInAction } from '@/app/auth/actions';
+import { useLanguage } from '@/lib/i18n/language-context';
+import { LanguageSwitcher } from '@/components/shared/language-switcher';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams?.get('redirectTo') || '/profile';
+  const { t } = useLanguage();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -44,17 +46,17 @@ function LoginForm() {
     <Card className="w-full max-w-md bg-slate-900/80 border-slate-800 shadow-2xl backdrop-blur-md">
       <CardHeader className="space-y-1 text-center pb-4">
         <CardTitle className="text-xl font-bold text-white">
-          Farmer Sign In • ይግቡ
+          {t('auth_login_title')}
         </CardTitle>
         <CardDescription className="text-xs text-slate-400">
-          Access your field diagnoses, advice cards, and offline sync
+          {t('auth_login_header_sub')}
         </CardDescription>
       </CardHeader>
 
       <CardContent>
         {searchParams?.get('registered') === 'check-email' && (
           <div className="mb-4 p-3 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-xs">
-            ✓ Registration successful! You can now sign in with your credentials below.
+            ✓ {t('auth_reg_success_msg')}
           </div>
         )}
 
@@ -69,7 +71,7 @@ function LoginForm() {
           <div className="space-y-1.5">
             <Label htmlFor="email" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
               <Mail className="w-3.5 h-3.5 text-emerald-400" />
-              Email Address
+              {t('auth_email')}
             </Label>
             <Input
               id="email"
@@ -86,7 +88,7 @@ function LoginForm() {
             <div className="flex items-center justify-between">
               <Label htmlFor="password" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5 text-emerald-400" />
-                Password
+                {t('auth_password')}
               </Label>
             </div>
             <Input
@@ -108,11 +110,11 @@ function LoginForm() {
             {isPending ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Signing In...</span>
+                <span>{t('auth_btn_logging_in')}</span>
               </>
             ) : (
               <>
-                <span>Sign In</span>
+                <span>{t('auth_btn_login')}</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -122,13 +124,13 @@ function LoginForm() {
 
       <CardFooter className="flex flex-col space-y-2 text-center text-xs text-slate-400 pt-0">
         <p>
-          Don&apos;t have an account yet?{' '}
+          {t('auth_no_account')}{' '}
           <Link href="/register" className="text-emerald-400 font-semibold hover:underline">
-            Register Farmer Profile
+            {t('auth_register_farmer_link')}
           </Link>
         </p>
         <Link href="/" className="text-slate-500 hover:text-slate-300 text-[11px] pt-1">
-          ← Return to Home
+          ← {t('auth_return_home')}
         </Link>
       </CardFooter>
     </Card>
@@ -136,8 +138,15 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
+  const { t } = useLanguage();
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-emerald-950/20 to-slate-950 flex flex-col justify-center items-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-emerald-950/20 to-slate-950 flex flex-col justify-center items-center p-4 relative">
+      {/* Top Bar with Language Switcher */}
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSwitcher />
+      </div>
+
       {/* Top Brand Logo */}
       <div className="mb-6 text-center space-y-2">
         <Link href="/" className="inline-flex items-center gap-2.5">
@@ -146,10 +155,10 @@ export default function LoginPage() {
           </div>
           <div className="text-left">
             <h1 className="font-black text-2xl tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">
-              Root
+              {t('brand_name')}
             </h1>
             <p className="text-[11px] text-slate-400 -mt-1 font-medium">
-              የኢትዮጵያ አርሶ አደሮች ረዳት
+              {t('brand_tagline')}
             </p>
           </div>
         </Link>

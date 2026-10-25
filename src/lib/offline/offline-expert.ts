@@ -31,7 +31,7 @@ interface CropKnowledgeProfile {
 
 const KNOWLEDGE_BASE: Record<string, CropKnowledgeProfile> = {
   teff: {
-    diagnosis: 'Teff Rust (የጤፍ ዝገት በሽታ)',
+    diagnosis: 'Teff Rust',
     scientific: 'Uromyces eragrostidis',
     confidence: 93,
     urgency: 'high',
@@ -66,7 +66,7 @@ const KNOWLEDGE_BASE: Record<string, CropKnowledgeProfile> = {
     season: 'Meher Season: Monitor tillering and stem elongation closely following rain cycles.',
   },
   wheat: {
-    diagnosis: 'Wheat Stripe / Yellow Rust (የስንዴ ቢጫ ዝገት)',
+    diagnosis: 'Wheat Stripe / Yellow Rust',
     scientific: 'Puccinia striiformis f. sp. tritici',
     confidence: 95,
     urgency: 'critical',
@@ -101,7 +101,7 @@ const KNOWLEDGE_BASE: Record<string, CropKnowledgeProfile> = {
     season: 'Late Meher season: Critical vigilance required during boot and heading stages.',
   },
   maize: {
-    diagnosis: 'Fall Armyworm (የመኸር ሰራዊት አባጨጓሬ)',
+    diagnosis: 'Fall Armyworm',
     scientific: 'Spodoptera frugiperda',
     confidence: 94,
     urgency: 'high',
@@ -136,7 +136,7 @@ const KNOWLEDGE_BASE: Record<string, CropKnowledgeProfile> = {
     season: 'Meher vegetative stage (V4 - V8 whorl stage): highest vulnerability period.',
   },
   coffee: {
-    diagnosis: 'Coffee Berry Disease - CBD (የቡና ፍሬ በሽታ)',
+    diagnosis: 'Coffee Berry Disease (CBD)',
     scientific: 'Colletotrichum kahawae',
     confidence: 91,
     urgency: 'high',
@@ -171,7 +171,7 @@ const KNOWLEDGE_BASE: Record<string, CropKnowledgeProfile> = {
     season: 'Belg to early Meher rains: Critical spore dispersal period on expanding green cherries.',
   },
   potato: {
-    diagnosis: 'Potato Late Blight (የድንች አረmultiple ዋግ)',
+    diagnosis: 'Potato Late Blight',
     scientific: 'Phytophthora infestans',
     confidence: 96,
     urgency: 'critical',

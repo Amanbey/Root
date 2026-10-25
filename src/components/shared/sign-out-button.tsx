@@ -5,6 +5,7 @@ import { LogOut, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { signOutAction } from '@/app/auth/actions';
 import { createClient } from '@/lib/supabase/client';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface SignOutButtonProps {
   variant?: 'outline' | 'ghost' | 'default' | 'destructive';
@@ -17,8 +18,9 @@ export function SignOutButton({
   variant = 'outline',
   className = '',
   showText = true,
-  text = 'Logout',
+  text,
 }: SignOutButtonProps) {
+  const { t } = useLanguage();
   const [isPending, setIsPending] = useState(false);
 
   const handleSignOut = async () => {
@@ -64,7 +66,7 @@ export function SignOutButton({
       disabled={isPending}
       onClick={handleSignOut}
       className={`border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800/80 touch-manipulation ${className}`}
-      title="Logout (ውጣ)"
+      title={t('nav_sign_out')}
     >
       {isPending ? (
         <Loader2 className="w-4 h-4 animate-spin text-slate-400 shrink-0" />
@@ -73,7 +75,7 @@ export function SignOutButton({
       )}
       {showText && (
         <span className="ml-1.5 text-xs font-semibold">
-          {isPending ? 'Logging out...' : text}
+          {isPending ? t('auth_logging_out') : (text || t('nav_sign_out'))}
         </span>
       )}
     </Button>

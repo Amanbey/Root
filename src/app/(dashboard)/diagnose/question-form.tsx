@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useTransition } from 'react';
+import { useState, useRef, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Camera, 
@@ -25,175 +25,164 @@ import { generateOfflineAdviceCard } from '@/lib/offline/offline-expert';
 import { saveOfflineQuestion, enqueueOfflineItem, cacheAdviceCardLocally } from '@/lib/offline/db';
 import { requestBackgroundSync } from '@/lib/offline/sync-manager';
 import { AdviceCardView } from '@/components/advice/advice-card-view';
-
 import { AgentCouncilTimeline, TimelineStepItem } from '@/components/agents/agent-council-timeline';
 import { AgentRole } from '@/lib/types';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface QuestionFormProps {
   initialProfile?: FarmerProfile | null;
 }
 
-const INITIAL_COUNCIL_STEPS: TimelineStepItem[] = [
-  {
-    id: 'step-orchestrator',
-    role: 'orchestrator',
-    title: 'Council Initialized: Query parsing & pipeline dispatch',
-    status: 'running',
-    summary: 'Validating crop taxonomy and assembling local context parameters.',
-  },
-  {
-    id: 'step-diagnostic',
-    role: 'diagnostic',
-    title: 'Diagnostic Agent: Pathogen & Leaf Blight Analysis',
-    status: 'idle',
-    summary: 'Awaiting image & symptom feature vectors for disease classification.',
-  },
-  {
-    id: 'step-context',
-    role: 'local_context',
-    title: 'Local Context Agent: Agro-Ecological & Seasonal Evaluation',
-    status: 'idle',
-    summary: 'Ready to factor in elevation, soil dynamics, and Meher/Belg risks.',
-  },
-  {
-    id: 'step-knowledge',
-    role: 'knowledge',
-    title: 'Community Knowledge Agent: Vector Wisdom Retrieval',
-    status: 'idle',
-    summary: 'Ready to query peer-verified solutions from neighboring Ethiopian farmers.',
-  },
-  {
-    id: 'step-advisor',
-    role: 'advisor',
-    title: 'Advisor Agent: Final Synthesis & Action Plan Creation',
-    status: 'idle',
-    summary: 'Awaiting specialist inputs to compile structured Advice Card.',
-  },
-];
-
-const CROPS_LIST: Array<{ name: EthiopianCrop; label: string; icon: string }> = [
-  { name: 'Teff', label: 'Teff (ጤፍ)', icon: '🌱' },
-  { name: 'Wheat', label: 'Wheat (ስንዴ)', icon: '🌾' },
-  { name: 'Maize', label: 'Maize (በቆሎ)', icon: '🌽' },
-  { name: 'Coffee', label: 'Coffee (ቡና)', icon: '☕' },
-  { name: 'Barley', label: 'Barley (ገብስ)', icon: '🌾' },
-  { name: 'Enset', label: 'Enset (እንሰት)', icon: '🌿' },
-  { name: 'Faba Bean', label: 'Faba Bean (ባቄላ)', icon: '🫘' },
-  { name: 'Potato', label: 'Potato (ድንች)', icon: '🥔' },
-  { name: 'Tomato', label: 'Tomato (ቲማቲም)', icon: '🍅' },
-  { name: 'Onion', label: 'Onion (ሽንኩርት)', icon: '🧅' },
-];
-
-const COMMON_SYMPTOM_TAGS = [
-  'Yellow powdery stripes on leaves',
-  'Orange-brown pustules on stems',
-  'Dark sunken lesions on berries',
-  'Ragged leaf holes with frass in whorls',
-  'Sudden wilting & slimy bacterial ooze',
-  'Curled leaves with white mildew',
+const CROPS_KEYS: Array<{ name: EthiopianCrop; icon: string }> = [
+  { name: 'Teff', icon: '🌱' },
+  { name: 'Wheat', icon: '🌾' },
+  { name: 'Maize', icon: '🌽' },
+  { name: 'Coffee', icon: '☕' },
+  { name: 'Barley', icon: '🌾' },
+  { name: 'Enset', icon: '🌿' },
+  { name: 'Faba Bean', icon: '🫘' },
+  { name: 'Potato', icon: '🥔' },
+  { name: 'Tomato', icon: '🍅' },
+  { name: 'Onion', icon: '🧅' },
 ];
 
 export function QuestionForm({ initialProfile }: QuestionFormProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t, tCrop, tZone } = useLanguage();
 
   const [selectedCrop, setSelectedCrop] = useState<EthiopianCrop>(
-    initialProfile?.main_crops?.[0] || 'Wheat'
+    initialProfile?.main_crops?.[0] || 'Teff'
   );
   const [title, setTitle] = useState('');
   const [symptoms, setSymptoms] = useState('');
-  const [photoBase64, setPhotoBase64] = useState<string | null>(null);
   const [region, setRegion] = useState<EthiopianRegion>(initialProfile?.region || 'Oromia');
   const [agroZone, setAgroZone] = useState<AgroEcologicalZone>(
     initialProfile?.agro_ecological_zone || 'Weyna Dega'
   );
 
+  const [photoBase64, setPhotoBase64] = useState<string | null>(null);
+  const [isDeliberating, setIsDeliberating] = useState(false);
+  const [activeRole, setActiveRole] = useState<AgentRole>('orchestrator');
+  const [progressPercent, setProgressPercent] = useState<number>(0);
+  const [consensusSummary, setConsensusSummary] = useState<string | undefined>(undefined);
+  const [deliberationSteps, setDeliberationSteps] = useState<TimelineStepItem[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [offlineAdviceCard, setOfflineAdviceCard] = useState<AdviceCard | null>(null);
+  const [isOfflineDetected, setIsOfflineDetected] = useState<boolean>(false);
+
   const [isPending, startTransition] = useTransition();
 
-  const [isDeliberating, setIsDeliberating] = useState(false);
-  const [deliberationSteps, setDeliberationSteps] = useState<TimelineStepItem[]>(INITIAL_COUNCIL_STEPS);
-  const [activeRole, setActiveRole] = useState<AgentRole>('orchestrator');
-  const [progressPercent, setProgressPercent] = useState(15);
-  const [consensusSummary, setConsensusSummary] = useState<string | null>(null);
-  const [offlineAdviceCard, setOfflineAdviceCard] = useState<AdviceCard | null>(null);
-  const [isOfflineDetected, setIsOfflineDetected] = useState(false);
-
-  useState(() => {
-    if (typeof window !== 'undefined') {
+  useEffect(() => {
+    if (typeof navigator !== 'undefined') {
       setIsOfflineDetected(!navigator.onLine);
-      const onOn = () => setIsOfflineDetected(false);
-      const onOff = () => setIsOfflineDetected(true);
-      window.addEventListener('online', onOn);
-      window.addEventListener('offline', onOff);
+      const onOnline = () => setIsOfflineDetected(false);
+      const onOffline = () => setIsOfflineDetected(true);
+      window.addEventListener('online', onOnline);
+      window.addEventListener('offline', onOffline);
+      return () => {
+        window.removeEventListener('online', onOnline);
+        window.removeEventListener('offline', onOffline);
+      };
     }
-  });
+  }, []);
+
+  const buildInitialSteps = (): TimelineStepItem[] => [
+    {
+      id: 'step-orchestrator',
+      role: 'orchestrator',
+      title: t('diag_council_step_init'),
+      status: 'running',
+    },
+    {
+      id: 'step-diagnostic',
+      role: 'diagnostic',
+      title: t('diag_council_step_diagnostic'),
+      status: 'idle',
+    },
+    {
+      id: 'step-context',
+      role: 'local_context',
+      title: t('diag_council_step_context'),
+      status: 'idle',
+    },
+    {
+      id: 'step-knowledge',
+      role: 'knowledge',
+      title: t('diag_council_step_knowledge'),
+      status: 'idle',
+    },
+    {
+      id: 'step-advisor',
+      role: 'advisor',
+      title: t('diag_council_step_advisor'),
+      status: 'idle',
+    },
+  ];
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('Please select a valid image file');
+      return;
+    }
+
     if (file.size > 8 * 1024 * 1024) {
-      setErrorMessage('Image size exceeds 8MB. Please select a smaller photo.');
+      setErrorMessage('Image size must be under 8MB');
       return;
     }
 
     const reader = new FileReader();
     reader.onload = () => {
       setPhotoBase64(reader.result as string);
+      setErrorMessage(null);
     };
     reader.readAsDataURL(file);
   };
 
   const removePhoto = () => {
     setPhotoBase64(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const addSymptomTag = (tag: string) => {
-    if (!symptoms) {
-      setSymptoms(tag);
-    } else if (!symptoms.includes(tag)) {
-      setSymptoms((prev) => `${prev}. ${tag}`);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!symptoms.trim()) {
-      setErrorMessage('Please describe the symptoms observed on your crop.');
+      setErrorMessage('Please describe the symptoms observed on your crop');
       return;
     }
 
     setErrorMessage(null);
+    setOfflineAdviceCard(null);
     setIsDeliberating(true);
-    setProgressPercent(20);
+    setProgressPercent(10);
     setActiveRole('orchestrator');
+    setConsensusSummary(undefined);
+    setDeliberationSteps(buildInitialSteps());
 
-    // Simulate animated timeline ticks while server council executes
     const timer1 = setTimeout(() => {
       setActiveRole('diagnostic');
-      setProgressPercent(40);
+      setProgressPercent(38);
       setDeliberationSteps((prev) =>
         prev.map((s) =>
           s.role === 'orchestrator'
-            ? { ...s, status: 'completed', durationMs: 120 }
+            ? { ...s, status: 'completed', durationMs: 220 }
             : s.role === 'diagnostic'
             ? { ...s, status: 'running' }
             : s
         )
       );
-    }, 700);
+    }, 800);
 
     const timer2 = setTimeout(() => {
       setActiveRole('local_context');
-      setProgressPercent(65);
+      setProgressPercent(64);
       setDeliberationSteps((prev) =>
         prev.map((s) =>
           s.role === 'diagnostic'
-            ? { ...s, status: 'completed', summary: `Pathogen identified for ${selectedCrop}`, durationMs: 460 }
+            ? { ...s, status: 'completed', durationMs: 350 }
             : s.role === 'local_context'
             ? { ...s, status: 'running' }
             : s
@@ -207,7 +196,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
       setDeliberationSteps((prev) =>
         prev.map((s) =>
           s.role === 'local_context'
-            ? { ...s, status: 'completed', summary: `Adapted for ${agroZone} & seasonal risk`, durationMs: 310 }
+            ? { ...s, status: 'completed', durationMs: 310 }
             : s.role === 'knowledge'
             ? { ...s, status: 'running' }
             : s
@@ -221,7 +210,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
       setDeliberationSteps((prev) =>
         prev.map((s) =>
           s.role === 'knowledge'
-            ? { ...s, status: 'completed', summary: 'Peer-verified community wisdom retrieved', durationMs: 290 }
+            ? { ...s, status: 'completed', durationMs: 290 }
             : s.role === 'advisor'
             ? { ...s, status: 'running' }
             : s
@@ -245,11 +234,10 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
 
         const tempId = card.question_id;
 
-        // 1. Save locally in offline questions store
         await saveOfflineQuestion(
           {
             id: tempId,
-            title: title.trim() || `${selectedCrop} Issue (Offline)`,
+            title: title.trim() || `${selectedCrop} Issue`,
             crop_type: selectedCrop,
             symptoms_description: symptoms.trim(),
             region,
@@ -261,7 +249,6 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
           card
         );
 
-        // 2. Add to background sync queue
         await enqueueOfflineItem({
           id: tempId,
           type: 'submit_question',
@@ -278,17 +265,11 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
           status: 'pending',
         });
 
-        // 3. Cache the advice card locally
         await cacheAdviceCardLocally(card);
-
-        // 4. Request native background sync
         await requestBackgroundSync();
 
-        // 5. Complete animation and render offline card
         setProgressPercent(100);
-        setConsensusSummary(
-          `⚡ Offline Advisory Engine complete. Card saved to local storage & queued to sync when online.`
-        );
+        setConsensusSummary(t('status_cached_ready'));
         setDeliberationSteps((prev) =>
           prev.map((s) => ({ ...s, status: 'completed', durationMs: s.durationMs || 250 }))
         );
@@ -323,23 +304,18 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
 
         if (result.success && result.questionId) {
           setProgressPercent(100);
-          setConsensusSummary(
-            `5-Agent Council deliberation successful. Synthesized Advice Card #${result.adviceCardId?.substring(0, 8)}.`
-          );
+          setConsensusSummary(t('diag_council_finished'));
           setDeliberationSteps((prev) =>
             prev.map((s) => ({ ...s, status: 'completed', durationMs: s.durationMs || 300 }))
           );
 
-          // Brief delay so farmer sees 100% completion before transition
           setTimeout(() => {
             router.push(`/diagnose/${result.questionId}`);
           }, 1100);
         } else {
-          // If server failed due to network / connection, seamlessly fallback to offline engine
           await handleOfflineExecution();
         }
       } catch {
-        // If network threw exception, fallback to offline engine
         await handleOfflineExecution();
       }
     });
@@ -347,7 +323,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
-      {/* Live Multi-Agent Council Timeline Modal / Hero when deliberating */}
+      {/* Live Multi-Agent Council Timeline Modal */}
       {isDeliberating && (
         <div className="p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/40 shadow-2xl shadow-emerald-950/70 backdrop-blur-xl animate-in fade-in duration-300 space-y-4">
           <AgentCouncilTimeline
@@ -372,15 +348,15 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
             <Sprout className="w-4 h-4 text-emerald-400" />
-            1. Select Affected Crop (ሰብሉን ይምረጡ)
+            <span>{t('diag_field_crop')}</span>
           </CardTitle>
           <CardDescription className="text-xs text-slate-400">
-            Choose the crop displaying disease or pest symptoms
+            {t('diag_field_crop_placeholder')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-2.5">
-            {CROPS_LIST.map((crop) => {
+            {CROPS_KEYS.map((crop) => {
               const isSelected = selectedCrop === crop.name;
               return (
                 <button
@@ -394,7 +370,9 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
                   }`}
                 >
                   <span className="text-xl sm:text-2xl">{crop.icon}</span>
-                  <span className="text-[11px] leading-tight font-medium text-center line-clamp-2 px-0.5">{crop.label}</span>
+                  <span className="text-[11px] leading-tight font-medium text-center line-clamp-2 px-0.5">
+                    {tCrop(crop.name)}
+                  </span>
                 </button>
               );
             })}
@@ -402,20 +380,17 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
         </CardContent>
       </Card>
 
-      {/* 2. Photo Upload / Camera Capture */}
+      {/* 2. Photo Upload */}
       <Card className="bg-slate-900/70 border-slate-800">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-bold text-white flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Camera className="w-4 h-4 text-emerald-400" />
-              <span>2. Crop Photo (ፎቶ ያንሱ ወይም ይስቀሉ)</span>
+              <span>{t('diag_field_photo')}</span>
             </div>
-            <Badge variant="outline" className="text-[10px] text-slate-400 border-slate-700">
-              Optional but Recommended
-            </Badge>
           </CardTitle>
           <CardDescription className="text-xs text-slate-400">
-            Take a clear photo of the leaf, stem, fruit, or affected plant section
+            {t('diag_field_photo_hint')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -455,10 +430,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
                 <Camera className="w-6 h-6" />
               </div>
               <p className="text-xs font-semibold text-white">
-                Tap to take a photo or select from gallery
-              </p>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Works on phone cameras • PNG, JPG up to 8MB
+                {t('diag_field_photo_hint')}
               </p>
             </div>
           )}
@@ -470,21 +442,21 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-emerald-400" />
-            3. Describe What You See (ምልክቶቹን ይግለጹ)
+            <span>{t('diag_field_symptoms')}</span>
           </CardTitle>
           <CardDescription className="text-xs text-slate-400">
-            Tell the AI agent what the leaves, stems, or soil look like
+            {t('diag_subtitle')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3.5">
           <div className="space-y-1.5">
             <Label htmlFor="title" className="text-xs font-semibold text-slate-300">
-              Question Title (አርዕስት - Optional)
+              {t('diag_field_title')}
             </Label>
             <Input
               id="title"
               type="text"
-              placeholder={`e.g. Yellow leaf rust on ${selectedCrop}`}
+              placeholder={t('diag_field_title_placeholder')}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="bg-slate-950/70 border-slate-800 text-white placeholder:text-slate-500 text-xs h-9 focus:border-emerald-500"
@@ -494,7 +466,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="q-region" className="text-xs font-semibold text-slate-300">
-                Region (ክልል)
+                {t('diag_field_region')}
               </Label>
               <select
                 id="q-region"
@@ -502,10 +474,10 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
                 onChange={(e) => setRegion(e.target.value as EthiopianRegion)}
                 className="w-full h-11 sm:h-9 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500"
               >
-                <option value="Oromia">Oromia (ኦሮሚያ)</option>
-                <option value="Amhara">Amhara (አማራ)</option>
-                <option value="Tigray">Tigray (ትግራይ)</option>
-                <option value="Sidama">Sidama (ሲዳማ)</option>
+                <option value="Oromia">Oromia</option>
+                <option value="Amhara">Amhara</option>
+                <option value="Tigray">Tigray</option>
+                <option value="Sidama">Sidama</option>
                 <option value="Central Ethiopia">Central Ethiopia</option>
                 <option value="South Ethiopia">South Ethiopia</option>
                 <option value="Somali">Somali</option>
@@ -516,7 +488,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
 
             <div className="space-y-1.5">
               <Label htmlFor="q-agroZone" className="text-xs font-semibold text-slate-300">
-                Agro-Zone (ቀጠና)
+                {t('diag_field_zone')}
               </Label>
               <select
                 id="q-agroZone"
@@ -524,46 +496,27 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
                 onChange={(e) => setAgroZone(e.target.value as AgroEcologicalZone)}
                 className="w-full h-11 sm:h-9 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500"
               >
-                <option value="Weyna Dega">Weyna Dega (Midland 1500–2400m)</option>
-                <option value="Dega">Dega (Highland &gt;2400m)</option>
-                <option value="Kolla">Kolla (Lowland 500–1500m)</option>
-                <option value="Bereha">Bereha (Arid &lt;500m)</option>
+                <option value="Weyna Dega">{tZone('Weyna Dega')}</option>
+                <option value="Dega">{tZone('Dega')}</option>
+                <option value="Kolla">{tZone('Kolla')}</option>
+                <option value="Bereha">{tZone('Bereha')}</option>
               </select>
             </div>
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="symptoms" className="text-xs font-semibold text-slate-300">
-              Observed Symptoms (የታዩ ምልክቶች)
+              {t('diag_field_symptoms')}
             </Label>
             <Textarea
               id="symptoms"
               rows={4}
               required
-              placeholder="e.g. Yellow powdery lines appear on the leaves. Plants are lodging after the morning dew, and grain heads are thin..."
+              placeholder={t('diag_field_symptoms_placeholder')}
               value={symptoms}
               onChange={(e) => setSymptoms(e.target.value)}
               className="bg-slate-950/70 border-slate-800 text-white placeholder:text-slate-500 text-xs focus:border-emerald-500"
             />
-          </div>
-
-          {/* Quick Symptom Tags for Low-Literacy / Fast Input */}
-          <div className="space-y-1.5">
-            <span className="text-[11px] font-semibold text-slate-400 block">
-              Quick Select Common Symptoms:
-            </span>
-            <div className="flex flex-wrap gap-1.5 sm:gap-2">
-              {COMMON_SYMPTOM_TAGS.map((tag) => (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => addSymptomTag(tag)}
-                  className="text-[11px] px-3 py-1.5 min-h-[34px] flex items-center rounded-full bg-slate-950 border border-slate-800 text-slate-300 hover:border-emerald-500/50 hover:text-emerald-300 touch-manipulation active:scale-95 transition-all"
-                >
-                  + {tag}
-                </button>
-              ))}
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -575,11 +528,11 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
             <div className="flex items-center gap-2">
               <WifiOff className="w-4 h-4 text-amber-400 shrink-0" />
               <span>
-                <strong>100% Offline Advice Card:</strong> Generated by the local agronomy engine and stored in phone memory. Will auto-sync when network is restored.
+                <strong>{t('status_cached_ready')}</strong>
               </span>
             </div>
             <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] shrink-0">
-              Queued for Sync
+              {t('status_queued_local')}
             </Badge>
           </div>
 
@@ -596,17 +549,17 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
         {isPending || (isDeliberating && progressPercent < 100) ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin shrink-0" />
-            <span className="truncate">Council Deliberating • ኤጀንቶቹ በመወያየት ላይ ናቸው...</span>
+            <span className="truncate">{t('diag_btn_submitting')}</span>
           </>
         ) : isOfflineDetected ? (
           <>
             <WifiOff className="w-4 h-4 text-amber-300 shrink-0" />
-            <span className="truncate">Diagnose Offline (Auto-Syncs Later) • ከመስመር ውጭ መርምር</span>
+            <span className="truncate">{t('status_offline_banner')}</span>
           </>
         ) : (
           <>
             <Bot className="w-5 h-5 shrink-0" />
-            <span className="truncate">Start 5-Agent Diagnosis • የግብርና ኤጀንቶች ጉባኤ ጀምር</span>
+            <span className="truncate">{t('diag_btn_submit')}</span>
             <ArrowRight className="w-4 h-4 ml-1 shrink-0 hidden sm:inline" />
           </>
         )}

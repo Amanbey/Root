@@ -6,7 +6,7 @@ import { subscribeToSyncStatus, syncAllPendingData, SyncStatus } from '@/lib/off
 import { useLanguage } from '@/lib/i18n/language-context';
 
 export function OfflineIndicator() {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
     isOnline: true,
     isSyncing: false,
@@ -50,11 +50,7 @@ export function OfflineIndicator() {
     return null;
   }
 
-  const offlineNotice = language === 'am'
-    ? 'ከመስመር ውጭ (Offline) • በስልክዎ ላይ የተቀመጠው AI ይሰራል'
-    : language === 'om'
-    ? 'Toora Irraa Ala • AI n bilbila keessan irratti ni hojjeta'
-    : 'Offline Mode Active • Local AI & cached records ready';
+  const offlineNotice = t('status_offline_banner');
 
   const syncingNotice = language === 'am'
     ? `ከደመናው ጋር በማመሳሰል ላይ (${pendingCount} ምርመራ)...`
@@ -62,7 +58,7 @@ export function OfflineIndicator() {
     ? `Waliin hidhamaa jira (${pendingCount})...`
     : `Synchronizing ${pendingCount} offline ${pendingCount === 1 ? 'diagnosis' : 'diagnoses'} to cloud...`;
 
-  const syncNowText = language === 'am' ? 'አሁን አመሳስል' : language === 'om' ? 'Amma Hidhisi' : 'Sync Now';
+  const syncNowText = t('status_sync_now');
 
   return (
     <aside aria-label="Network and offline synchronization banner" className="sticky top-0 z-50 w-full transition-all duration-300">
@@ -73,7 +69,7 @@ export function OfflineIndicator() {
             <span>
               {offlineNotice}{' '}
               {pendingCount > 0 ? (
-                <strong className="underline underline-offset-2">({pendingCount} queued)</strong>
+                <strong className="underline underline-offset-2">({pendingCount} {t('offline_banner_queued')})</strong>
               ) : null}
             </span>
           </div>
@@ -92,22 +88,14 @@ export function OfflineIndicator() {
               <>
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-200 shrink-0" />
                 <span>
-                  {language === 'am'
-                    ? 'ተገናኝቷል • ሁሉም ምርመራዎች ተመሳስለዋል!'
-                    : language === 'om'
-                    ? 'Hidhameera • Qorannoowwan hundi qindaa’aniiru!'
-                    : 'Connected • All local diagnoses synchronized!'}
+                  {t('status_synced_success')}
                 </span>
               </>
             ) : (
               <>
                 <Wifi className="w-3.5 h-3.5 text-emerald-200 shrink-0" />
                 <span>
-                  {language === 'am'
-                    ? `ተገናኝቷል • ${pendingCount} ምርመራዎች በመጠባበቅ ላይ`
-                    : language === 'om'
-                    ? `Hidhameera • ${pendingCount} eeggachaa jiru`
-                    : `Connected • ${pendingCount} items queued`}
+                  {t('offline_banner_connected_queued')}: {pendingCount}
                 </span>
                 <button
                   type="button"

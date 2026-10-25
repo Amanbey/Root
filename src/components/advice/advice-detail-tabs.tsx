@@ -5,6 +5,7 @@ import { AdviceCard, AgentRunDetails } from '@/lib/types';
 import { AdviceCardView } from '@/components/advice/advice-card-view';
 import { AgentCouncilTimeline, TimelineStepItem } from '@/components/agents/agent-council-timeline';
 import { Award, Bot } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface AdviceDetailTabsProps {
   card: AdviceCard;
@@ -13,6 +14,7 @@ interface AdviceDetailTabsProps {
 }
 
 export function AdviceDetailTabs({ card, farmerName, agentRun }: AdviceDetailTabsProps) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'card' | 'timeline'>('card');
 
   const timelineSteps: TimelineStepItem[] = (agentRun?.timeline_steps || []).map((s) => ({
@@ -40,7 +42,7 @@ export function AdviceDetailTabs({ card, farmerName, agentRun }: AdviceDetailTab
           }`}
         >
           <Award className="w-3.5 h-3.5 shrink-0" />
-          <span className="truncate">Advice Card <span className="hidden sm:inline">(ምክረ ሐሳብ)</span></span>
+          <span className="truncate">{t('action_view_advice')}</span>
         </button>
 
         <button
@@ -53,7 +55,7 @@ export function AdviceDetailTabs({ card, farmerName, agentRun }: AdviceDetailTab
           }`}
         >
           <Bot className="w-3.5 h-3.5 shrink-0" />
-          <span className="truncate">5-Agent Council</span>
+          <span className="truncate">{t('home_council_title')}</span>
           {timelineSteps.length > 0 && (
             <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-emerald-950 border border-emerald-500/40 text-emerald-300 shrink-0">
               {timelineSteps.length}

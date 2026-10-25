@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AdviceCard, UrgencyLevel } from '@/lib/types';
 import { voteAdviceAction } from '@/app/actions/diagnose';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface AdviceCardViewProps {
   card: AdviceCard;
@@ -24,11 +25,12 @@ interface AdviceCardViewProps {
 }
 
 export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
+  const { t, tCrop } = useLanguage();
   const [userVote, setUserVote] = useState<'helpful' | 'unhelpful' | null>(card.user_feedback || null);
   const [helpfulCount, setHelpfulCount] = useState<number>(card.helpful_votes || 0);
   const [unhelpfulCount, setUnhelpfulCount] = useState<number>(card.unhelpful_votes || 0);
   const [voteFeedback, setVoteFeedback] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const getUrgencyBadge = (urgency: UrgencyLevel) => {
     switch (urgency) {
@@ -36,27 +38,27 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
         return (
           <Badge className="bg-red-500/20 text-red-300 border-red-500/40 text-[11px] px-2.5 py-0.5 animate-pulse font-bold">
             <AlertTriangle className="w-3.5 h-3.5 mr-1 text-red-400" />
-            CRITICAL • አጣዳፊ
+            {t('card_urgency_immediate')}
           </Badge>
         );
       case 'high':
         return (
           <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-[11px] px-2.5 py-0.5 font-bold">
             <AlertTriangle className="w-3.5 h-3.5 mr-1 text-amber-400" />
-            HIGH PRIORITY
+            {t('card_urgency_high')}
           </Badge>
         );
       case 'medium':
         return (
           <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/40 text-[11px] px-2.5 py-0.5 font-semibold">
-            MODERATE
+            {t('card_urgency_moderate')}
           </Badge>
         );
       case 'low':
       default:
         return (
           <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-[11px] px-2.5 py-0.5 font-semibold">
-            LOW RISK
+            {t('card_urgency_low')}
           </Badge>
         );
     }
@@ -75,17 +77,17 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
         if (vote === 'helpful') {
           setHelpfulCount((prev) => prev + 1);
           if (userVote === 'unhelpful') setUnhelpfulCount((prev) => Math.max(0, prev - 1));
-          setVoteFeedback('Thank you! Your feedback helps other Ethiopian smallholder farmers.');
+          setVoteFeedback(t('card_feedback_thanks'));
         } else {
           setUnhelpfulCount((prev) => prev + 1);
           if (userVote === 'helpful') setHelpfulCount((prev) => Math.max(0, prev - 1));
-          setVoteFeedback('Feedback recorded. Our advisory council will refine this diagnosis.');
+          setVoteFeedback(t('card_feedback_thanks'));
         }
         setUserVote(vote);
       } catch (err) {
         console.warn('Voting fallback:', err);
         setUserVote(vote);
-        setVoteFeedback('Saved to local feedback buffer.');
+        setVoteFeedback(t('card_feedback_thanks'));
       }
     });
   };
@@ -102,12 +104,12 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 flex items-center gap-1.5">
                 <Sprout className="w-3.5 h-3.5 shrink-0" />
-                {card.primary_crop} Crop
+                {tCrop(card.primary_crop)}
               </span>
               {getUrgencyBadge(card.urgency)}
               {farmerName && (
                 <span className="text-[10px] text-slate-400 font-medium">
-                  • Prepared for {farmerName}
+                  • {farmerName}
                 </span>
               )}
             </div>
@@ -115,7 +117,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
             {/* Confidence Score Pill */}
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950 border border-slate-800 text-xs text-slate-300 self-start sm:self-auto shrink-0">
               <span className="font-bold text-emerald-400">{card.confidence_score}%</span>
-              <span className="text-[11px] text-slate-400">Confidence</span>
+              <span className="text-[11px] text-slate-400">{t('card_confidence')}</span>
             </div>
           </div>
 
@@ -125,7 +127,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
 
           {card.scientific_name && (
             <p className="text-xs font-serif italic text-emerald-300/80 -mt-0.5">
-              Pathogen: {card.scientific_name}
+              {t('card_scientific_name')}: {card.scientific_name}
             </p>
           )}
 
@@ -140,7 +142,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
             <div className="space-y-2">
               <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                Confirmed Visual Symptoms (የታዩ ምልክቶች)
+                {t('card_visual_symptoms')}
               </h4>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {card.visual_indicators.map((indicator, idx) => (
@@ -161,7 +163,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
             <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-2">
               <h4 className="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-                Immediate Action Steps (አስቸኳይ እርምጃዎች)
+                {t('card_immediate_actions')}
               </h4>
               <ul className="space-y-1.5 text-xs text-slate-200">
                 {card.immediate_actions.map((action, idx) => (
@@ -176,13 +178,13 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
             </div>
           )}
 
-          {/* 3. Low-Cost Organic Remedies (Primary for Smallholders) */}
+          {/* 3. Low-Cost Organic Remedies */}
           {card.organic_remedies && card.organic_remedies.length > 0 && (
             <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-950/60 to-slate-950 border border-emerald-500/40 space-y-2">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                  Recommended Organic Remedies (ዝቅተኛ ወጪ የተፈጥሮ መፍትሄዎች)
+                  {t('card_organic_remedies')}
                 </h4>
                 <Badge className="bg-emerald-500 text-slate-950 font-bold text-[9px]">
                   0 ETB Cost
@@ -204,7 +206,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
             <div className="space-y-1.5 pt-1">
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-                Conventional Treatment (ኬሚካል አማራጭ - አስፈላጊ ከሆነ ብቻ)
+                {t('card_chemical_controls')}
               </h4>
               <ul className="space-y-1 text-xs text-slate-300">
                 {card.chemical_remedies.map((chem, idx) => (
@@ -222,7 +224,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
               <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-xs space-y-1">
                 <span className="font-semibold text-slate-300 flex items-center gap-1.5 text-[11px]">
                   <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                  Local Agro-Zone Context
+                  {t('card_local_context')}
                 </span>
                 <p className="text-slate-400 leading-normal">{card.local_context_notes}</p>
               </div>
@@ -232,7 +234,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
               <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-xs space-y-1">
                 <span className="font-semibold text-slate-300 flex items-center gap-1.5 text-[11px]">
                   <Calendar className="w-3.5 h-3.5 text-amber-400" />
-                  Seasonal Timing Guide
+                  {t('card_season_action')}
                 </span>
                 <p className="text-slate-400 leading-normal">{card.recommended_season_action}</p>
               </div>
@@ -244,51 +246,45 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold text-white">
-                  Did this advice help your crop? • ይህ መፍትሄ ጠቅሞዎታል?
+                  {t('card_feedback_prompt')}
                 </p>
                 <p className="text-[11px] text-slate-400">
-                  Your vote refines the collective knowledge base for nearby farms
+                  {voteFeedback || t('comm_subtitle')}
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="flex items-center gap-2 shrink-0">
                 <Button
                   size="sm"
-                  variant={userVote === 'helpful' ? 'default' : 'outline'}
-                  disabled={isPending}
+                  variant="outline"
                   onClick={() => handleVote('helpful')}
-                  className={`flex-1 sm:flex-none text-xs min-h-[38px] sm:h-8 px-3 flex items-center justify-center gap-1.5 touch-manipulation ${
+                  className={`text-xs flex items-center gap-1.5 h-8 px-3 rounded-lg border transition-all ${
                     userVote === 'helpful'
-                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                      : 'border-slate-700 bg-slate-950/60 text-slate-300 hover:text-white'
+                      ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
+                      : 'border-slate-700 bg-slate-950 text-slate-300 hover:text-white hover:border-emerald-500/50'
                   }`}
                 >
                   <ThumbsUp className="w-3.5 h-3.5" />
-                  <span>Helpful ({helpfulCount})</span>
+                  <span>{t('card_feedback_helpful')}</span>
+                  {helpfulCount > 0 && <span className="text-[10px] opacity-80">({helpfulCount})</span>}
                 </Button>
 
                 <Button
                   size="sm"
-                  variant={userVote === 'unhelpful' ? 'destructive' : 'outline'}
-                  disabled={isPending}
+                  variant="outline"
                   onClick={() => handleVote('unhelpful')}
-                  className={`flex-1 sm:flex-none text-xs min-h-[38px] sm:h-8 px-3 flex items-center justify-center gap-1.5 touch-manipulation ${
+                  className={`text-xs flex items-center gap-1.5 h-8 px-3 rounded-lg border transition-all ${
                     userVote === 'unhelpful'
-                      ? 'bg-red-600 hover:bg-red-500 text-white'
-                      : 'border-slate-700 bg-slate-950/60 text-slate-300 hover:text-white'
+                      ? 'bg-red-950 border-red-500 text-red-200'
+                      : 'border-slate-700 bg-slate-950 text-slate-300 hover:text-white hover:border-red-500/50'
                   }`}
                 >
                   <ThumbsDown className="w-3.5 h-3.5" />
-                  <span>Not Helpful ({unhelpfulCount})</span>
+                  <span>{t('card_feedback_unhelpful')}</span>
+                  {unhelpfulCount > 0 && <span className="text-[10px] opacity-80">({unhelpfulCount})</span>}
                 </Button>
               </div>
             </div>
-
-            {voteFeedback && (
-              <p className="text-[11px] text-emerald-400 italic pt-1 animate-in fade-in">
-                ✓ {voteFeedback}
-              </p>
-            )}
           </div>
         </CardContent>
       </Card>

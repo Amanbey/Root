@@ -27,6 +27,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CommunityKnowledgeRow } from '@/lib/supabase/db-helpers';
 import { upvoteRemedyAction, submitRemedyAction } from '@/app/community/actions';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface CommunityViewProps {
   initialItems: CommunityKnowledgeRow[];
@@ -36,31 +37,31 @@ interface CommunityViewProps {
   currentAgroZone: string;
 }
 
-const CROP_FILTER_CHIPS: Array<{ name: string; label: string; icon: string }> = [
-  { name: '', label: 'All Crops (ሁሉም)', icon: '🌾' },
-  { name: 'Teff', label: 'Teff (ጤፍ)', icon: '🌱' },
-  { name: 'Wheat', label: 'Wheat (ስንዴ)', icon: '🌾' },
-  { name: 'Maize', label: 'Maize (በቆሎ)', icon: '🌽' },
-  { name: 'Coffee', label: 'Coffee (ቡና)', icon: '☕' },
-  { name: 'Potato', label: 'Potato (ድንች)', icon: '🥔' },
-  { name: 'Barley', label: 'Barley (ገብስ)', icon: '🌾' },
-  { name: 'Chickpea', label: 'Chickpea (ሽንብራ)', icon: '🥜' },
-  { name: 'Enset', label: 'Enset (እንሰት)', icon: '🌴' },
+const CROPS_RAW = [
+  { name: '', icon: '🌾' },
+  { name: 'Teff', icon: '🌱' },
+  { name: 'Wheat', icon: '🌾' },
+  { name: 'Maize', icon: '🌽' },
+  { name: 'Coffee', icon: '☕' },
+  { name: 'Potato', icon: '🥔' },
+  { name: 'Barley', icon: '🌾' },
+  { name: 'Chickpea', icon: '🥜' },
+  { name: 'Enset', icon: '🌴' },
 ];
 
-const ETHIOPIAN_REGIONS = [
-  'All Regions (ሁሉም ክልሎች)',
+const ETHIOPIAN_REGIONS_LIST = [
   'Oromia',
   'Amhara',
   'Tigray',
   'Sidama',
-  'SNNPR',
+  'Central Ethiopia',
+  'South Ethiopia',
   'Somali',
   'Benishangul-Gumuz',
+  'Afar',
 ];
 
-const AGRO_ZONES = [
-  'All Agro-Zones (ሁሉም ቀጠናዎች)',
+const AGRO_ZONES_LIST = [
   'Weyna Dega',
   'Dega',
   'Kolla',
@@ -76,6 +77,7 @@ export function CommunityView({
 }: CommunityViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t, tCrop, tZone } = useLanguage();
 
   const [searchTerm, setSearchTerm] = useState(currentQuery);
   const [selectedRegion, setSelectedRegion] = useState(currentRegion);
@@ -137,26 +139,24 @@ export function CommunityView({
   const handleUpvote = async (id: string, currentCount: number) => {
     if (userVotedMap[id]) return;
 
-    // Optimistically update
     setUserVotedMap((prev) => ({ ...prev, [id]: true }));
     setVerifiedMap((prev) => ({ ...prev, [id]: (prev[id] ?? currentCount) + 1 }));
 
     try {
       await upvoteRemedyAction(id);
     } catch {
-      // Revert if error
       setUserVotedMap((prev) => ({ ...prev, [id]: false }));
       setVerifiedMap((prev) => ({ ...prev, [id]: currentCount }));
     }
   };
 
   const handleCopyRecipe = (item: CommunityKnowledgeRow) => {
-    const text = `🌿 Root Ethiopian Farmer Solution:
-Problem: ${item.problem_title} (${item.crop_type})
-Symptoms: ${item.symptoms}
-Proven Solution: ${item.proven_solution}
-Region: ${item.region} • Agro-Zone: ${item.agro_zone}
-Verified by ${item.verified_by_farmers_count} farmers.`;
+    const text = `🌿 ${t('brand_name')} Farmer Solution:
+${t('diag_title')}: ${item.problem_title} (${tCrop(item.crop_type)})
+${t('card_visual_symptoms')}: ${item.symptoms}
+${t('card_organic_remedies')}: ${item.proven_solution}
+${t('dash_region')}: ${item.region} • ${t('dash_agro_zone')}: ${tZone(item.agro_zone)}
+${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
 
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(text);
@@ -196,15 +196,33 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
 
   return (
     <div className="space-y-6">
+      {/* Title Header */}
+      <div className="text-center max-w-2xl mx-auto space-y-2">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+          <Users className="w-3.5 h-3.5" />
+          <span>{t('comm_badge')}</span>
+        </div>
+
+        <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">
+            {t('comm_title')}
+          </span>
+        </h1>
+
+        <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
+          {t('comm_subtitle')}
+        </p>
+      </div>
+
       {/* Header & Share Trigger */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-2 border-b border-slate-800">
         <div>
           <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
             <Users className="w-5 h-5 text-emerald-400" />
-            Peer-Verified Solutions ({initialItems.length})
+            <span>{t('comm_title')} ({initialItems.length})</span>
           </h2>
           <p className="text-xs text-slate-400">
-            Organic and local farmer remedies verified across Ethiopian agricultural zones
+            {t('comm_subtitle')}
           </p>
         </div>
 
@@ -213,7 +231,7 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
           className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 touch-manipulation"
         >
           <Plus className="w-4 h-4" />
-          <span>Share a Proven Remedy • መፍትሄ ያካፍሉ</span>
+          <span>{t('comm_btn_share')}</span>
         </Button>
       </div>
 
@@ -225,7 +243,7 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
               type="text"
-              placeholder="Search symptoms, pests, or organic recipes (e.g. wood ash, rust, armyworm)..."
+              placeholder={t('comm_search_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="bg-slate-950/80 border-slate-800 pl-9 pr-9 text-white placeholder:text-slate-500 text-sm h-11 rounded-xl focus:border-emerald-500"
@@ -247,18 +265,19 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
             size="sm"
             className="h-11 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shrink-0 touch-manipulation"
           >
-            Search
+            {t('action_search')}
           </Button>
         </form>
 
         {/* Crop Filter Chips */}
         <div className="space-y-1.5 pt-1">
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none touch-manipulation">
-            {CROP_FILTER_CHIPS.map((chip) => {
+            {CROPS_RAW.map((chip) => {
               const isSelected = currentCrop.toLowerCase() === chip.name.toLowerCase();
+              const label = chip.name ? tCrop(chip.name) : t('comm_filter_all_crops');
               return (
                 <button
-                  key={chip.name}
+                  key={chip.name || 'all'}
                   type="button"
                   onClick={() => updateFilters({ crop: chip.name })}
                   className={`px-3 py-1.5 rounded-xl border text-xs flex items-center gap-1.5 shrink-0 transition-all touch-manipulation active:scale-95 ${
@@ -268,7 +287,7 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
                   }`}
                 >
                   <span>{chip.icon}</span>
-                  <span>{chip.label}</span>
+                  <span>{label}</span>
                 </button>
               );
             })}
@@ -278,7 +297,7 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
         {/* Region & Agro-Zone Dropdowns */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-slate-800/60">
           <div>
-            <Label className="text-[11px] text-slate-400 mb-1 block">Filter by Region (በክልል):</Label>
+            <Label className="text-[11px] text-slate-400 mb-1 block">{t('prof_region')}:</Label>
             <select
               value={selectedRegion}
               onChange={(e) => {
@@ -287,7 +306,8 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
               }}
               className="w-full h-9 rounded-lg bg-slate-950/80 border border-slate-800 text-xs text-slate-200 px-2.5 focus:border-emerald-500 focus:outline-none"
             >
-              {ETHIOPIAN_REGIONS.map((r) => (
+              <option value="">{t('comm_filter_all_regions')}</option>
+              {ETHIOPIAN_REGIONS_LIST.map((r) => (
                 <option key={r} value={r}>
                   {r}
                 </option>
@@ -296,7 +316,7 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
           </div>
 
           <div>
-            <Label className="text-[11px] text-slate-400 mb-1 block">Filter by Agro-Zone (በቀጠና):</Label>
+            <Label className="text-[11px] text-slate-400 mb-1 block">{t('prof_agro_zone')}:</Label>
             <select
               value={selectedAgroZone}
               onChange={(e) => {
@@ -305,9 +325,10 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
               }}
               className="w-full h-9 rounded-lg bg-slate-950/80 border border-slate-800 text-xs text-slate-200 px-2.5 focus:border-emerald-500 focus:outline-none"
             >
-              {AGRO_ZONES.map((z) => (
+              <option value="">{t('comm_filter_all_crops')}</option>
+              {AGRO_ZONES_LIST.map((z) => (
                 <option key={z} value={z}>
-                  {z}
+                  {tZone(z)}
                 </option>
               ))}
             </select>
@@ -316,14 +337,13 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
       </div>
 
       {/* Results Count & Active Filter Indicator */}
-      {(currentQuery || currentCrop || (currentRegion && !currentRegion.startsWith('All')) || (currentAgroZone && !currentAgroZone.startsWith('All'))) && (
+      {(currentQuery || currentCrop || selectedRegion || selectedAgroZone) && (
         <div className="flex items-center justify-between text-xs text-slate-400 bg-slate-900/40 px-3 py-2 rounded-xl border border-slate-800">
           <span className="flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
             <span>
-              Showing results for:{' '}
               <strong className="text-white">
-                {[currentCrop, currentQuery, currentRegion, currentAgroZone].filter((x) => x && !x.startsWith('All')).join(' • ') || 'All'}
+                {[currentCrop ? tCrop(currentCrop) : '', currentQuery, selectedRegion, selectedAgroZone ? tZone(selectedAgroZone) : ''].filter(Boolean).join(' • ') || t('comm_filter_all_crops')}
               </strong>
             </span>
           </span>
@@ -336,7 +356,7 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
             }}
             className="text-emerald-400 hover:underline text-[11px] font-semibold"
           >
-            Reset All Filters
+            {t('action_refresh')}
           </button>
         </div>
       )}
@@ -347,9 +367,9 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
           <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
             <Sprout className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-bold text-white">No peer remedies matched this filter</h3>
+          <h3 className="text-base font-bold text-white">{t('comm_empty_title')}</h3>
           <p className="text-xs text-slate-400 max-w-md mx-auto">
-            Be the first farmer to share a tested remedy for this crop or symptom, or ask our 5-agent agronomy council directly.
+            {t('comm_empty_desc')}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-2">
             <Button
@@ -357,13 +377,13 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
               variant="outline"
               className="w-full sm:w-auto border-emerald-500/40 text-emerald-300 hover:bg-emerald-950/40 text-xs"
             >
-              Share Your Solution
+              {t('comm_btn_share')}
             </Button>
             <Button
               onClick={() => router.push('/diagnose')}
               className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white text-xs"
             >
-              Start New Diagnosis
+              {t('action_ask_question')}
             </Button>
           </div>
         </div>
@@ -383,16 +403,16 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <Badge variant="outline" className="border-emerald-500/40 bg-emerald-950/40 text-emerald-300 text-[10px] font-bold">
-                        {item.crop_type}
+                        {tCrop(item.crop_type)}
                       </Badge>
                       <Badge variant="outline" className="border-slate-700 bg-slate-950 text-slate-300 text-[10px]">
-                        {item.agro_zone || 'Weyna Dega'}
+                        {tZone(item.agro_zone || 'Weyna Dega')}
                       </Badge>
                     </div>
 
                     <div className="flex items-center gap-1 text-emerald-400 font-bold text-xs bg-emerald-950/60 border border-emerald-500/40 px-2.5 py-0.5 rounded-full shrink-0 shadow-sm">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>{currentCount} Farmers Verified</span>
+                      <span>{currentCount} {t('action_verified_by_farmers')}</span>
                     </div>
                   </div>
 
@@ -412,7 +432,7 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
                   <div className="p-3.5 rounded-xl bg-emerald-950/25 border border-emerald-500/30 space-y-1.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5" />
-                      Proven Organic Treatment (የተረጋገጠ መፍትሄ)
+                      {t('card_organic_remedies')}
                     </span>
                     <p className="text-xs text-slate-100 leading-relaxed font-medium">
                       {item.proven_solution}
@@ -433,17 +453,16 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
                         variant="ghost"
                         onClick={() => handleCopyRecipe(item)}
                         className="h-8 px-2 text-slate-400 hover:text-white hover:bg-slate-800 text-[11px] touch-manipulation"
-                        title="Copy formula to share with neighbors"
                       >
                         {isCopied ? (
                           <>
                             <Check className="w-3.5 h-3.5 text-emerald-400" />
-                            <span className="text-emerald-400 text-[10px] ml-1">Copied</span>
+                            <span className="text-emerald-400 text-[10px] ml-1">{t('action_saved')}</span>
                           </>
                         ) : (
                           <>
                             <Copy className="w-3.5 h-3.5" />
-                            <span className="hidden sm:inline text-[10px] ml-1">Share</span>
+                            <span className="hidden sm:inline text-[10px] ml-1">{t('action_share_remedy')}</span>
                           </>
                         )}
                       </Button>
@@ -459,10 +478,9 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
                             ? 'bg-emerald-600 text-white border-transparent'
                             : 'border-emerald-500/40 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/50 hover:text-white'
                         }`}
-                        title="Confirm you have verified or used this remedy"
                       >
                         <ThumbsUp className={`w-3.5 h-3.5 ${hasVoted ? 'fill-current' : ''}`} />
-                        <span>{hasVoted ? 'Verified ✓' : 'I Verified This'}</span>
+                        <span>{hasVoted ? t('comm_btn_verified') : t('comm_btn_verify')}</span>
                       </Button>
                     </div>
                   </div>
@@ -485,10 +503,10 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
                   </div>
                   <div>
                     <CardTitle className="text-base sm:text-lg font-bold text-white">
-                      Share a Proven Remedy
+                      {t('comm_modal_title')}
                     </CardTitle>
                     <CardDescription className="text-xs text-slate-400">
-                      የተረጋገጠ የግብርና መፍትሄዎን ለሌሎች አርሶ አደሮች ያካፍሉ
+                      {t('comm_subtitle')}
                     </CardDescription>
                   </div>
                 </div>
@@ -506,9 +524,9 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
               {submitSuccess ? (
                 <div className="py-8 text-center space-y-3">
                   <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto animate-bounce" />
-                  <h3 className="text-base font-bold text-white">Remedy Shared Successfully!</h3>
+                  <h3 className="text-base font-bold text-white">{t('action_saved')}</h3>
                   <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                    Thank you! Your organic formula is now added to the peer-verified community knowledge base.
+                    {t('card_feedback_thanks')}
                   </p>
                 </div>
               ) : (
@@ -522,42 +540,42 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-slate-300">Crop Type (ሰብል):</Label>
+                      <Label className="text-xs font-semibold text-slate-300">{t('comm_modal_crop')}:</Label>
                       <select
                         value={newCrop}
                         onChange={(e) => setNewCrop(e.target.value)}
                         className="w-full h-10 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white px-2.5 focus:border-emerald-500"
                       >
-                        {CROP_FILTER_CHIPS.filter((c) => c.name).map((c) => (
+                        {CROPS_RAW.filter((c) => c.name).map((c) => (
                           <option key={c.name} value={c.name}>
-                            {c.label}
+                            {tCrop(c.name)}
                           </option>
                         ))}
                       </select>
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-slate-300">Agro-Ecological Zone:</Label>
+                      <Label className="text-xs font-semibold text-slate-300">{t('comm_modal_zone')}:</Label>
                       <select
                         value={newZone}
                         onChange={(e) => setNewZone(e.target.value as 'Dega' | 'Weyna Dega' | 'Kolla' | 'Bereha')}
                         className="w-full h-10 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white px-2.5 focus:border-emerald-500"
                       >
-                        <option value="Weyna Dega">Weyna Dega (Midland 1500–2400m)</option>
-                        <option value="Dega">Dega (Highland &gt;2400m)</option>
-                        <option value="Kolla">Kolla (Lowland 500–1500m)</option>
-                        <option value="Bereha">Bereha (Arid &lt;500m)</option>
+                        <option value="Weyna Dega">{tZone('Weyna Dega')}</option>
+                        <option value="Dega">{tZone('Dega')}</option>
+                        <option value="Kolla">{tZone('Kolla')}</option>
+                        <option value="Bereha">{tZone('Bereha')}</option>
                       </select>
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold text-slate-300">
-                      Problem Title (የበሽታው ወይም የተባዩ ስም):
+                      {t('comm_modal_problem')}:
                     </Label>
                     <Input
                       required
-                      placeholder="e.g. Stem borer on Sorghum / የጤፍ ዝገት"
+                      placeholder={t('comm_modal_problem_placeholder')}
                       value={newTitle}
                       onChange={(e) => setNewTitle(e.target.value)}
                       className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-500 text-xs sm:text-sm h-10"
@@ -566,12 +584,12 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
 
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold text-slate-300">
-                      Observed Symptoms (የታዩት ምልክቶች):
+                      {t('comm_modal_symptoms')}:
                     </Label>
                     <Textarea
                       required
                       rows={2}
-                      placeholder="Describe what leaves, stems, or fruits looked like..."
+                      placeholder={t('comm_modal_symptoms_placeholder')}
                       value={newSymptoms}
                       onChange={(e) => setNewSymptoms(e.target.value)}
                       className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-500 text-xs leading-relaxed"
@@ -580,12 +598,12 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
 
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold text-slate-300">
-                      Proven Solution / Organic Formula (የተሞከረና የሰራ መፍትሄ):
+                      {t('comm_modal_solution')}:
                     </Label>
                     <Textarea
                       required
                       rows={3}
-                      placeholder="Detailed preparation steps (e.g. 50g neem seeds, wood ash ratio, timing of application)..."
+                      placeholder={t('comm_modal_solution_placeholder')}
                       value={newSolution}
                       onChange={(e) => setNewSolution(e.target.value)}
                       className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-500 text-xs leading-relaxed"
@@ -593,13 +611,13 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-slate-300">Region (ክልል):</Label>
+                    <Label className="text-xs font-semibold text-slate-300">{t('comm_modal_region')}:</Label>
                     <select
                       value={newRegion}
                       onChange={(e) => setNewRegion(e.target.value)}
                       className="w-full h-10 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white px-2.5 focus:border-emerald-500"
                     >
-                      {ETHIOPIAN_REGIONS.filter((r) => !r.startsWith('All')).map((r) => (
+                      {ETHIOPIAN_REGIONS_LIST.map((r) => (
                         <option key={r} value={r}>
                           {r}
                         </option>
@@ -614,7 +632,7 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
                       onClick={() => setIsShareModalOpen(false)}
                       className="text-xs text-slate-400 hover:text-white"
                     >
-                      Cancel
+                      {t('action_cancel')}
                     </Button>
                     <Button
                       type="submit"
@@ -624,12 +642,12 @@ Verified by ${item.verified_by_farmers_count} farmers.`;
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          <span>Publishing...</span>
+                          <span>{t('comm_modal_btn_publishing')}</span>
                         </>
                       ) : (
                         <>
                           <Share2 className="w-3.5 h-3.5" />
-                          <span>Publish Remedy</span>
+                          <span>{t('comm_modal_btn_publish')}</span>
                         </>
                       )}
                     </Button>

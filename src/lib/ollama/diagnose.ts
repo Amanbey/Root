@@ -46,7 +46,7 @@ const ETHIOPIAN_AGRONOMY_KNOWLEDGE: Record<
   }
 > = {
   teff: {
-    diagnosis: 'Teff Rust (የጤፍ ዝገት በሽታ)',
+    diagnosis: 'Teff Rust',
     scientific: 'Uromyces eragrostidis',
     confidence: 93,
     urgency: 'high',
@@ -84,7 +84,7 @@ const ETHIOPIAN_AGRONOMY_KNOWLEDGE: Record<
       'Diagnostic Agent identified Uromyces eragrostidis teff rust based on pustule morphology. Immediate moisture reduction and neem/wood ash application recommended.',
   },
   wheat: {
-    diagnosis: 'Wheat Stripe / Yellow Rust (የስንዴ ቢጫ ዝገት)',
+    diagnosis: 'Wheat Stripe / Yellow Rust',
     scientific: 'Puccinia striiformis f. sp. tritici',
     confidence: 95,
     urgency: 'critical',
@@ -122,7 +122,7 @@ const ETHIOPIAN_AGRONOMY_KNOWLEDGE: Record<
       'Diagnostic Agent detected acute Puccinia striiformis yellow rust. High urgency: prompt chemical or bio-fungicide barrier needed to preserve flag leaf photosynthetic area.',
   },
   maize: {
-    diagnosis: 'Fall Armyworm (የመኸር ሰራዊት አባጨጓሬ)',
+    diagnosis: 'Fall Armyworm',
     scientific: 'Spodoptera frugiperda',
     confidence: 94,
     urgency: 'high',
@@ -160,7 +160,7 @@ const ETHIOPIAN_AGRONOMY_KNOWLEDGE: Record<
       'Diagnostic Agent confirmed Spodoptera frugiperda infestation. Immediate whorl treatment with neem/wood ash or targeted biopesticide advised.',
   },
   coffee: {
-    diagnosis: 'Coffee Berry Disease - CBD (የቡና ፍሬ በሽታ)',
+    diagnosis: 'Coffee Berry Disease (CBD)',
     scientific: 'Colletotrichum kahawae',
     confidence: 91,
     urgency: 'high',
@@ -198,7 +198,7 @@ const ETHIOPIAN_AGRONOMY_KNOWLEDGE: Record<
       'Diagnostic Agent identified Colletotrichum kahawae (CBD). Essential to strip old mummies, prune dense canopies, and apply protective copper before rains peak.',
   },
   enset: {
-    diagnosis: 'Enset Bacterial Wilt - BXW (የእንሰት ባክቴሪያ አወዛጋቢ በሽታ)',
+    diagnosis: 'Enset Bacterial Wilt (BXW)',
     scientific: 'Xanthomonas campestris pv. musacearum',
     confidence: 96,
     urgency: 'critical',

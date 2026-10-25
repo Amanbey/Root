@@ -10,6 +10,7 @@ import { ArrowLeft, MessageSquarePlus, WifiOff, CloudAlert, Loader2 } from 'luci
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface OfflineCardDetailViewProps {
   id: string;
@@ -17,6 +18,7 @@ interface OfflineCardDetailViewProps {
 }
 
 export function OfflineCardDetailView({ id, profile }: OfflineCardDetailViewProps) {
+  const { t, tCrop } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [offlineQuestion, setOfflineQuestion] = useState<OfflineStoredQuestion | null>(null);
   const [adviceCard, setAdviceCard] = useState<AdviceCard | null>(null);
@@ -28,7 +30,6 @@ export function OfflineCardDetailView({ id, profile }: OfflineCardDetailViewProp
       try {
         const questions = await getOfflineQuestions();
         const matchedQ = questions.find((q) => q.id === id);
-
         const cachedCard = await getCachedAdviceCardLocally(id);
 
         if (isMounted) {
@@ -59,7 +60,7 @@ export function OfflineCardDetailView({ id, profile }: OfflineCardDetailViewProp
         <Navbar userEmail={profile?.email} farmerName={profile?.full_name} />
         <main className="flex-1 max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
           <Loader2 className="w-8 h-8 animate-spin text-emerald-400 mx-auto" />
-          <p className="text-sm text-slate-400">Loading advice card from local device storage...</p>
+          <p className="text-sm text-slate-400">Loading...</p>
         </main>
       </div>
     );
@@ -73,13 +74,10 @@ export function OfflineCardDetailView({ id, profile }: OfflineCardDetailViewProp
           <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto">
             <CloudAlert className="w-6 h-6" />
           </div>
-          <h2 className="text-lg font-bold text-white">Diagnosis Not Found</h2>
-          <p className="text-xs text-slate-400">
-            This crop question is not in the cloud database or local device memory.
-          </p>
+          <h2 className="text-lg font-bold text-white">{t('diag_offline_saved_empty')}</h2>
           <Link href="/diagnose">
             <Button size="sm" className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs mt-2">
-              Start New Diagnosis
+              {t('action_ask_question')}
             </Button>
           </Link>
         </main>
@@ -97,12 +95,11 @@ export function OfflineCardDetailView({ id, profile }: OfflineCardDetailViewProp
           <div className="flex items-center gap-2">
             <WifiOff className="w-4 h-4 text-amber-400 shrink-0" />
             <span>
-              <strong>Offline Mode Active:</strong> Loaded from persistent device memory.
-              {offlineQuestion?.syncedOnline === false && ' Queued for cloud database sync.'}
+              <strong>{t('status_cached_ready')}</strong>
             </span>
           </div>
           <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px]">
-            Device Cache
+            {t('status_queued_local')}
           </Badge>
         </div>
 
@@ -113,13 +110,13 @@ export function OfflineCardDetailView({ id, profile }: OfflineCardDetailViewProp
             className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Crop Diagnosis</span>
+            <span>{t('card_back_to_diagnose')}</span>
           </Link>
 
           <Link href="/diagnose">
             <Button size="sm" variant="outline" className="border-slate-800 bg-slate-900 text-xs h-8">
               <MessageSquarePlus className="w-3.5 h-3.5 mr-1 text-emerald-400" />
-              New Question
+              {t('action_ask_question')}
             </Button>
           </Link>
         </div>
@@ -134,7 +131,7 @@ export function OfflineCardDetailView({ id, profile }: OfflineCardDetailViewProp
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="border-emerald-500/40 text-emerald-300 text-[10px]">
-                    {offlineQuestion?.crop_type || adviceCard?.primary_crop || 'Crop'}
+                    {tCrop(offlineQuestion?.crop_type || adviceCard?.primary_crop || 'Teff')}
                   </Badge>
                   <span className="text-[11px] text-slate-400">
                     {new Date(offlineQuestion?.created_at || adviceCard?.created_at || Date.now()).toLocaleDateString()}
@@ -163,7 +160,7 @@ export function OfflineCardDetailView({ id, profile }: OfflineCardDetailViewProp
       </main>
 
       <footer className="border-t border-slate-900 py-6 text-center text-xs text-slate-500">
-        Root Ethiopia • Agricultural Advisory Intelligence
+        {t('footer_text')}
       </footer>
     </div>
   );

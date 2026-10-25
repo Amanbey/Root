@@ -58,9 +58,9 @@ export function getCurrentEthiopianSeason(date = new Date()): SeasonalAdvisory {
     return {
       season: 'Bega',
       localName: {
-        en: 'Bega (በጋ / Bona)',
-        am: 'የበጋ ወቅት (በጋ)',
-        om: 'Waqtii Bonaa (Bona)',
+        en: 'Bega Season',
+        am: 'የበጋ ወቅት',
+        om: 'Waqtii Bonaa',
       },
       monthsDescription: {
         en: 'October – January (Harvest & Post-Harvest Dry Period)',
@@ -137,9 +137,9 @@ export function getCurrentEthiopianSeason(date = new Date()): SeasonalAdvisory {
     return {
       season: 'Belg',
       localName: {
-        en: 'Belg (በልግ / Arfaasaa)',
-        am: 'የበልግ ወቅት (በልግ)',
-        om: 'Waqtii Arfaasaa (Arfaasaa)',
+        en: 'Belg Season',
+        am: 'የበልግ ወቅት',
+        om: 'Waqtii Arfaasaa',
       },
       monthsDescription: {
         en: 'February – May (Short Rains & Early Highland Sowing)',
@@ -201,9 +201,9 @@ export function getCurrentEthiopianSeason(date = new Date()): SeasonalAdvisory {
     return {
       season: 'Meher',
       localName: {
-        en: 'Meher / Kiremt (መኸር / ክረምት / Ganna)',
-        am: 'የመኸር ወቅት (ክረምት / መኸር)',
-        om: 'Waqtii Ganna / Meher',
+        en: 'Meher / Kiremt Season',
+        am: 'የመኸር ወቅት',
+        om: 'Waqtii Gannaa',
       },
       monthsDescription: {
         en: 'June – September (Main Heavy Rains & Primary Cereal Cycle)',

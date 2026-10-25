@@ -5,8 +5,11 @@ import { WifiOff, RefreshCw, BookmarkCheck, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { OfflineSavedCardsClient } from '@/components/advice/offline-saved-cards-client';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 export default function OfflinePage() {
+  const { t } = useLanguage();
+
   const handleRetry = () => {
     if (typeof window !== 'undefined') {
       window.location.reload();
@@ -21,8 +24,8 @@ export default function OfflinePage() {
             <span className="font-bold text-lg">🌱</span>
           </div>
           <div>
-            <h1 className="font-bold text-lg text-emerald-400">Root Advisory</h1>
-            <p className="text-xs text-slate-400">የግብርና ምክር አገልግሎት</p>
+            <h1 className="font-bold text-lg text-emerald-400">{t('brand_name')}</h1>
+            <p className="text-xs text-slate-400">{t('brand_tagline')}</p>
           </div>
         </div>
       </header>
@@ -34,13 +37,13 @@ export default function OfflinePage() {
 
         <div className="space-y-2">
           <h2 className="text-2xl font-bold tracking-tight text-white">
-            Working Offline
+            {t('offline_screen_title')}
           </h2>
           <p className="text-amber-400 font-medium text-sm">
-            መስመር ላይ አይደለም • Offline Mode Active
+            {t('status_offline')}
           </p>
           <p className="text-sm text-slate-300">
-            Internet connection is weak or disconnected. Your local advisory cache remains active and secure on your device.
+            {t('offline_screen_description')}
           </p>
         </div>
 
@@ -48,24 +51,24 @@ export default function OfflinePage() {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
               <BookmarkCheck className="w-4 h-4 text-emerald-400" />
-              Available While Offline
+              <span>{t('status_cached_ready')}</span>
             </CardTitle>
             <CardDescription className="text-xs text-slate-400">
-              You can still take full advantage of these features:
+              {t('offline_screen_subtitle')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2.5 text-xs">
             <div className="flex items-start gap-2.5">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
-              <p>Review previously downloaded crop disease Advice Cards</p>
+              <p>{t('offline_screen_feature1')}</p>
             </div>
             <div className="flex items-start gap-2.5">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
-              <p>Draft new crop questions; they will auto-sync when network returns</p>
+              <p>{t('offline_screen_feature2')}</p>
             </div>
             <div className="flex items-start gap-2.5">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
-              <p>View local pest prevention techniques & seed guidance</p>
+              <p>{t('offline_screen_feature3')}</p>
             </div>
           </CardContent>
         </Card>
@@ -78,23 +81,23 @@ export default function OfflinePage() {
             className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium flex items-center justify-center gap-2"
           >
             <RefreshCw className="w-4 h-4" />
-            Check Connection
+            <span>{t('offline_screen_btn_retry')}</span>
           </Button>
 
-          <Link href="/" className="w-full">
+          <Link href="/diagnose" className="w-full">
             <Button
               variant="outline"
               className="w-full border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 flex items-center justify-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              Return to Home
+              <span>{t('offline_screen_btn_diagnose')}</span>
             </Button>
           </Link>
         </div>
       </main>
 
       <footer className="text-center text-xs text-slate-500 pb-2">
-        Root Ethiopia • Offline-First Agricultural Platform
+        {t('footer_text')}
       </footer>
     </div>
   );

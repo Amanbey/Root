@@ -6,8 +6,10 @@ import { getOfflineQuestions, OfflineStoredQuestion } from '@/lib/offline/db';
 import { HardDrive, ArrowRight, WifiOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 export function OfflineSavedCardsClient() {
+  const { t, tCrop, tZone } = useLanguage();
   const [offlineCards, setOfflineCards] = useState<OfflineStoredQuestion[]>([]);
 
   useEffect(() => {
@@ -46,11 +48,11 @@ export function OfflineSavedCardsClient() {
       <div className="flex items-center justify-between">
         <h2 className="text-base font-bold text-white flex items-center gap-2">
           <HardDrive className="w-4 h-4 text-amber-400" />
-          <span>Local Device Memory ({offlineCards.length})</span>
+          <span>{t('diag_offline_saved_title')} ({offlineCards.length})</span>
         </h2>
         <span className="text-[11px] text-amber-300 font-semibold flex items-center gap-1">
           <WifiOff className="w-3 h-3" />
-          <span>Offline Available</span>
+          <span>{t('status_cached_ready')}</span>
         </span>
       </div>
 
@@ -64,15 +66,15 @@ export function OfflineSavedCardsClient() {
               <div className="flex items-center justify-between gap-2 mb-1.5">
                 <div className="flex items-center gap-1.5">
                   <Badge variant="outline" className="border-amber-500/40 text-amber-300 text-[10px]">
-                    {q.crop_type}
+                    {tCrop(q.crop_type)}
                   </Badge>
                   <Badge variant="outline" className="border-slate-800 text-slate-400 text-[10px]">
-                    {q.agro_zone || 'Weyna Dega'}
+                    {tZone(q.agro_zone || 'Weyna Dega')}
                   </Badge>
                 </div>
 
                 <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px]">
-                  {q.syncedOnline ? 'Synced to Cloud' : 'Queued Offline'}
+                  {q.syncedOnline ? t('status_online') : t('status_queued_local')}
                 </Badge>
               </div>
 
@@ -93,7 +95,7 @@ export function OfflineSavedCardsClient() {
                   href={`/diagnose/${q.id}`}
                   className="inline-flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-semibold"
                 >
-                  <span>View Offline Card</span>
+                  <span>{t('diag_open_offline_card')}</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>

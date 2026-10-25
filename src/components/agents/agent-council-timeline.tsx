@@ -18,6 +18,8 @@ import {
 import { AgentRole, StageStatus } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/lib/i18n/language-context';
+import { TranslationKey } from '@/lib/i18n/translations';
 
 export interface TimelineStepItem {
   id: string;
@@ -41,8 +43,7 @@ interface AgentCouncilTimelineProps {
 }
 
 interface AgentMetadata {
-  label: string;
-  amharicLabel: string;
+  labelKey: TranslationKey;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
   accentColor: string;
@@ -51,48 +52,42 @@ interface AgentMetadata {
 
 const AGENTS_META: Record<AgentRole, AgentMetadata> = {
   orchestrator: {
-    label: 'Council Orchestrator',
-    amharicLabel: 'አስተባባሪ ኤጀንት',
+    labelKey: 'timeline_agent_orchestrator',
     description: 'Manages multi-agent dispatch, parameter validation, and council timeline synchronization.',
     icon: Cpu,
     accentColor: 'text-sky-400 border-sky-500/30 bg-sky-950/40',
     badgeBg: 'bg-sky-500/10 text-sky-300 border-sky-500/30',
   },
   diagnostic: {
-    label: 'Diagnostic Agent',
-    amharicLabel: 'የበሽታ መርማሪ ኤጀንት',
+    labelKey: 'timeline_agent_diagnostic',
     description: 'Analyzes leaf lesions, spore morphology, chlorosis, and insect damage patterns.',
     icon: Bot,
     accentColor: 'text-amber-400 border-amber-500/30 bg-amber-950/40',
     badgeBg: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
   },
   local_context: {
-    label: 'Local Context Agent',
-    amharicLabel: 'የአካባቢ አውድ ኤጀንት',
+    labelKey: 'timeline_agent_context',
     description: 'Adapts diagnoses to Ethiopian agro-ecological zones (Dega, Weyna Dega, Kolla) & Belg/Meher seasons.',
     icon: Compass,
     accentColor: 'text-emerald-400 border-emerald-500/30 bg-emerald-950/40',
     badgeBg: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
   },
   knowledge: {
-    label: 'Community Knowledge Agent',
-    amharicLabel: 'የማህበረሰብ እውቀት ኤጀንት',
+    labelKey: 'timeline_agent_knowledge',
     description: 'Searches peer-verified remedies tested and upvoted by neighboring Ethiopian smallholders.',
     icon: BookOpen,
     accentColor: 'text-purple-400 border-purple-500/30 bg-purple-950/40',
     badgeBg: 'bg-purple-500/10 text-purple-300 border-purple-500/30',
   },
   advisor: {
-    label: 'Advisor Agent',
-    amharicLabel: 'ዋና አማካሪ ኤጀንት',
+    labelKey: 'timeline_agent_advisor',
     description: 'Synthesizes council findings into an actionable, low-literacy structured Advice Card.',
     icon: Award,
     accentColor: 'text-teal-400 border-teal-500/30 bg-teal-950/40',
     badgeBg: 'bg-teal-500/10 text-teal-300 border-teal-500/30',
   },
   critic: {
-    label: 'Safety Critic Agent',
-    amharicLabel: 'የደህንነት ተቆጣጣሪ',
+    labelKey: 'timeline_agent_critic',
     description: 'Validates treatment safety and ensures non-toxic organic remedies are prioritized.',
     icon: ShieldAlert,
     accentColor: 'text-rose-400 border-rose-500/30 bg-rose-950/40',
@@ -108,6 +103,7 @@ export function AgentCouncilTimeline({
   modelUsed = 'llama3.1:8b',
   executionSummary,
 }: AgentCouncilTimelineProps) {
+  const { t } = useLanguage();
   const [expandedStepId, setExpandedStepId] = useState<string | null>(null);
 
   const toggleExpand = (id: string) => {
@@ -125,14 +121,11 @@ export function AgentCouncilTimeline({
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-bold text-white tracking-wide">
-                5-Agent Agronomic Council
+                {t('timeline_council_title')}
               </h3>
-              <span className="text-[11px] font-medium text-emerald-400">
-                (የ5ቱ የግብርና ኤጀንቶች ጉባኤ)
-              </span>
             </div>
             <p className="text-xs text-slate-400">
-              Specialized local AI agents collaborating on disease diagnosis & organic remedy synthesis.
+              {t('timeline_council_sub')}
             </p>
           </div>
         </div>
@@ -221,10 +214,7 @@ export function AgentCouncilTimeline({
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-xs font-bold text-white tracking-wide">
-                            {meta.label}
-                          </span>
-                          <span className="text-[10px] text-slate-400 truncate">
-                            {meta.amharicLabel}
+                            {t(meta.labelKey)}
                           </span>
                         </div>
                         <h4 className="text-xs sm:text-sm font-semibold text-slate-200 leading-snug">

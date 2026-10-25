@@ -4,10 +4,10 @@ import { useLanguage } from '@/lib/i18n/language-context';
 import { SupportedLanguage } from '@/lib/types';
 import { Globe } from 'lucide-react';
 
-const LANGUAGES: { code: SupportedLanguage; label: string; short: string; amharicName: string }[] = [
-  { code: 'en', label: 'English', short: 'EN', amharicName: 'እንግሊዝኛ' },
-  { code: 'am', label: 'አማርኛ', short: 'አማ', amharicName: 'አማርኛ' },
-  { code: 'om', label: 'Afaan Oromoo', short: 'OM', amharicName: 'ኦሮምኛ' },
+const LANGUAGES: { code: SupportedLanguage; label: string; short: string }[] = [
+  { code: 'en', label: 'English', short: 'EN' },
+  { code: 'am', label: 'አማርኛ', short: 'አማ' },
+  { code: 'om', label: 'Afaan Oromoo', short: 'OM' },
 ];
 
 export function LanguageSwitcher({ className = '' }: { className?: string }) {

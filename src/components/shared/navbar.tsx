@@ -16,7 +16,7 @@ interface NavbarProps {
 
 export function Navbar({ userEmail: propEmail, farmerName: propName }: NavbarProps) {
   const pathname = usePathname();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [userEmail, setUserEmail] = useState<string | null>(propEmail || null);
   const [farmerName, setFarmerName] = useState<string | null>(propName || null);
 
@@ -86,10 +86,10 @@ export function Navbar({ userEmail: propEmail, farmerName: propName }: NavbarPro
             </div>
             <div>
               <span className="font-extrabold text-base tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">
-                Root
+                {t('brand_name')}
               </span>
               <span className="text-[10px] text-slate-400 block -mt-1 font-medium hidden sm:block">
-                {language === 'am' ? 'የግብርና ምክር' : language === 'om' ? 'Gorsa Qonnaa' : 'Agro-Advisory'}
+                {t('brand_tagline')}
               </span>
             </div>
           </Link>

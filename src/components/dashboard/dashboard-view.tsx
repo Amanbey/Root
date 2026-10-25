@@ -33,7 +33,7 @@ interface DashboardViewProps {
 }
 
 export function DashboardView({ profile, summary, seasonData }: DashboardViewProps) {
-  const { t, language } = useLanguage();
+  const { t, language, tCrop, tZone, tRegion } = useLanguage();
 
   const seasonName = seasonData.localName[language] || seasonData.localName.en;
   const seasonDesc = seasonData.monthsDescription[language] || seasonData.monthsDescription.en;
@@ -69,15 +69,15 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
               <div className="flex items-center gap-3 text-xs text-slate-400 flex-wrap">
                 <span className="flex items-center gap-1 text-slate-300">
                   <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                  {profile.region} {profile.zone_name ? `• ${profile.zone_name}` : ''}
+                  {tRegion(profile.region)} {profile.zone_name ? `• ${profile.zone_name}` : ''}
                 </span>
                 <span className="flex items-center gap-1 text-slate-300">
                   <Compass className="w-3.5 h-3.5 text-teal-400" />
-                  {profile.agro_ecological_zone}
+                  {tZone(profile.agro_ecological_zone)}
                 </span>
                 {profile.farm_size_hectares && (
                   <span className="text-slate-400 hidden xs:inline">
-                    • {profile.farm_size_hectares} Hectares
+                    • {profile.farm_size_hectares} {t('dash_hectares')}
                   </span>
                 )}
               </div>
@@ -89,7 +89,7 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
               href="/profile"
               className="w-full sm:w-auto text-center px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-semibold text-slate-200 transition-colors"
             >
-              {language === 'am' ? 'መገለጫ አሻሽል' : language === 'om' ? 'Eenyummaa Fooyyessi' : 'Edit Farm Profile'}
+              {t('action_edit_profile')}
             </Link>
             <Link
               href="/diagnose"
@@ -114,7 +114,7 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
           <CardContent className="p-3.5 sm:p-4 pt-1">
             <div className="text-xl sm:text-2xl font-black text-white">{summary.totalQuestions}</div>
             <p className="text-[10px] text-slate-500 mt-0.5">
-              {language === 'am' ? 'የተጠየቁ የሰብል ጥያቄዎች' : language === 'om' ? 'Qorannoowwan dhiyaatan' : 'Field diagnostic queries'}
+              {t('dash_total_inquiries_sub')}
             </p>
           </CardContent>
         </Card>
@@ -130,8 +130,8 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
             <div className="text-xl sm:text-2xl font-black text-emerald-400">{summary.resolvedDiagnoses}</div>
             <p className="text-[10px] text-slate-500 mt-0.5">
               {summary.totalQuestions > 0
-                ? `${Math.round((summary.resolvedDiagnoses / summary.totalQuestions) * 100)}% Resolved with Advice`
-                : '100% Multi-Agent AI ready'}
+                ? `${Math.round((summary.resolvedDiagnoses / summary.totalQuestions) * 100)}% ${t('dash_stat_resolved_advice')}`
+                : t('dash_stat_ai_ready')}
             </p>
           </CardContent>
         </Card>
@@ -153,7 +153,7 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
                   key={crop}
                   className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-800 text-slate-300 border border-slate-700/60"
                 >
-                  {crop}
+                  {tCrop(crop)}
                 </span>
               ))}
               {(profile.main_crops || []).length > 3 && (
@@ -198,14 +198,14 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
           </div>
 
           <div className="text-xs text-emerald-400 font-medium">
-            {profile.agro_ecological_zone} • {profile.region}
+            {tZone(profile.agro_ecological_zone)} • {tRegion(profile.region)}
           </div>
         </div>
 
         {/* Primary Season Focus */}
         <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 text-xs sm:text-sm text-slate-300 leading-relaxed">
           <strong className="text-emerald-400 font-semibold block sm:inline mr-2">
-            {language === 'am' ? 'የወቅቱ ዋና ትኩረት፦' : language === 'om' ? 'Xiyyeeffannoo Waqtii:' : 'Seasonal Priority:'}
+            {t('season_priority')}
           </strong>
           {primaryFocus}
         </div>
@@ -215,7 +215,7 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
           <div className="space-y-2">
             <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{language === 'am' ? 'ወቅታዊ ተግባራት' : language === 'om' ? 'Tarkaanfiiwwan Waqtii' : 'Critical Seasonal Actions'}</span>
+              <span>{t('season_actions_heading')}</span>
             </h3>
             <ul className="space-y-1.5">
               {criticalActions.slice(0, 3).map((action, idx) => (
@@ -233,7 +233,7 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
           <div className="space-y-2">
             <h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-              <span>{language === 'am' ? 'የተባይ እና በሽታ ማስጠንቀቂያ' : language === 'om' ? 'Akeekkachiisa Ilbiisotaa' : 'Active Seasonal Pest Alerts'}</span>
+              <span>{t('season_alerts_heading')}</span>
             </h3>
             <ul className="space-y-1.5">
               {pestWarnings.slice(0, 3).map((warning, idx) => (
@@ -251,7 +251,7 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
           <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/20 text-xs text-emerald-200 flex items-center gap-2.5">
             <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>
-              <strong>{profile.agro_ecological_zone}:</strong> {zoneTip}
+              <strong>{tZone(profile.agro_ecological_zone)}:</strong> {zoneTip}
             </span>
           </div>
         )}
@@ -274,7 +274,7 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
               <div>
                 <div className="text-xs font-bold text-white">{t('action_ask_question')}</div>
                 <div className="text-[10px] text-slate-400">
-                  {language === 'am' ? 'የሰብል ፎቶ ወይም ምልክቶችን ይላኩ' : language === 'om' ? 'Suuraa fi mallattoolee ergi' : 'Submit photo or leaf symptoms'}
+                  {t('dash_action_ask_sub')}
                 </div>
               </div>
             </div>
@@ -291,10 +291,10 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
               </div>
               <div>
                 <div className="text-xs font-bold text-white">
-                  {language === 'am' ? 'የገበሬዎች ተሞክሮ' : language === 'om' ? 'Muuxannoo Hawaasaa' : 'Community Remedies'}
+                  {t('dash_action_comm_title')}
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  {language === 'am' ? 'በአርሶ አደሮች የተረጋገጡ መፍትሔዎች' : language === 'om' ? 'Furmaata mirkanaa’e ilaali' : 'Peer-verified regional solutions'}
+                  {t('dash_action_comm_sub')}
                 </div>
               </div>
             </div>
@@ -311,10 +311,10 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
               </div>
               <div>
                 <div className="text-xs font-bold text-white">
-                  {language === 'am' ? 'የእርሻ መገለጫ' : language === 'om' ? 'Eenyummaa Qonnaa' : 'Farm Profile'}
+                  {t('dash_action_prof_title')}
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  {language === 'am' ? 'ዞን እና ዋና ሰብሎችን ያዘምኑ' : language === 'om' ? 'Kuta qilleensaa haaromsi' : 'Update zone and registered crops'}
+                  {t('dash_action_prof_sub')}
                 </div>
               </div>
             </div>
@@ -339,7 +339,7 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
             href="/diagnose"
             className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold"
           >
-            {language === 'am' ? 'ሁሉንም ይመልከቱ' : language === 'om' ? 'Hunda Ilaali' : 'View All'} &rarr;
+            {t('action_view_all')} &rarr;
           </Link>
         </div>
 
@@ -373,16 +373,16 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
                   <div className="flex items-center justify-between gap-2 mb-1.5">
                     <div className="flex items-center gap-1.5">
                       <Badge variant="outline" className="border-emerald-500/40 text-emerald-300 text-[10px]">
-                        {q.crop_type}
+                        {tCrop(q.crop_type)}
                       </Badge>
                       <Badge variant="outline" className="border-slate-800 text-slate-400 text-[10px]">
-                        {q.agro_zone || 'Weyna Dega'}
+                        {tZone(q.agro_zone || 'Weyna Dega')}
                       </Badge>
                     </div>
                     {q.advice_card && (
                       <div className="flex items-center gap-1 text-[11px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full">
                         <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                        <span>{q.advice_card.confidence_score}% Confirmed</span>
+                        <span>{q.advice_card.confidence_score}% {t('dash_stat_confidence_confirmed')}</span>
                       </div>
                     )}
                   </div>
@@ -427,7 +427,7 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
               href="/community"
               className="text-xs text-teal-400 hover:text-teal-300 font-semibold"
             >
-              {language === 'am' ? 'የማህበረሰብ ማዕከል' : language === 'om' ? 'Wiirtuu Hawaasaa' : 'Community Hub'} &rarr;
+              {t('dash_action_comm_title')} &rarr;
             </Link>
           </div>
 
@@ -439,7 +439,7 @@ export function DashboardView({ profile, summary, seasonData }: DashboardViewPro
               >
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold text-teal-300 px-2 py-0.5 rounded bg-teal-950/60 border border-teal-500/30">
-                    {remedy.crop_type}
+                    {tCrop(remedy.crop_type)}
                   </span>
                   <span className="text-[10px] text-slate-400">
                     {remedy.verified_by_farmers_count} {t('action_verified_by_farmers')}

@@ -21,18 +21,41 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { signUpAction } from '@/app/auth/actions';
+import { useLanguage } from '@/lib/i18n/language-context';
+import { LanguageSwitcher } from '@/components/shared/language-switcher';
+
+const REGIONS = [
+  'Oromia',
+  'Amhara',
+  'Tigray',
+  'Sidama',
+  'Central Ethiopia',
+  'South Ethiopia',
+  'Somali',
+  'Benishangul-Gumuz',
+  'Afar',
+];
+
+const AGRO_ZONES = ['Weyna Dega', 'Dega', 'Kolla', 'Bereha'];
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t, tRegion, tZone, language, setLanguage } = useLanguage();
+
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [region, setRegion] = useState('Oromia');
   const [agroZone, setAgroZone] = useState('Weyna Dega');
-  const [preferredLanguage, setPreferredLanguage] = useState('en');
+  const [preferredLanguage, setPreferredLanguage] = useState(language || 'en');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const handleLanguageChange = (newLang: 'en' | 'am' | 'om') => {
+    setPreferredLanguage(newLang);
+    setLanguage(newLang);
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -58,7 +81,12 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-emerald-950/20 to-slate-950 flex flex-col justify-center items-center p-4 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-emerald-950/20 to-slate-950 flex flex-col justify-center items-center p-4 py-8 relative">
+      {/* Top Bar with Language Switcher */}
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSwitcher />
+      </div>
+
       {/* Top Brand Logo */}
       <div className="mb-6 text-center space-y-2">
         <Link href="/" className="inline-flex items-center gap-2.5">
@@ -67,10 +95,10 @@ export default function RegisterPage() {
           </div>
           <div className="text-left">
             <h1 className="font-black text-2xl tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">
-              Root
+              {t('brand_name')}
             </h1>
             <p className="text-[11px] text-slate-400 -mt-1 font-medium">
-              የአርሶ አደር መመዝገቢያ • Farmer Registration
+              {t('auth_register_title')}
             </p>
           </div>
         </Link>
@@ -79,10 +107,10 @@ export default function RegisterPage() {
       <Card className="w-full max-w-lg bg-slate-900/80 border-slate-800 shadow-2xl backdrop-blur-md">
         <CardHeader className="space-y-1 text-center pb-4">
           <CardTitle className="text-xl font-bold text-white">
-            Create Farmer Profile • አዲስ መለያ
+            {t('auth_register_header_title')}
           </CardTitle>
           <CardDescription className="text-xs text-slate-400">
-            Customize advice to your region, elevation, and main crops
+            {t('auth_register_header_sub')}
           </CardDescription>
         </CardHeader>
 
@@ -100,7 +128,7 @@ export default function RegisterPage() {
               <div className="space-y-1.5">
                 <Label htmlFor="fullName" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                   <User className="w-3.5 h-3.5 text-emerald-400" />
-                  Full Name (ስም)
+                  {t('auth_field_fullname')}
                 </Label>
                 <Input
                   id="fullName"
@@ -116,7 +144,7 @@ export default function RegisterPage() {
               <div className="space-y-1.5">
                 <Label htmlFor="phone" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                   <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                  Phone (ስልክ ቁጥር)
+                  {t('auth_field_phone')}
                 </Label>
                 <Input
                   id="phone"
@@ -134,7 +162,7 @@ export default function RegisterPage() {
               <div className="space-y-1.5">
                 <Label htmlFor="email" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                   <Mail className="w-3.5 h-3.5 text-emerald-400" />
-                  Email Address
+                  {t('auth_email')}
                 </Label>
                 <Input
                   id="email"
@@ -150,7 +178,7 @@ export default function RegisterPage() {
               <div className="space-y-1.5">
                 <Label htmlFor="password" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                   <Lock className="w-3.5 h-3.5 text-emerald-400" />
-                  Password (ይለፍ ቃል)
+                  {t('auth_password')}
                 </Label>
                 <Input
                   id="password"
@@ -169,7 +197,7 @@ export default function RegisterPage() {
               <div className="space-y-1.5">
                 <Label htmlFor="region" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                  Region (ክልል)
+                  {t('prof_region')}
                 </Label>
                 <select
                   id="region"
@@ -177,22 +205,18 @@ export default function RegisterPage() {
                   onChange={(e) => setRegion(e.target.value)}
                   className="w-full h-10 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500"
                 >
-                  <option value="Oromia">Oromia (ኦሮሚያ)</option>
-                  <option value="Amhara">Amhara (አማራ)</option>
-                  <option value="Tigray">Tigray (ትግራይ)</option>
-                  <option value="Sidama">Sidama (ሲዳማ)</option>
-                  <option value="Central Ethiopia">Central Ethiopia (ማዕከላዊ ኢትዮጵያ)</option>
-                  <option value="South Ethiopia">South Ethiopia (ደቡብ ኢትዮጵያ)</option>
-                  <option value="Somali">Somali (ሶማሌ)</option>
-                  <option value="Benishangul-Gumuz">Benishangul-Gumuz</option>
-                  <option value="Afar">Afar (አፋር)</option>
+                  {REGIONS.map((r) => (
+                    <option key={r} value={r}>
+                      {tRegion(r)}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div className="space-y-1.5">
                 <Label htmlFor="agroZone" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                   <Mountain className="w-3.5 h-3.5 text-emerald-400" />
-                  Agro-Zone (የአየር ንብረት ቀጠና)
+                  {t('prof_agro_zone')}
                 </Label>
                 <select
                   id="agroZone"
@@ -200,10 +224,11 @@ export default function RegisterPage() {
                   onChange={(e) => setAgroZone(e.target.value)}
                   className="w-full h-10 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500"
                 >
-                  <option value="Weyna Dega">Weyna Dega (Midland 1500–2400m)</option>
-                  <option value="Dega">Dega (Highland &gt;2400m)</option>
-                  <option value="Kolla">Kolla (Lowland 500–1500m)</option>
-                  <option value="Bereha">Bereha (Arid &lt;500m)</option>
+                  {AGRO_ZONES.map((z) => (
+                    <option key={z} value={z}>
+                      {tZone(z)}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -212,17 +237,17 @@ export default function RegisterPage() {
             <div className="space-y-1.5">
               <Label htmlFor="preferredLanguage" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                 <Globe className="w-3.5 h-3.5 text-emerald-400" />
-                Preferred Advisory Language (የሚመርጡት ቋንቋ)
+                {t('auth_field_preferred_language')}
               </Label>
               <select
                 id="preferredLanguage"
                 value={preferredLanguage}
-                onChange={(e) => setPreferredLanguage(e.target.value)}
+                onChange={(e) => handleLanguageChange(e.target.value as 'en' | 'am' | 'om')}
                 className="w-full h-10 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500"
               >
-                <option value="en">English (Official Advice)</option>
-                <option value="am">አማርኛ (Amharic)</option>
-                <option value="om">Afaan Oromoo (Oromo)</option>
+                <option value="en">English</option>
+                <option value="am">አማርኛ</option>
+                <option value="om">Afaan Oromoo</option>
               </select>
             </div>
 
@@ -234,11 +259,11 @@ export default function RegisterPage() {
               {isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Creating Farmer Profile...</span>
+                  <span>{t('auth_btn_registering')}</span>
                 </>
               ) : (
                 <>
-                  <span>Complete Registration</span>
+                  <span>{t('auth_btn_complete_registration')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -248,13 +273,13 @@ export default function RegisterPage() {
 
         <CardFooter className="flex flex-col space-y-2 text-center text-xs text-slate-400 pt-0">
           <p>
-            Already registered?{' '}
+            {t('auth_has_account')}{' '}
             <Link href="/login" className="text-emerald-400 font-semibold hover:underline">
-              Sign In here
+              {t('auth_sign_in_here')}
             </Link>
           </p>
           <Link href="/" className="text-slate-500 hover:text-slate-300 text-[11px] pt-1">
-            ← Return to Home
+            ← {t('auth_return_home')}
           </Link>
         </CardFooter>
       </Card>

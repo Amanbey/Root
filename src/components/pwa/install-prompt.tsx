@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Download, X, Smartphone, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -10,6 +11,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function InstallPrompt() {
+  const { t } = useLanguage();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
@@ -68,15 +70,15 @@ export function InstallPrompt() {
             <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
           </div>
           <div className="text-xs min-w-0">
-            <p className="font-bold text-white truncate">Install Root App • ጫን</p>
-            <p className="text-[11px] text-slate-300 truncate">100% offline in field</p>
+            <p className="font-bold text-white truncate">{t('pwa_install_title')}</p>
+            <p className="text-[11px] text-slate-300 truncate">{t('pwa_install_sub')}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
           {isInstalled ? (
             <span className="flex items-center gap-1 text-[11px] text-emerald-400 font-semibold px-2 py-1 bg-emerald-950/60 rounded-md">
-              <Check className="w-3.5 h-3.5" /> Installed
+              <Check className="w-3.5 h-3.5" /> {t('pwa_installed')}
             </span>
           ) : (
             <Button
@@ -85,7 +87,7 @@ export function InstallPrompt() {
               className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold h-8 text-xs px-2.5 sm:px-3 shadow-md"
             >
               <Download className="w-3.5 h-3.5 mr-1" />
-              Install
+              {t('pwa_btn_install')}
             </Button>
           )}
 
