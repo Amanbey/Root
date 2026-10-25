@@ -220,6 +220,21 @@ export interface Translations {
   prof_btn_save: string;
   prof_btn_saving: string;
   prof_success_msg: string;
+  prof_avatar_title: string;
+  prof_avatar_desc: string;
+  prof_avatar_change: string;
+  prof_avatar_remove: string;
+  prof_avatar_uploading: string;
+  prof_avatar_success: string;
+  prof_password_title: string;
+  prof_password_desc: string;
+  prof_password_new: string;
+  prof_password_confirm: string;
+  prof_password_btn: string;
+  prof_password_updating: string;
+  prof_password_success: string;
+  prof_password_mismatch: string;
+  prof_password_length: string;
 
   // Auth Pages
   auth_login_title: string;
@@ -503,6 +518,21 @@ export const translations: Record<SupportedLanguage, Translations> = {
     prof_btn_save: 'Save Profile',
     prof_btn_saving: 'Saving Profile...',
     prof_success_msg: 'Profile updated successfully! AI agents will now adapt advice to your farm context.',
+    prof_avatar_title: 'Profile Picture',
+    prof_avatar_desc: 'Upload and customize your farmer profile photo.',
+    prof_avatar_change: 'Upload Photo',
+    prof_avatar_remove: 'Remove Photo',
+    prof_avatar_uploading: 'Uploading Photo...',
+    prof_avatar_success: 'Profile picture updated successfully!',
+    prof_password_title: 'Change Password',
+    prof_password_desc: 'Keep your farmer account safe by choosing a strong password.',
+    prof_password_new: 'New Password',
+    prof_password_confirm: 'Confirm New Password',
+    prof_password_btn: 'Update Password',
+    prof_password_updating: 'Updating Password...',
+    prof_password_success: 'Password updated successfully!',
+    prof_password_mismatch: 'Passwords do not match.',
+    prof_password_length: 'Password must be at least 6 characters long.',
 
     // Auth Pages
     auth_login_title: 'Sign In to Root',
@@ -783,6 +813,21 @@ export const translations: Record<SupportedLanguage, Translations> = {
     prof_btn_save: 'መረጃ አስቀምጥ',
     prof_btn_saving: 'በማስቀመጥ ላይ...',
     prof_success_msg: 'መገለጫዎ በትክክል ተዘምኗል! የኤአይ ወኪሎች ምክራቸውን ለእርሻዎ ሁኔታ ያዘጋጃሉ።',
+    prof_avatar_title: 'የመገለጫ ፎቶ',
+    prof_avatar_desc: 'የአርሶ አደር መገለጫ ፎቶዎን ይስቀሉ ወይም ይቀይሩ።',
+    prof_avatar_change: 'ፎቶ ቀይር',
+    prof_avatar_remove: 'ፎቶ አስወግድ',
+    prof_avatar_uploading: 'ፎቶ በመስቀል ላይ...',
+    prof_avatar_success: 'የመገለጫ ፎቶ በተሳካ ሁኔታ ተቀይሯል!',
+    prof_password_title: 'የይለፍ ቃል ቀይር',
+    prof_password_desc: 'የአርሶ አደር መለያዎን ደህንነት ለመጠበቅ ጠንካራ የይለፍ ቃል ይምረጡ።',
+    prof_password_new: 'አዲስ የይለፍ ቃል',
+    prof_password_confirm: 'አዲሱን የይለፍ ቃል ያረጋግጡ',
+    prof_password_btn: 'የይለፍ ቃል አድስ',
+    prof_password_updating: 'በማደስ ላይ...',
+    prof_password_success: 'የይለፍ ቃል በተሳካ ሁኔታ ተቀይሯል!',
+    prof_password_mismatch: 'የይለፍ ቃሎች አይዛመዱም።',
+    prof_password_length: 'የይለፍ ቃል ቢያንስ 6 ቁምፊዎች መሆን አለበት።',
 
     // Auth Pages
     auth_login_title: 'ወደ ሩት ይግቡ',
@@ -1063,6 +1108,21 @@ export const translations: Record<SupportedLanguage, Translations> = {
     prof_btn_save: 'Oolchi',
     prof_btn_saving: 'Olkaa’amaa jira...',
     prof_success_msg: 'Eenyummaan keessan milkaa’inaan fooyya’eera! AI n gorsa isaa haala qonnaa keessaniin qopheessa.',
+    prof_avatar_title: 'Suuraa Profaayilii',
+    prof_avatar_desc: 'Suuraa profaayilii qonnaan bulaa keessanii fe\'aa ykn jijjiiraa.',
+    prof_avatar_change: 'Suuraa Jijjiiri',
+    prof_avatar_remove: 'Suuraa Balleessi',
+    prof_avatar_uploading: 'Suuraa ol fe\'aa jira...',
+    prof_avatar_success: 'Suuraan profaayilii milkaa\'inaan jijjiirameera!',
+    prof_password_title: 'Jecha Darbii Jijjiiri',
+    prof_password_desc: 'Eenyummaa herrega qonnaan bulaa keessanii eeguuf jecha darbii jabaa fayyadamaa.',
+    prof_password_new: 'Jecha Darbii Haaraa',
+    prof_password_confirm: 'Jecha Darbii Mirkaneessi',
+    prof_password_btn: 'Jecha Darbii Haaressi',
+    prof_password_updating: 'Haareffamaa jira...',
+    prof_password_success: 'Jechi darbii milkaa\'inaan jijjiirameera!',
+    prof_password_mismatch: 'Jechi darbii wal hin simne.',
+    prof_password_length: 'Jechi darbii yoo xiqqaate qubee 6 ta\'uu qaba.',
 
     // Auth Pages
     auth_login_title: 'Gara Ruut Seenaa',

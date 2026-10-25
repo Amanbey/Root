@@ -328,7 +328,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
       {/* Live Multi-Agent Council Timeline Modal */}
       {isDeliberating && (
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/40 shadow-2xl shadow-emerald-950/70 backdrop-blur-xl animate-in fade-in duration-300 space-y-4">
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-emerald-400/60 shadow-[0_0_35px_-5px_rgba(16,185,129,0.4)] ring-1 ring-emerald-400/40 backdrop-blur-xl animate-in fade-in duration-300 space-y-4">
           <AgentCouncilTimeline
             steps={deliberationSteps}
             isLive={progressPercent < 100}
@@ -340,14 +340,14 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
       )}
 
       {errorMessage && (
-        <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
+        <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-500/50 shadow-[0_0_20px_-3px_rgba(239,68,68,0.3)] text-red-200 text-xs flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
           <span>{errorMessage}</span>
         </div>
       )}
 
       {/* 1. Crop Selection */}
-      <Card className="bg-slate-900/70 border-slate-800">
+      <Card className="bg-slate-900/70 border-slate-800/80 hover:border-emerald-500/60 hover:ring-1 hover:ring-emerald-400/30 hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.2)] transition-all">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
             <Sprout className="w-4 h-4 text-emerald-400" />
@@ -368,8 +368,8 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
                   onClick={() => setSelectedCrop(crop.name)}
                   className={`p-2 sm:p-2.5 min-h-[72px] sm:min-h-[78px] rounded-xl border text-xs flex flex-col items-center justify-center text-center gap-1 touch-manipulation active:scale-95 transition-all ${
                     isSelected
-                      ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold shadow-md shadow-emerald-950/40 ring-1 ring-emerald-500/30'
-                      : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                      ? 'bg-emerald-500/20 border-emerald-400 text-white font-bold shadow-[0_0_20px_-3px_rgba(16,185,129,0.5)] ring-2 ring-emerald-400/60'
+                      : 'bg-slate-950/60 border-slate-800/80 text-slate-400 hover:text-slate-100 hover:border-emerald-500/50 hover:ring-1 hover:ring-emerald-400/30 hover:shadow-[0_0_15px_-3px_rgba(16,185,129,0.25)]'
                   }`}
                 >
                   <span className="text-xl sm:text-2xl">{crop.icon}</span>
@@ -384,7 +384,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
       </Card>
 
       {/* 2. Photo Upload */}
-      <Card className="bg-slate-900/70 border-slate-800">
+      <Card className="bg-slate-900/70 border-slate-800/80 hover:border-emerald-500/60 hover:ring-1 hover:ring-emerald-400/30 hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.2)] transition-all">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-bold text-white flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -408,7 +408,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
           />
 
           {photoBase64 ? (
-            <div className="relative rounded-2xl overflow-hidden border border-emerald-500/40 max-h-64 bg-slate-950 flex items-center justify-center group">
+            <div className="relative rounded-2xl overflow-hidden border border-emerald-400/50 shadow-[0_0_25px_-5px_rgba(16,185,129,0.3)] ring-1 ring-emerald-400/30 max-h-64 bg-slate-950 flex items-center justify-center group">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={photoBase64}
@@ -418,7 +418,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
               <button
                 type="button"
                 onClick={removePhoto}
-                className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-950/80 text-white hover:bg-red-600 transition-colors shadow-lg"
+                className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-950/80 text-white hover:bg-red-600 transition-colors shadow-lg border border-white/10 hover:border-red-400"
                 title="Remove photo"
               >
                 <X className="w-4 h-4" />
@@ -427,12 +427,12 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
           ) : (
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-slate-800 hover:border-emerald-500/50 rounded-2xl p-6 text-center cursor-pointer transition-colors bg-slate-950/40 hover:bg-slate-950/80 group"
+              className="border-2 border-dashed border-slate-800/80 hover:border-emerald-400/70 hover:ring-1 hover:ring-emerald-400/30 hover:shadow-[0_0_25px_-3px_rgba(16,185,129,0.25)] rounded-2xl p-6 text-center cursor-pointer transition-all duration-300 bg-slate-950/40 hover:bg-slate-950/80 group"
             >
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-3 group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto mb-3 group-hover:scale-105 group-hover:border-emerald-400/50 group-hover:shadow-[0_0_15px_-2px_rgba(16,185,129,0.4)] transition-all">
                 <Camera className="w-6 h-6" />
               </div>
-              <p className="text-xs font-semibold text-white">
+              <p className="text-xs font-semibold text-white group-hover:text-emerald-300 transition-colors">
                 {t('diag_field_photo_hint')}
               </p>
             </div>
@@ -441,7 +441,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
       </Card>
 
       {/* 3. Symptom Description */}
-      <Card className="bg-slate-900/70 border-slate-800">
+      <Card className="bg-slate-900/70 border-slate-800/80 hover:border-emerald-500/60 hover:ring-1 hover:ring-emerald-400/30 hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.2)] transition-all">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-emerald-400" />
@@ -462,7 +462,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
               placeholder={t('diag_field_title_placeholder')}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="bg-slate-950/70 border-slate-800 text-white placeholder:text-slate-500 text-xs h-9 focus:border-emerald-500"
+              className="bg-slate-950/70 border-slate-800/80 text-white placeholder:text-slate-500 text-xs h-9 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 hover:border-slate-700 transition-all"
             />
           </div>
 
@@ -475,7 +475,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
                 id="q-region"
                 value={region}
                 onChange={(e) => setRegion(e.target.value as EthiopianRegion)}
-                className="w-full h-11 sm:h-9 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500"
+                className="w-full h-11 sm:h-9 px-3 rounded-md bg-slate-950/70 border border-slate-800/80 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 hover:border-slate-700 transition-all"
               >
                 <option value="Oromia">Oromia</option>
                 <option value="Amhara">Amhara</option>
@@ -497,7 +497,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
                 id="q-agroZone"
                 value={agroZone}
                 onChange={(e) => setAgroZone(e.target.value as AgroEcologicalZone)}
-                className="w-full h-11 sm:h-9 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500"
+                className="w-full h-11 sm:h-9 px-3 rounded-md bg-slate-950/70 border border-slate-800/80 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 hover:border-slate-700 transition-all"
               >
                 <option value="Weyna Dega">{tZone('Weyna Dega')}</option>
                 <option value="Dega">{tZone('Dega')}</option>
@@ -518,7 +518,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
               placeholder={t('diag_field_symptoms_placeholder')}
               value={symptoms}
               onChange={(e) => setSymptoms(e.target.value)}
-              className="bg-slate-950/70 border-slate-800 text-white placeholder:text-slate-500 text-xs focus:border-emerald-500"
+              className="bg-slate-950/70 border-slate-800/80 text-white placeholder:text-slate-500 text-xs focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 hover:border-slate-700 transition-all leading-relaxed"
             />
           </div>
         </CardContent>
@@ -547,7 +547,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
       <Button
         type="submit"
         disabled={isPending || (isDeliberating && progressPercent < 100)}
-        className="w-full min-h-[48px] sm:min-h-[50px] py-3 px-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-2 transition-all touch-manipulation"
+        className="w-full min-h-[48px] sm:min-h-[50px] py-3 px-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm border border-emerald-400/40 shadow-[0_0_25px_-4px_rgba(16,185,129,0.4)] hover:shadow-[0_0_35px_-4px_rgba(16,185,129,0.6)] hover:border-emerald-300 hover:ring-2 hover:ring-emerald-400/40 flex items-center justify-center gap-2 transition-all touch-manipulation active:scale-[0.99]"
       >
         {isPending || (isDeliberating && progressPercent < 100) ? (
           <>

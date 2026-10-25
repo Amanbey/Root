@@ -47,7 +47,7 @@ export default function OfflinePage() {
           </p>
         </div>
 
-        <Card className="bg-slate-900/60 border-slate-800 text-left text-slate-200">
+        <Card className="bg-slate-900/60 border-slate-800/80 hover:border-emerald-500/60 hover:ring-1 hover:ring-emerald-400/30 hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.25)] text-left text-slate-200 transition-all">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
               <BookmarkCheck className="w-4 h-4 text-emerald-400" />
@@ -78,7 +78,7 @@ export default function OfflinePage() {
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <Button
             onClick={handleRetry}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium border border-emerald-400/40 shadow-[0_0_20px_-3px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_-3px_rgba(16,185,129,0.6)] hover:border-emerald-300 hover:ring-1 hover:ring-emerald-400/40 flex items-center justify-center gap-2 transition-all"
           >
             <RefreshCw className="w-4 h-4" />
             <span>{t('offline_screen_btn_retry')}</span>
@@ -87,7 +87,7 @@ export default function OfflinePage() {
           <Link href="/diagnose" className="w-full">
             <Button
               variant="outline"
-              className="w-full border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 flex items-center justify-center gap-2"
+              className="w-full border-slate-700 hover:border-emerald-500/50 hover:ring-1 hover:ring-emerald-400/30 hover:shadow-[0_0_15px_-3px_rgba(16,185,129,0.25)] bg-slate-800/80 hover:bg-slate-700 text-slate-200 flex items-center justify-center gap-2 transition-all"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>{t('offline_screen_btn_diagnose')}</span>

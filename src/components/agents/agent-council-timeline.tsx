@@ -197,12 +197,12 @@ export function AgentCouncilTimeline({
 
               {/* Step Card Body */}
               <Card
-                className={`border transition-all duration-200 backdrop-blur-sm ${
+                className={`border transition-all duration-300 backdrop-blur-sm ${
                   isCurrent
-                    ? 'border-emerald-500/50 bg-slate-900/90 shadow-lg shadow-emerald-950/30 ring-1 ring-emerald-500/20'
+                    ? 'border-emerald-400/80 bg-slate-900/90 shadow-[0_0_25px_-5px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400/40'
                     : isDone
-                    ? 'border-slate-800/90 bg-slate-900/60 hover:border-slate-700'
-                    : 'border-slate-900 bg-slate-950/40 opacity-70'
+                    ? 'border-slate-800/90 bg-slate-900/60 hover:border-emerald-500/60 hover:ring-1 hover:ring-emerald-400/30 hover:shadow-[0_0_20px_-4px_rgba(16,185,129,0.25)]'
+                    : 'border-slate-900 bg-slate-950/40 opacity-70 hover:opacity-90'
                 }`}
               >
                 <CardContent className="p-3 sm:p-4 space-y-2">

@@ -57,7 +57,7 @@ export function OfflineCardDetailView({ id, profile }: OfflineCardDetailViewProp
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between">
-        <Navbar userEmail={profile?.email} farmerName={profile?.full_name} />
+        <Navbar userEmail={profile?.email} farmerName={profile?.full_name} avatarUrl={profile?.avatar_url} />
         <main className="flex-1 max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
           <Loader2 className="w-8 h-8 animate-spin text-emerald-400 mx-auto" />
           <p className="text-sm text-slate-400">Loading...</p>
@@ -69,7 +69,7 @@ export function OfflineCardDetailView({ id, profile }: OfflineCardDetailViewProp
   if (!adviceCard && !offlineQuestion) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between">
-        <Navbar userEmail={profile?.email} farmerName={profile?.full_name} />
+        <Navbar userEmail={profile?.email} farmerName={profile?.full_name} avatarUrl={profile?.avatar_url} />
         <main className="flex-1 max-w-md mx-auto px-4 py-16 text-center space-y-4">
           <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto">
             <CloudAlert className="w-6 h-6" />
@@ -87,7 +87,7 @@ export function OfflineCardDetailView({ id, profile }: OfflineCardDetailViewProp
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-950">
-      <Navbar userEmail={profile?.email} farmerName={profile?.full_name} />
+      <Navbar userEmail={profile?.email} farmerName={profile?.full_name} avatarUrl={profile?.avatar_url} />
 
       <main className="flex-1 max-w-4xl mx-auto px-4 py-6 sm:py-8 pb-24 sm:pb-12 w-full space-y-6">
         {/* Offline Badge Alert */}
@@ -107,14 +107,14 @@ export function OfflineCardDetailView({ id, profile }: OfflineCardDetailViewProp
         <div className="flex items-center justify-between">
           <Link
             href="/diagnose"
-            className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-emerald-300 transition-colors p-1 rounded-lg hover:bg-slate-900/60"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>{t('card_back_to_diagnose')}</span>
           </Link>
 
           <Link href="/diagnose">
-            <Button size="sm" variant="outline" className="border-slate-800 bg-slate-900 text-xs h-8">
+            <Button size="sm" variant="outline" className="border-slate-800 hover:border-emerald-500/50 hover:ring-1 hover:ring-emerald-400/30 hover:shadow-[0_0_15px_-3px_rgba(16,185,129,0.25)] bg-slate-900 text-xs h-8">
               <MessageSquarePlus className="w-3.5 h-3.5 mr-1 text-emerald-400" />
               {t('action_ask_question')}
             </Button>
@@ -122,15 +122,15 @@ export function OfflineCardDetailView({ id, profile }: OfflineCardDetailViewProp
         </div>
 
         {/* Question Summary Bar */}
-        <Card className="bg-slate-900/60 border-slate-800">
+        <Card className="bg-slate-900/60 border-slate-800/80 hover:border-emerald-500/50 hover:ring-1 hover:ring-emerald-400/30 hover:shadow-[0_0_20px_-4px_rgba(16,185,129,0.25)] transition-all">
           <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 text-xl font-bold">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/40 shadow-[0_0_12px_-2px_rgba(16,185,129,0.3)] flex items-center justify-center text-emerald-400 shrink-0 text-xl font-bold">
                 🌱
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="border-emerald-500/40 text-emerald-300 text-[10px]">
+                  <Badge variant="outline" className="border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-[10px]">
                     {tCrop(offlineQuestion?.crop_type || adviceCard?.primary_crop || 'Teff')}
                   </Badge>
                   <span className="text-[11px] text-slate-400">

@@ -37,14 +37,18 @@ export default async function QuestionDetailPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-950">
       <CacheCardClient card={adviceCard} />
-      <Navbar userEmail={profile?.email} farmerName={profile?.full_name} />
+      <Navbar
+        userEmail={profile?.email}
+        farmerName={profile?.full_name}
+        avatarUrl={profile?.avatar_url}
+      />
 
       <main className="flex-1 max-w-4xl mx-auto px-4 py-6 sm:py-8 pb-24 sm:pb-12 w-full space-y-6">
         {/* Navigation Breadcrumb */}
         <QuestionDetailNav />
 
         {/* Question Summary Bar */}
-        <Card className="bg-slate-900/60 border-slate-800">
+        <Card className="bg-slate-900/60 border-slate-800/80 hover:border-emerald-500/60 hover:ring-1 hover:ring-emerald-400/30 hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.25)] transition-all">
           <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
               {question.photo_url ? (
@@ -52,10 +56,10 @@ export default async function QuestionDetailPage({ params }: PageProps) {
                 <img
                   src={question.photo_url}
                   alt={question.title}
-                  className="w-16 h-16 rounded-xl object-cover border border-slate-800 shrink-0"
+                  className="w-16 h-16 rounded-xl object-cover border border-emerald-500/40 shadow-[0_0_15px_-3px_rgba(16,185,129,0.3)] shrink-0"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 text-xl font-bold">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/40 shadow-[0_0_12px_-2px_rgba(16,185,129,0.3)] flex items-center justify-center text-emerald-400 shrink-0 text-xl font-bold">
                   🌱
                 </div>
               )}

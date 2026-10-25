@@ -12,7 +12,11 @@ export default async function DiagnosePage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-950">
-      <Navbar userEmail={profile?.email} farmerName={profile?.full_name} />
+      <Navbar
+        userEmail={profile?.email}
+        farmerName={profile?.full_name}
+        avatarUrl={profile?.avatar_url}
+      />
 
       <DiagnoseViewClient
         profile={profile}

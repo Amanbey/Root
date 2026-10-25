@@ -60,12 +60,12 @@ export function OfflineSavedCardsClient() {
         {offlineCards.map((q) => (
           <Card
             key={q.id}
-            className="bg-slate-900/70 border-amber-500/30 hover:border-amber-400/50 transition-all flex flex-col justify-between"
+            className="bg-slate-900/70 border border-amber-500/40 hover:border-amber-400/80 hover:ring-1 hover:ring-amber-400/40 hover:shadow-[0_0_25px_-4px_rgba(245,158,11,0.3)] transition-all duration-300 flex flex-col justify-between"
           >
             <CardHeader className="p-4 pb-2">
               <div className="flex items-center justify-between gap-2 mb-1.5">
                 <div className="flex items-center gap-1.5">
-                  <Badge variant="outline" className="border-amber-500/40 text-amber-300 text-[10px]">
+                  <Badge variant="outline" className="border-amber-500/50 bg-amber-950/40 text-amber-300 text-[10px]">
                     {tCrop(q.crop_type)}
                   </Badge>
                   <Badge variant="outline" className="border-slate-800 text-slate-400 text-[10px]">
@@ -73,7 +73,7 @@ export function OfflineSavedCardsClient() {
                   </Badge>
                 </div>
 
-                <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px]">
+                <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px]">
                   {q.syncedOnline ? t('status_online') : t('status_queued_local')}
                 </Badge>
               </div>
@@ -93,7 +93,7 @@ export function OfflineSavedCardsClient() {
                 </span>
                 <Link
                   href={`/diagnose/${q.id}`}
-                  className="inline-flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-semibold"
+                  className="inline-flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-semibold p-1 rounded-lg hover:bg-amber-950/40 transition-colors"
                 >
                   <span>{t('diag_open_offline_card')}</span>
                   <ArrowRight className="w-3 h-3" />

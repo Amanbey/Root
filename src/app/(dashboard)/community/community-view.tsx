@@ -228,7 +228,7 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
 
         <Button
           onClick={() => setIsShareModalOpen(true)}
-          className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 touch-manipulation"
+          className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs h-10 px-4 rounded-xl shadow-lg shadow-emerald-950/50 hover:shadow-emerald-500/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 touch-manipulation"
         >
           <Plus className="w-4 h-4" />
           <span>{t('comm_btn_share')}</span>
@@ -246,13 +246,13 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
               placeholder={t('comm_search_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-slate-950/80 border-slate-800 pl-9 pr-9 text-white placeholder:text-slate-500 text-sm h-11 rounded-xl focus:border-emerald-500"
+              className="bg-slate-950/80 border-slate-800/80 pl-9 pr-9 text-white placeholder:text-slate-500 text-sm h-11 rounded-xl focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 hover:border-slate-700 transition-all"
             />
             {searchTerm && (
               <button
                 type="button"
                 onClick={handleClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
                 title="Clear search"
               >
                 <X className="w-4 h-4" />
@@ -263,7 +263,7 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
           <Button
             type="submit"
             size="sm"
-            className="h-11 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shrink-0 touch-manipulation"
+            className="h-11 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl border border-emerald-400/40 shadow-[0_0_15px_-2px_rgba(16,185,129,0.35)] hover:shadow-[0_0_25px_-2px_rgba(16,185,129,0.5)] hover:border-emerald-300 hover:ring-1 hover:ring-emerald-400/40 shrink-0 touch-manipulation transition-all"
           >
             {t('action_search')}
           </Button>
@@ -280,10 +280,10 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
                   key={chip.name || 'all'}
                   type="button"
                   onClick={() => updateFilters({ crop: chip.name })}
-                  className={`px-3 py-1.5 rounded-xl border text-xs flex items-center gap-1.5 shrink-0 transition-all touch-manipulation active:scale-95 ${
+                  className={`px-3 py-1.5 rounded-xl border text-xs flex items-center gap-1.5 shrink-0 transition-all duration-200 touch-manipulation hover:-translate-y-0.5 active:scale-95 ${
                     isSelected
-                      ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold shadow-md shadow-emerald-950/40 ring-1 ring-emerald-500/30'
-                      : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                      ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 font-bold shadow-[0_0_15px_-3px_rgba(16,185,129,0.45)] ring-1 ring-emerald-400/50'
+                      : 'bg-slate-950/60 border-slate-800/80 text-slate-400 hover:text-white hover:border-emerald-500/50 hover:ring-1 hover:ring-emerald-400/30 hover:shadow-[0_0_12px_-2px_rgba(16,185,129,0.25)] hover:bg-slate-900/80'
                   }`}
                 >
                   <span>{chip.icon}</span>
@@ -304,7 +304,7 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
                 setSelectedRegion(e.target.value);
                 updateFilters({ region: e.target.value });
               }}
-              className="w-full h-9 rounded-lg bg-slate-950/80 border border-slate-800 text-xs text-slate-200 px-2.5 focus:border-emerald-500 focus:outline-none"
+              className="w-full h-9 rounded-lg bg-slate-950/80 border border-slate-800/80 text-xs text-slate-200 px-2.5 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 hover:border-slate-700 focus:outline-none transition-all"
             >
               <option value="">{t('comm_filter_all_regions')}</option>
               {ETHIOPIAN_REGIONS_LIST.map((r) => (
@@ -323,7 +323,7 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
                 setSelectedAgroZone(e.target.value);
                 updateFilters({ zone: e.target.value });
               }}
-              className="w-full h-9 rounded-lg bg-slate-950/80 border border-slate-800 text-xs text-slate-200 px-2.5 focus:border-emerald-500 focus:outline-none"
+              className="w-full h-9 rounded-lg bg-slate-950/80 border border-slate-800/80 text-xs text-slate-200 px-2.5 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 hover:border-slate-700 focus:outline-none transition-all"
             >
               <option value="">{t('comm_filter_all_crops')}</option>
               {AGRO_ZONES_LIST.map((z) => (
@@ -397,12 +397,12 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
             return (
               <Card
                 key={item.id}
-                className="bg-slate-900/75 border-slate-800 hover:border-emerald-500/40 transition-all flex flex-col justify-between backdrop-blur-sm shadow-xl shadow-slate-950/40"
+                className="bg-slate-900/75 border-slate-800/80 hover:border-emerald-400/80 hover:ring-1 hover:ring-emerald-400/40 hover:shadow-[0_0_30px_-5px_rgba(16,185,129,0.35)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between backdrop-blur-sm shadow-xl shadow-slate-950/40 group"
               >
                 <CardHeader className="p-4 sm:p-5 pb-3">
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <Badge variant="outline" className="border-emerald-500/40 bg-emerald-950/40 text-emerald-300 text-[10px] font-bold">
+                      <Badge variant="outline" className="border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-[10px] font-bold shadow-[0_0_10px_-2px_rgba(16,185,129,0.3)]">
                         {tCrop(item.crop_type)}
                       </Badge>
                       <Badge variant="outline" className="border-slate-700 bg-slate-950 text-slate-300 text-[10px]">
@@ -410,13 +410,13 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
                       </Badge>
                     </div>
 
-                    <div className="flex items-center gap-1 text-emerald-400 font-bold text-xs bg-emerald-950/60 border border-emerald-500/40 px-2.5 py-0.5 rounded-full shrink-0 shadow-sm">
+                    <div className="flex items-center gap-1 text-emerald-400 font-bold text-xs bg-emerald-950/60 border border-emerald-500/50 px-2.5 py-0.5 rounded-full shrink-0 shadow-sm shadow-emerald-950/60">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                       <span>{currentCount} {t('action_verified_by_farmers')}</span>
                     </div>
                   </div>
 
-                  <CardTitle className="text-sm sm:text-base font-bold text-white leading-snug">
+                  <CardTitle className="text-sm sm:text-base font-bold text-white leading-snug group-hover:text-emerald-300 transition-colors">
                     {item.problem_title}
                   </CardTitle>
 
@@ -429,7 +429,7 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
 
                 <CardContent className="p-4 sm:p-5 pt-0 space-y-3.5">
                   {/* Proven Solution Box */}
-                  <div className="p-3.5 rounded-xl bg-emerald-950/25 border border-emerald-500/30 space-y-1.5">
+                  <div className="p-3.5 rounded-xl bg-emerald-950/25 border border-emerald-500/30 space-y-1.5 transition-all group-hover:border-emerald-500/60 group-hover:ring-1 group-hover:ring-emerald-400/20 group-hover:shadow-[0_0_15px_-3px_rgba(16,185,129,0.2)]">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5" />
                       {t('card_organic_remedies')}
@@ -452,12 +452,12 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
                         size="sm"
                         variant="ghost"
                         onClick={() => handleCopyRecipe(item)}
-                        className="h-8 px-2 text-slate-400 hover:text-white hover:bg-slate-800 text-[11px] touch-manipulation"
+                        className="h-8 px-2 text-slate-400 hover:text-white hover:bg-slate-800/80 hover:border-slate-700 text-[11px] touch-manipulation hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
                       >
                         {isCopied ? (
                           <>
                             <Check className="w-3.5 h-3.5 text-emerald-400" />
-                            <span className="text-emerald-400 text-[10px] ml-1">{t('action_saved')}</span>
+                            <span className="text-emerald-400 text-[10px] ml-1 font-bold">{t('action_saved')}</span>
                           </>
                         ) : (
                           <>
@@ -473,10 +473,10 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
                         variant={hasVoted ? 'default' : 'outline'}
                         onClick={() => handleUpvote(item.id, item.verified_by_farmers_count)}
                         disabled={hasVoted}
-                        className={`h-8 px-2.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 touch-manipulation transition-all active:scale-95 ${
+                        className={`h-8 px-2.5 text-xs font-semibold rounded-xl flex items-center gap-1.5 touch-manipulation transition-all duration-200 hover:-translate-y-0.5 active:scale-95 ${
                           hasVoted
-                            ? 'bg-emerald-600 text-white border-transparent'
-                            : 'border-emerald-500/40 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/50 hover:text-white'
+                            ? 'bg-emerald-600 text-white border-emerald-400/80 shadow-[0_0_15px_-2px_rgba(16,185,129,0.5)] ring-1 ring-emerald-400/40'
+                            : 'border-emerald-500/50 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/60 hover:text-white hover:border-emerald-400 hover:ring-1 hover:ring-emerald-400/40 hover:shadow-[0_0_18px_-2px_rgba(16,185,129,0.4)]'
                         }`}
                       >
                         <ThumbsUp className={`w-3.5 h-3.5 ${hasVoted ? 'fill-current' : ''}`} />
@@ -493,12 +493,12 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
 
       {/* Share Remedy Modal */}
       {isShareModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <Card className="w-full max-w-lg bg-slate-900 border-slate-800 shadow-2xl text-slate-100 max-h-[92vh] overflow-y-auto">
-            <CardHeader className="pb-3 border-b border-slate-800/80 sticky top-0 bg-slate-900 z-10">
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <Card className="w-full max-w-lg bg-slate-900 border border-emerald-500/50 shadow-[0_0_50px_-10px_rgba(16,185,129,0.35)] ring-1 ring-emerald-400/30 text-slate-100 max-h-[92vh] overflow-y-auto">
+            <CardHeader className="pb-3 border-b border-slate-800/80 sticky top-0 bg-slate-900/95 backdrop-blur-sm z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold">
                     <Plus className="w-4 h-4" />
                   </div>
                   <div>
@@ -513,7 +513,7 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
 
                 <button
                   onClick={() => setIsShareModalOpen(false)}
-                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 hover:border hover:border-slate-700 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -532,8 +532,8 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
               ) : (
                 <form onSubmit={handleShareSubmit} className="space-y-4">
                   {submitError && (
-                    <div className="p-3 rounded-lg bg-red-950/60 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0" />
+                    <div className="p-3 rounded-lg bg-red-950/60 border border-red-500/50 shadow-[0_0_15px_-3px_rgba(239,68,68,0.3)] text-red-200 text-xs flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
                       <span>{submitError}</span>
                     </div>
                   )}
@@ -544,7 +544,7 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
                       <select
                         value={newCrop}
                         onChange={(e) => setNewCrop(e.target.value)}
-                        className="w-full h-10 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white px-2.5 focus:border-emerald-500"
+                        className="w-full h-10 rounded-lg bg-slate-950 border border-slate-800/80 text-xs text-white px-2.5 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 hover:border-slate-700 focus:outline-none transition-all"
                       >
                         {CROPS_RAW.filter((c) => c.name).map((c) => (
                           <option key={c.name} value={c.name}>
@@ -559,7 +559,7 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
                       <select
                         value={newZone}
                         onChange={(e) => setNewZone(e.target.value as 'Dega' | 'Weyna Dega' | 'Kolla' | 'Bereha')}
-                        className="w-full h-10 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white px-2.5 focus:border-emerald-500"
+                        className="w-full h-10 rounded-lg bg-slate-950 border border-slate-800/80 text-xs text-white px-2.5 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 hover:border-slate-700 focus:outline-none transition-all"
                       >
                         <option value="Weyna Dega">{tZone('Weyna Dega')}</option>
                         <option value="Dega">{tZone('Dega')}</option>
@@ -578,7 +578,7 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
                       placeholder={t('comm_modal_problem_placeholder')}
                       value={newTitle}
                       onChange={(e) => setNewTitle(e.target.value)}
-                      className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-500 text-xs sm:text-sm h-10"
+                      className="bg-slate-950 border-slate-800/80 text-white placeholder:text-slate-500 text-xs sm:text-sm h-10 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 hover:border-slate-700 transition-all"
                     />
                   </div>
 
@@ -592,7 +592,7 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
                       placeholder={t('comm_modal_symptoms_placeholder')}
                       value={newSymptoms}
                       onChange={(e) => setNewSymptoms(e.target.value)}
-                      className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-500 text-xs leading-relaxed"
+                      className="bg-slate-950 border-slate-800/80 text-white placeholder:text-slate-500 text-xs leading-relaxed focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 hover:border-slate-700 transition-all"
                     />
                   </div>
 
@@ -606,7 +606,7 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
                       placeholder={t('comm_modal_solution_placeholder')}
                       value={newSolution}
                       onChange={(e) => setNewSolution(e.target.value)}
-                      className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-500 text-xs leading-relaxed"
+                      className="bg-slate-950 border-slate-800/80 text-white placeholder:text-slate-500 text-xs leading-relaxed focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 hover:border-slate-700 transition-all"
                     />
                   </div>
 
@@ -615,7 +615,7 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
                     <select
                       value={newRegion}
                       onChange={(e) => setNewRegion(e.target.value)}
-                      className="w-full h-10 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white px-2.5 focus:border-emerald-500"
+                      className="w-full h-10 rounded-lg bg-slate-950 border border-slate-800/80 text-xs text-white px-2.5 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/40 hover:border-slate-700 focus:outline-none transition-all"
                     >
                       {ETHIOPIAN_REGIONS_LIST.map((r) => (
                         <option key={r} value={r}>
@@ -625,19 +625,19 @@ ${item.verified_by_farmers_count} ${t('action_verified_by_farmers')}.`;
                     </select>
                   </div>
 
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800/80">
                     <Button
                       type="button"
                       variant="ghost"
                       onClick={() => setIsShareModalOpen(false)}
-                      className="text-xs text-slate-400 hover:text-white"
+                      className="text-xs text-slate-400 hover:text-white hover:bg-slate-800"
                     >
                       {t('action_cancel')}
                     </Button>
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs h-10 px-5 rounded-xl shadow-lg flex items-center gap-1.5"
+                      className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs h-10 px-5 rounded-xl border border-emerald-400/50 shadow-[0_0_20px_-3px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_-3px_rgba(16,185,129,0.6)] hover:border-emerald-300 hover:ring-1 hover:ring-emerald-400/40 flex items-center gap-1.5 transition-all"
                     >
                       {isSubmitting ? (
                         <>

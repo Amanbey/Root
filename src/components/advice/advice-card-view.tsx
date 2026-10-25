@@ -95,14 +95,14 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
   return (
     <div className="space-y-4 max-w-3xl mx-auto w-full animate-in fade-in duration-300">
       {/* Main Advice Card Container */}
-      <Card className="bg-gradient-to-b from-slate-900/95 via-slate-900/80 to-slate-950 border-emerald-500/30 shadow-2xl backdrop-blur-md overflow-hidden">
+      <Card className="bg-gradient-to-b from-slate-900/95 via-slate-900/80 to-slate-950 border border-emerald-500/40 hover:border-emerald-400/80 shadow-[0_0_35px_-5px_rgba(16,185,129,0.3)] hover:shadow-[0_0_50px_-5px_rgba(16,185,129,0.45)] ring-1 ring-emerald-500/30 hover:ring-emerald-400/50 backdrop-blur-md overflow-hidden transition-all duration-300">
         {/* Top Accent Ribbon */}
         <div className="h-1.5 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400" />
 
         <CardHeader className="p-4 sm:p-6 pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2">
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 flex items-center gap-1.5">
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 flex items-center gap-1.5 shadow-[0_0_12px_-2px_rgba(16,185,129,0.4)]">
                 <Sprout className="w-3.5 h-3.5 shrink-0" />
                 {tCrop(card.primary_crop)}
               </span>
@@ -115,7 +115,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
             </div>
 
             {/* Confidence Score Pill */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950 border border-slate-800 text-xs text-slate-300 self-start sm:self-auto shrink-0">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950 border border-slate-800 text-xs text-slate-300 self-start sm:self-auto shrink-0 shadow-inner">
               <span className="font-bold text-emerald-400">{card.confidence_score}%</span>
               <span className="text-[11px] text-slate-400">{t('card_confidence')}</span>
             </div>
@@ -131,7 +131,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
             </p>
           )}
 
-          <CardDescription className="text-xs sm:text-sm text-slate-300 mt-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 leading-relaxed">
+          <CardDescription className="text-xs sm:text-sm text-slate-300 mt-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 hover:border-slate-700 leading-relaxed transition-colors">
             {card.agent_summary}
           </CardDescription>
         </CardHeader>
@@ -148,7 +148,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
                 {card.visual_indicators.map((indicator, idx) => (
                   <li
                     key={idx}
-                    className="flex items-start gap-2 p-2 rounded-lg bg-slate-950/50 border border-slate-800/70 text-xs text-slate-200"
+                    className="flex items-start gap-2 p-2 rounded-lg bg-slate-950/50 border border-slate-800/70 hover:border-emerald-500/40 hover:ring-1 hover:ring-emerald-400/20 text-xs text-slate-200 transition-all duration-200"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
                     <span>{indicator}</span>
@@ -160,7 +160,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
 
           {/* 2. Immediate Field Actions (Urgent) */}
           {card.immediate_actions && card.immediate_actions.length > 0 && (
-            <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-2">
+            <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/40 hover:border-amber-400/70 hover:ring-1 hover:ring-amber-400/30 hover:shadow-[0_0_20px_-3px_rgba(245,158,11,0.25)] space-y-2 transition-all duration-300">
               <h4 className="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
                 {t('card_immediate_actions')}
@@ -168,7 +168,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
               <ul className="space-y-1.5 text-xs text-slate-200">
                 {card.immediate_actions.map((action, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="w-4 h-4 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="w-4 h-4 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5 border border-amber-500/40">
                       {idx + 1}
                     </span>
                     <span>{action}</span>
@@ -180,13 +180,13 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
 
           {/* 3. Low-Cost Organic Remedies */}
           {card.organic_remedies && card.organic_remedies.length > 0 && (
-            <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-950/60 to-slate-950 border border-emerald-500/40 space-y-2">
+            <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-950/60 to-slate-950 border border-emerald-500/50 hover:border-emerald-400/80 hover:ring-1 hover:ring-emerald-400/40 hover:shadow-[0_0_25px_-3px_rgba(16,185,129,0.35)] space-y-2 transition-all duration-300">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                   {t('card_organic_remedies')}
                 </h4>
-                <Badge className="bg-emerald-500 text-slate-950 font-bold text-[9px]">
+                <Badge className="bg-emerald-500 text-slate-950 font-bold text-[9px] shadow-[0_0_10px_rgba(16,185,129,0.5)]">
                   0 ETB Cost
                 </Badge>
               </div>
@@ -210,7 +210,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
               </h4>
               <ul className="space-y-1 text-xs text-slate-300">
                 {card.chemical_remedies.map((chem, idx) => (
-                  <li key={idx} className="p-2 rounded-lg bg-slate-950/40 border border-slate-800/80">
+                  <li key={idx} className="p-2 rounded-lg bg-slate-950/40 border border-slate-800/80 hover:border-slate-700 transition-colors">
                     {chem}
                   </li>
                 ))}
@@ -221,7 +221,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
           {/* 5. Local Agro-Ecological Context & Season Notes */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             {card.local_context_notes && (
-              <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-xs space-y-1">
+              <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-emerald-500/40 hover:ring-1 hover:ring-emerald-400/20 text-xs space-y-1 transition-all duration-200">
                 <span className="font-semibold text-slate-300 flex items-center gap-1.5 text-[11px]">
                   <MapPin className="w-3.5 h-3.5 text-emerald-400" />
                   {t('card_local_context')}
@@ -231,7 +231,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
             )}
 
             {card.recommended_season_action && (
-              <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-xs space-y-1">
+              <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-amber-500/40 hover:ring-1 hover:ring-amber-400/20 text-xs space-y-1 transition-all duration-200">
                 <span className="font-semibold text-slate-300 flex items-center gap-1.5 text-[11px]">
                   <Calendar className="w-3.5 h-3.5 text-amber-400" />
                   {t('card_season_action')}
@@ -258,30 +258,30 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
                   size="sm"
                   variant="outline"
                   onClick={() => handleVote('helpful')}
-                  className={`text-xs flex items-center gap-1.5 h-8 px-3 rounded-lg border transition-all ${
+                  className={`text-xs flex items-center gap-1.5 h-8 px-3 rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_18px_-2px_rgba(16,185,129,0.4)] active:scale-95 ${
                     userVote === 'helpful'
-                      ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
-                      : 'border-slate-700 bg-slate-950 text-slate-300 hover:text-white hover:border-emerald-500/50'
+                      ? 'bg-emerald-600 text-white border-emerald-400 shadow-md shadow-emerald-950/40 ring-1 ring-emerald-400/50'
+                      : 'border-slate-700 bg-slate-950 text-slate-300 hover:text-white hover:border-emerald-400/70 hover:ring-1 hover:ring-emerald-400/30 hover:bg-slate-900'
                   }`}
                 >
-                  <ThumbsUp className="w-3.5 h-3.5" />
+                  <ThumbsUp className="w-3.5 h-3.5 transition-transform duration-200 group-hover:scale-110" />
                   <span>{t('card_feedback_helpful')}</span>
-                  {helpfulCount > 0 && <span className="text-[10px] opacity-80">({helpfulCount})</span>}
+                  {helpfulCount > 0 && <span className="text-[10px] opacity-80 font-bold">({helpfulCount})</span>}
                 </Button>
 
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => handleVote('unhelpful')}
-                  className={`text-xs flex items-center gap-1.5 h-8 px-3 rounded-lg border transition-all ${
+                  className={`text-xs flex items-center gap-1.5 h-8 px-3 rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_18px_-2px_rgba(239,68,68,0.4)] active:scale-95 ${
                     userVote === 'unhelpful'
-                      ? 'bg-red-950 border-red-500 text-red-200'
-                      : 'border-slate-700 bg-slate-950 text-slate-300 hover:text-white hover:border-red-500/50'
+                      ? 'bg-red-950 border-red-400 text-red-200 shadow-md shadow-red-950/40 ring-1 ring-red-400/50'
+                      : 'border-slate-700 bg-slate-950 text-slate-300 hover:text-white hover:border-red-400/70 hover:ring-1 hover:ring-red-400/30 hover:bg-slate-900'
                   }`}
                 >
-                  <ThumbsDown className="w-3.5 h-3.5" />
+                  <ThumbsDown className="w-3.5 h-3.5 transition-transform duration-200 group-hover:scale-110" />
                   <span>{t('card_feedback_unhelpful')}</span>
-                  {unhelpfulCount > 0 && <span className="text-[10px] opacity-80">({unhelpfulCount})</span>}
+                  {unhelpfulCount > 0 && <span className="text-[10px] opacity-80 font-bold">({unhelpfulCount})</span>}
                 </Button>
               </div>
             </div>

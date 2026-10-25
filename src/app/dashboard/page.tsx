@@ -23,9 +23,13 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-950">
-      <Navbar userEmail={profile.email} farmerName={profile.full_name} />
+      <Navbar
+        userEmail={profile.email}
+        farmerName={profile.full_name}
+        avatarUrl={profile.avatar_url}
+      />
 
-      <main className="flex-1 max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8 w-full">
+      <main className="flex-1 max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8 pb-24 sm:pb-12 w-full">
         <DashboardView
           profile={profile}
           summary={summary}

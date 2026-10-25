@@ -104,7 +104,7 @@ export default function RegisterPage() {
         </Link>
       </div>
 
-      <Card className="w-full max-w-lg bg-slate-900/80 border-slate-800 shadow-2xl backdrop-blur-md">
+      <Card className="w-full max-w-lg bg-slate-900/80 border border-slate-800 hover:border-emerald-400/80 hover:ring-1 hover:ring-emerald-400/40 hover:shadow-[0_0_30px_-5px_rgba(16,185,129,0.3)] shadow-2xl backdrop-blur-md transition-all duration-300">
         <CardHeader className="space-y-1 text-center pb-4">
           <CardTitle className="text-xl font-bold text-white">
             {t('auth_register_header_title')}
@@ -254,7 +254,7 @@ export default function RegisterPage() {
             <Button
               type="submit"
               disabled={isPending}
-              className="w-full min-h-[44px] h-11 sm:h-10 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 mt-2 touch-manipulation"
+              className="w-full min-h-[44px] h-11 sm:h-10 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold border border-emerald-400/40 hover:border-emerald-300 shadow-lg shadow-emerald-950/50 hover:shadow-[0_0_20px_-3px_rgba(16,185,129,0.45)] hover:ring-1 hover:ring-emerald-400/50 flex items-center justify-center gap-2 mt-2 touch-manipulation hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
             >
               {isPending ? (
                 <>

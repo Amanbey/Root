@@ -74,7 +74,7 @@ export function SignOutButton({
         <LogOut className="w-3.5 h-3.5 shrink-0" />
       )}
       {showText && (
-        <span className="ml-1.5 text-xs font-semibold">
+        <span className="ml-1.5 text-xs font-semibold hidden xs:inline">
           {isPending ? t('auth_logging_out') : (text || t('nav_sign_out'))}
         </span>
       )}

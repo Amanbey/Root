@@ -31,14 +31,14 @@ export function AdviceDetailTabs({ card, farmerName, agentRun }: AdviceDetailTab
   return (
     <div className="space-y-6">
       {/* Tab Switcher */}
-      <div className="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 rounded-2xl bg-slate-900 border border-slate-800 max-w-md mx-auto w-full">
+      <div className="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 rounded-2xl bg-slate-900/90 border border-slate-800/80 shadow-lg shadow-slate-950/50 max-w-md mx-auto w-full">
         <button
           type="button"
           onClick={() => setActiveTab('card')}
           className={`flex-1 py-2 px-2 sm:px-3 rounded-xl text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 transition-all touch-manipulation min-h-[40px] ${
             activeTab === 'card'
-              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/50'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white border border-emerald-400/60 shadow-[0_0_20px_-3px_rgba(16,185,129,0.5)] ring-1 ring-emerald-400/40'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/60 hover:border hover:border-slate-700'
           }`}
         >
           <Award className="w-3.5 h-3.5 shrink-0" />
@@ -50,8 +50,8 @@ export function AdviceDetailTabs({ card, farmerName, agentRun }: AdviceDetailTab
           onClick={() => setActiveTab('timeline')}
           className={`flex-1 py-2 px-2 sm:px-3 rounded-xl text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 transition-all touch-manipulation min-h-[40px] ${
             activeTab === 'timeline'
-              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/50'
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white border border-emerald-400/60 shadow-[0_0_20px_-3px_rgba(16,185,129,0.5)] ring-1 ring-emerald-400/40'
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/60 hover:border hover:border-slate-700'
           }`}
         >
           <Bot className="w-3.5 h-3.5 shrink-0" />

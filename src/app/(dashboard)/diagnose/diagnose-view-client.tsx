@@ -61,7 +61,7 @@ export function DiagnoseViewClient({ profile, pastQuestions }: DiagnoseViewClien
             {pastQuestions.map((q) => (
               <Card
                 key={q.id}
-                className="bg-slate-900/70 border-slate-800 hover:border-emerald-500/40 transition-all flex flex-col justify-between"
+                className="bg-slate-900/70 border border-slate-800 hover:border-emerald-400 hover:ring-1 hover:ring-emerald-400/40 hover:shadow-[0_0_20px_-3px_rgba(16,185,129,0.35)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group"
               >
                 <CardHeader className="p-4 pb-2">
                   <div className="flex items-center justify-between gap-2 mb-1.5">

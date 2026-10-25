@@ -81,36 +81,36 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 pt-2">
             <Link href="/diagnose" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto min-h-[48px] bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold px-6 shadow-xl shadow-emerald-950/60">
+              <Button size="lg" className="w-full sm:w-auto min-h-[48px] bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold px-6 border border-emerald-400/40 hover:border-emerald-300 shadow-xl shadow-emerald-950/60 hover:shadow-[0_0_25px_-3px_rgba(16,185,129,0.5)] hover:ring-2 hover:ring-emerald-400/50 hover:-translate-y-1 active:scale-95 transition-all duration-300">
                 {t('home_btn_ask')}
-                <ArrowRight className="w-4 h-4 ml-2" />
+                <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Link>
             <Link href="/dashboard" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto min-h-[48px] border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-200">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto min-h-[48px] border border-slate-700 bg-slate-900/60 hover:bg-slate-800 hover:border-emerald-400 hover:ring-1 hover:ring-emerald-400/40 hover:shadow-[0_0_20px_-3px_rgba(16,185,129,0.35)] hover:text-white text-slate-200 hover:-translate-y-1 active:scale-95 transition-all duration-300">
                 {t('home_btn_dashboard')}
               </Button>
             </Link>
           </div>
 
-          {/* Quick Metrics */}
+          {/* Quick Metrics with Radiant Edge Elevation */}
           <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-4 text-center">
-            <div className="p-3 rounded-xl bg-slate-900/40 border border-slate-800/80">
+            <div className="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/80 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400 hover:ring-1 hover:ring-emerald-400/40 hover:bg-slate-900/90 hover:shadow-[0_0_20px_-3px_rgba(16,185,129,0.35)] cursor-default">
               <div className="text-lg sm:text-xl font-bold text-emerald-400">{t('home_metric_offline')}</div>
               <div className="text-[11px] text-slate-400">{t('home_metric_offline_sub')}</div>
             </div>
-            <div className="p-3 rounded-xl bg-slate-900/40 border border-slate-800/80">
+            <div className="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/80 transition-all duration-300 hover:-translate-y-1 hover:border-amber-400 hover:ring-1 hover:ring-amber-400/40 hover:bg-slate-900/90 hover:shadow-[0_0_20px_-3px_rgba(245,158,11,0.35)] cursor-default">
               <div className="text-lg sm:text-xl font-bold text-amber-400">{t('home_metric_agents')}</div>
               <div className="text-[11px] text-slate-400">{t('home_metric_agents_sub')}</div>
             </div>
-            <div className="p-3 rounded-xl bg-slate-900/40 border border-slate-800/80">
+            <div className="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800/80 transition-all duration-300 hover:-translate-y-1 hover:border-teal-400 hover:ring-1 hover:ring-teal-400/40 hover:bg-slate-900/90 hover:shadow-[0_0_20px_-3px_rgba(20,184,166,0.35)] cursor-default">
               <div className="text-lg sm:text-xl font-bold text-teal-400">{t('home_metric_cost')}</div>
               <div className="text-[11px] text-slate-400">{t('home_metric_cost_sub')}</div>
             </div>
           </div>
         </section>
 
-        {/* Multi-Agent Architecture Showcase */}
+        {/* Multi-Agent Architecture Showcase with Radiant Edge Glow */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -122,7 +122,7 @@ export default function HomePage() {
                 {t('home_council_subtitle')}
               </p>
             </div>
-            <Badge variant="secondary" className="bg-slate-800/90 text-slate-300 text-[11px]">
+            <Badge variant="secondary" className="bg-slate-800/90 text-slate-300 text-[11px] border border-slate-700/60">
               Ollama + Local LLM
             </Badge>
           </div>
@@ -131,18 +131,18 @@ export default function HomePage() {
             {agentRoles.map((agent) => (
               <Card 
                 key={agent.role}
-                className={`bg-slate-900/70 border backdrop-blur-sm transition-all hover:translate-y-[-2px] hover:shadow-lg ${agent.accent}`}
+                className={`group bg-slate-900/70 border border-slate-800 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.35)] hover:border-emerald-400/80 hover:ring-1 hover:ring-emerald-400/40 ${agent.accent}`}
               >
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl p-2 rounded-lg bg-slate-950/50 border border-slate-800">
+                    <span className="text-2xl p-2 rounded-xl bg-slate-950/50 border border-slate-800 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 group-hover:border-emerald-500/40">
                       {agent.icon}
                     </span>
                     <Badge variant="outline" className="text-[10px] uppercase font-semibold tracking-wider">
                       {agent.tag}
                     </Badge>
                   </div>
-                  <CardTitle className="text-sm font-bold text-white mt-2">
+                  <CardTitle className="text-sm font-bold text-white mt-2 group-hover:text-emerald-300 transition-colors">
                     {agent.role}
                   </CardTitle>
                 </CardHeader>
@@ -155,10 +155,10 @@ export default function HomePage() {
             ))}
 
             {/* Structured Advice Card Preview */}
-            <Card className="bg-gradient-to-br from-emerald-950/70 via-slate-900/80 to-slate-950 border-emerald-500/40 flex flex-col justify-between">
+            <Card className="group bg-gradient-to-br from-emerald-950/70 via-slate-900/80 to-slate-950 border border-emerald-500/40 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.45)] hover:border-emerald-400 hover:ring-1 hover:ring-emerald-400/50">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-2xl p-2 rounded-lg bg-emerald-950/50 border border-emerald-500/30">
+                  <span className="text-2xl p-2 rounded-xl bg-emerald-950/50 border border-emerald-500/30 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
                     💡
                   </span>
                   <Badge className="bg-emerald-500 text-slate-950 font-bold text-[10px]">

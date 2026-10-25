@@ -265,6 +265,7 @@ export async function getCurrentFarmerProfile(): Promise<FarmerProfile | null> {
       full_name: user.user_metadata?.full_name || 'Farmer',
       email: user.email,
       phone: user.user_metadata?.phone,
+      avatar_url: user.user_metadata?.avatar_url || null,
       region: 'Oromia',
       agro_ecological_zone: 'Weyna Dega',
       main_crops: ['Teff', 'Wheat'],
@@ -290,6 +291,7 @@ export async function updateFarmerProfileAction(profileUpdate: {
   mainCrops: EthiopianCrop[];
   preferredLanguage: SupportedLanguage;
   farmSizeHectares?: number;
+  avatarUrl?: string | null;
 }): Promise<AuthActionResult> {
   const supabase = await createClient();
 
@@ -298,21 +300,152 @@ export async function updateFarmerProfileAction(profileUpdate: {
     return { success: false, error: 'User is not authenticated' };
   }
 
+  const upsertData: Record<string, unknown> = {
+    id: user.id,
+    full_name: profileUpdate.fullName,
+    phone: profileUpdate.phone,
+    region: profileUpdate.region,
+    zone_name: profileUpdate.zoneName,
+    woreda: profileUpdate.woreda,
+    agro_ecological_zone: profileUpdate.agroZone,
+    main_crops: profileUpdate.mainCrops,
+    preferred_language: profileUpdate.preferredLanguage,
+    farm_size_hectares: profileUpdate.farmSizeHectares,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (profileUpdate.avatarUrl !== undefined) {
+    upsertData.avatar_url = profileUpdate.avatarUrl;
+  }
+
   const { error } = await supabase
     .from('farmer_profiles')
-    .upsert({
-      id: user.id,
+    .upsert(upsertData as any);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  // Also update user metadata
+  await supabase.auth.updateUser({
+    data: {
       full_name: profileUpdate.fullName,
       phone: profileUpdate.phone,
-      region: profileUpdate.region,
-      zone_name: profileUpdate.zoneName,
-      woreda: profileUpdate.woreda,
-      agro_ecological_zone: profileUpdate.agroZone,
-      main_crops: profileUpdate.mainCrops,
-      preferred_language: profileUpdate.preferredLanguage,
-      farm_size_hectares: profileUpdate.farmSizeHectares,
-      updated_at: new Date().toISOString(),
+      ...(profileUpdate.avatarUrl !== undefined ? { avatar_url: profileUpdate.avatarUrl } : {}),
+    },
+  });
+
+  revalidatePath('/', 'layout');
+  revalidatePath('/profile');
+  return { success: true };
+}
+
+/**
+ * Upload, edit, or remove profile picture
+ */
+export async function updateAvatarAction(avatarBase64OrUrl: string | null): Promise<AuthActionResult & { avatarUrl?: string | null }> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, error: 'User is not authenticated' };
+    }
+
+    let finalAvatarUrl: string | null = avatarBase64OrUrl;
+
+    // If an image was uploaded as base64, attempt storage upload
+    if (avatarBase64OrUrl && avatarBase64OrUrl.startsWith('data:image')) {
+      try {
+        const match = avatarBase64OrUrl.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+        if (match) {
+          const mimeType = match[1];
+          const base64Data = match[2];
+          const buffer = Buffer.from(base64Data, 'base64');
+          const fileExt = mimeType.split('/')[1] || 'jpg';
+          const fileName = `avatar-${user.id}-${Date.now()}.${fileExt}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('crop-photos')
+            .upload(fileName, buffer, { contentType: mimeType, upsert: true });
+
+          if (!uploadError) {
+            const { data: publicUrlData } = supabase.storage
+              .from('crop-photos')
+              .getPublicUrl(fileName);
+            finalAvatarUrl = publicUrlData.publicUrl;
+          }
+        }
+      } catch (photoErr) {
+        console.warn('Avatar storage upload warning, storing image directly:', photoErr);
+      }
+    }
+
+    // Update farmer_profiles table
+    const { error: dbError } = await supabase
+      .from('farmer_profiles')
+      .update({
+        avatar_url: finalAvatarUrl,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', user.id);
+
+    if (dbError) {
+      console.warn('Profile table avatar update warning:', dbError.message);
+    }
+
+    // Update auth user metadata
+    await supabase.auth.updateUser({
+      data: { avatar_url: finalAvatarUrl },
     });
+
+    revalidatePath('/', 'layout');
+    revalidatePath('/profile');
+    return { success: true, avatarUrl: finalAvatarUrl };
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : 'Failed to update avatar';
+    return { success: false, error: errorMsg };
+  }
+}
+
+/**
+ * Change user password action
+ */
+export async function changePasswordAction(formData: FormData): Promise<AuthActionResult> {
+  const newPassword = (formData.get('newPassword') as string) || '';
+  const confirmPassword = (formData.get('confirmPassword') as string) || '';
+
+  if (!newPassword || newPassword.length < 6) {
+    return { success: false, error: 'Password must be at least 6 characters long' };
+  }
+
+  if (newPassword !== confirmPassword) {
+    return { success: false, error: 'Passwords do not match' };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'You must be signed in to change your password' };
+  }
+
+  let { error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  // Admin client fallback if session token scope requires elevated privileges
+  if (error) {
+    const adminClient = createAdminClient();
+    if (adminClient) {
+      const { error: adminError } = await adminClient.auth.admin.updateUserById(user.id, {
+        password: newPassword,
+      });
+      if (!adminError) {
+        error = null;
+      }
+    }
+  }
 
   if (error) {
     return { success: false, error: error.message };

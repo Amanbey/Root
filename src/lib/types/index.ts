@@ -54,6 +54,7 @@ export interface FarmerProfile {
   main_crops: EthiopianCrop[];
   preferred_language: SupportedLanguage;
   farm_size_hectares?: number;
+  avatar_url?: string | null;
   created_at: string;
   updated_at: string;
 }
