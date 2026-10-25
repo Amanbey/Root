@@ -11,7 +11,7 @@ export default async function ProfilePage() {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-950">
       <Navbar userEmail={profile?.email} farmerName={profile?.full_name} />
 
-      <main className="flex-1 max-w-3xl mx-auto px-4 py-6 sm:py-8 w-full space-y-6">
+      <main className="flex-1 max-w-3xl mx-auto px-4 py-6 sm:py-8 pb-24 sm:pb-12 w-full space-y-6">
         {/* Profile Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
           <div className="flex items-center gap-3.5">
@@ -33,9 +33,11 @@ export default async function ProfilePage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
-            <Leaf className="w-4 h-4 text-emerald-400" />
-            <span>Local Context Active</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
+              <Leaf className="w-4 h-4 text-emerald-400" />
+              <span>Local Context Active</span>
+            </div>
           </div>
         </div>
 

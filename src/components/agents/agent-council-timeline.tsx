@@ -173,7 +173,7 @@ export function AgentCouncilTimeline({
       )}
 
       {/* Timeline Steps Stack */}
-      <div className="relative pl-6 sm:pl-8 space-y-3 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-gradient-to-b before:from-emerald-500/60 before:via-teal-500/30 before:to-slate-800">
+      <div className="relative pl-7 sm:pl-8 space-y-3 before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-gradient-to-b before:from-emerald-500/60 before:via-teal-500/30 before:to-slate-800">
         {steps.map((step, idx) => {
           const meta = AGENTS_META[step.role] || AGENTS_META['orchestrator'];
           const Icon = meta.icon;
@@ -185,7 +185,7 @@ export function AgentCouncilTimeline({
             <div key={step.id || idx} className="relative group">
               {/* Timeline Node Icon Indicator */}
               <div
-                className={`absolute -left-6 sm:-left-8 top-3.5 w-6 h-6 rounded-full flex items-center justify-center border transition-all duration-300 ${
+                className={`absolute -left-7 sm:-left-8 top-3.5 w-6 h-6 rounded-full flex items-center justify-center border transition-all duration-300 ${
                   isDone
                     ? 'bg-emerald-950 border-emerald-500 text-emerald-400 shadow-md shadow-emerald-950/60 ring-2 ring-emerald-500/20'
                     : isCurrent
@@ -212,28 +212,28 @@ export function AgentCouncilTimeline({
                     : 'border-slate-900 bg-slate-950/40 opacity-70'
                 }`}
               >
-                <CardContent className="p-3.5 sm:p-4 space-y-2">
+                <CardContent className="p-3 sm:p-4 space-y-2">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className={`p-1.5 rounded-lg border text-xs font-semibold ${meta.accentColor}`}>
+                      <span className={`p-1.5 rounded-lg border text-xs font-semibold shrink-0 ${meta.accentColor}`}>
                         <Icon className="w-3.5 h-3.5" />
                       </span>
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-xs font-bold text-white tracking-wide">
                             {meta.label}
                           </span>
-                          <span className="text-[10px] text-slate-400">
+                          <span className="text-[10px] text-slate-400 truncate">
                             {meta.amharicLabel}
                           </span>
                         </div>
-                        <h4 className="text-xs sm:text-sm font-semibold text-slate-200">
+                        <h4 className="text-xs sm:text-sm font-semibold text-slate-200 leading-snug">
                           {step.title}
                         </h4>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 self-end sm:self-auto">
+                    <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto pt-1 sm:pt-0 border-t border-slate-800/50 sm:border-t-0">
                       {step.durationMs !== undefined && step.durationMs !== null && (
                         <span className="flex items-center gap-1 text-[11px] text-slate-400 font-mono">
                           <Clock className="w-3 h-3 text-slate-500" />
@@ -273,7 +273,7 @@ export function AgentCouncilTimeline({
 
                   {/* Summary preview if present */}
                   {step.summary && (
-                    <p className="text-xs text-slate-300 font-medium pl-8 border-l border-slate-800">
+                    <p className="text-xs text-slate-300 font-medium pl-3 sm:pl-4 border-l-2 border-emerald-500/50 leading-relaxed">
                       {step.summary}
                     </p>
                   )}

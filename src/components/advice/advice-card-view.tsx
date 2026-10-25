@@ -98,10 +98,10 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
         <div className="h-1.5 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400" />
 
         <CardHeader className="p-4 sm:p-6 pb-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 flex items-center gap-1.5">
-                <Sprout className="w-3.5 h-3.5" />
+                <Sprout className="w-3.5 h-3.5 shrink-0" />
                 {card.primary_crop} Crop
               </span>
               {getUrgencyBadge(card.urgency)}
@@ -113,7 +113,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
             </div>
 
             {/* Confidence Score Pill */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950 border border-slate-800 text-xs text-slate-300">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950 border border-slate-800 text-xs text-slate-300 self-start sm:self-auto shrink-0">
               <span className="font-bold text-emerald-400">{card.confidence_score}%</span>
               <span className="text-[11px] text-slate-400">Confidence</span>
             </div>
@@ -251,13 +251,13 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Button
                   size="sm"
                   variant={userVote === 'helpful' ? 'default' : 'outline'}
                   disabled={isPending}
                   onClick={() => handleVote('helpful')}
-                  className={`text-xs h-8 px-3 flex items-center gap-1.5 ${
+                  className={`flex-1 sm:flex-none text-xs min-h-[38px] sm:h-8 px-3 flex items-center justify-center gap-1.5 touch-manipulation ${
                     userVote === 'helpful'
                       ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                       : 'border-slate-700 bg-slate-950/60 text-slate-300 hover:text-white'
@@ -272,7 +272,7 @@ export function AdviceCardView({ card, farmerName }: AdviceCardViewProps) {
                   variant={userVote === 'unhelpful' ? 'destructive' : 'outline'}
                   disabled={isPending}
                   onClick={() => handleVote('unhelpful')}
-                  className={`text-xs h-8 px-3 flex items-center gap-1.5 ${
+                  className={`flex-1 sm:flex-none text-xs min-h-[38px] sm:h-8 px-3 flex items-center justify-center gap-1.5 touch-manipulation ${
                     userVote === 'unhelpful'
                       ? 'bg-red-600 hover:bg-red-500 text-white'
                       : 'border-slate-700 bg-slate-950/60 text-slate-300 hover:text-white'

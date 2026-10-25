@@ -61,28 +61,28 @@ export function InstallPrompt() {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md animate-in fade-in slide-in-from-bottom duration-300">
-      <div className="flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-emerald-900 to-slate-900 p-3.5 shadow-2xl border border-emerald-500/40 text-white backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0">
-            <Smartphone className="w-5 h-5 text-emerald-400" />
+    <div className="fixed bottom-20 md:bottom-4 left-3 right-3 sm:left-4 sm:right-4 z-50 mx-auto max-w-md animate-in fade-in slide-in-from-bottom duration-300">
+      <div className="flex items-center justify-between gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-950 p-3 sm:p-3.5 shadow-2xl border border-emerald-500/40 text-white backdrop-blur-md">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0">
+            <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
           </div>
-          <div className="text-xs">
-            <p className="font-semibold text-white">Install Root App</p>
-            <p className="text-slate-300">Works 100% offline in your field</p>
+          <div className="text-xs min-w-0">
+            <p className="font-bold text-white truncate">Install Root App • ጫን</p>
+            <p className="text-[11px] text-slate-300 truncate">100% offline in field</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0">
           {isInstalled ? (
-            <span className="flex items-center gap-1 text-xs text-emerald-400 font-semibold px-2 py-1 bg-emerald-950/60 rounded-md">
+            <span className="flex items-center gap-1 text-[11px] text-emerald-400 font-semibold px-2 py-1 bg-emerald-950/60 rounded-md">
               <Check className="w-3.5 h-3.5" /> Installed
             </span>
           ) : (
             <Button
               size="sm"
               onClick={handleInstallClick}
-              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold h-8 text-xs px-3 shadow-md"
+              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold h-8 text-xs px-2.5 sm:px-3 shadow-md"
             >
               <Download className="w-3.5 h-3.5 mr-1" />
               Install

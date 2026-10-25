@@ -83,7 +83,7 @@ function LoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-slate-950/70 border-slate-800 text-white placeholder:text-slate-500 text-sm focus:border-emerald-500"
+              className="bg-slate-950/70 border-slate-800 text-white placeholder:text-slate-500 text-base sm:text-sm h-11 sm:h-10 focus:border-emerald-500"
             />
           </div>
 
@@ -101,14 +101,14 @@ function LoginForm() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-slate-950/70 border-slate-800 text-white placeholder:text-slate-500 text-sm focus:border-emerald-500"
+              className="bg-slate-950/70 border-slate-800 text-white placeholder:text-slate-500 text-base sm:text-sm h-11 sm:h-10 focus:border-emerald-500"
             />
           </div>
 
           <Button
             type="submit"
             disabled={isPending}
-            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold h-10 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2"
+            className="w-full min-h-[44px] h-11 sm:h-10 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 touch-manipulation"
           >
             {isPending ? (
               <>
@@ -130,10 +130,10 @@ function LoginForm() {
             type="button"
             variant="outline"
             onClick={handleDemoFill}
-            className="w-full border-dashed border-emerald-500/40 bg-emerald-950/20 hover:bg-emerald-950/40 text-emerald-300 text-xs h-9 flex items-center justify-center gap-2"
+            className="w-full min-h-[42px] border-dashed border-emerald-500/40 bg-emerald-950/20 hover:bg-emerald-950/40 text-emerald-300 text-xs sm:text-xs h-10 sm:h-9 flex items-center justify-center gap-2 touch-manipulation"
           >
             <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Fill Demo Farmer Account (Abebe Bekele)</span>
+            <span className="truncate">Fill Demo Farmer Account (Abebe Bekele)</span>
           </Button>
         </div>
       </CardContent>

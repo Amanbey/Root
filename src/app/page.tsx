@@ -3,19 +3,15 @@
 import Link from 'next/link';
 import { 
   Bot, 
-  Cpu, 
   ShieldCheck, 
   Sparkles, 
   ArrowRight, 
-  CheckCircle2, 
-  Leaf, 
-  Compass, 
-  Users, 
-  Globe2 
+  CheckCircle2 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Navbar } from '@/components/shared/navbar';
 
 export default function HomePage() {
   const agentRoles = [
@@ -58,69 +54,38 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-950">
-      {/* Top App Header */}
-      <header className="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-30">
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-lg shadow-emerald-950/50 border border-emerald-400/40">
-              <Leaf className="w-5 h-5 text-slate-950 stroke-[2.5]" />
-            </div>
-            <div>
-              <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">
-                Root
-              </span>
-              <span className="text-[10px] text-slate-400 block -mt-1 font-medium tracking-wide">
-                የግብርና ባለሙያ ረዳት • PWA
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="border-emerald-500/40 bg-emerald-950/40 text-emerald-300 text-xs py-0.5 px-2.5 flex items-center gap-1.5 hidden sm:flex">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block" />
-              Offline Ready
-            </Badge>
-            <div className="flex items-center gap-1 text-xs text-slate-400 border border-slate-800 bg-slate-900/80 rounded-lg px-2 py-1">
-              <Globe2 className="w-3.5 h-3.5 text-slate-400" />
-              <span>EN</span>
-              <span className="text-slate-600">|</span>
-              <span className="text-slate-500">አማ</span>
-              <span className="text-slate-600">|</span>
-              <span className="text-slate-500">ORO</span>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Unified Navbar (Top & Mobile Bottom Navigation) */}
+      <Navbar />
 
       {/* Hero Section */}
-      <main className="flex-1 max-w-5xl mx-auto px-4 py-8 sm:py-12 w-full space-y-12">
-        <section className="text-center space-y-6 max-w-2xl mx-auto">
+      <main className="flex-1 max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-12 pb-24 sm:pb-16 w-full space-y-10 sm:space-y-12">
+        <section className="text-center space-y-5 sm:space-y-6 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold backdrop-blur-sm">
-            <Sparkles className="w-3.5 h-3.5" />
-            Offline-First Multi-Agent Agronomy
+            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <span>Offline-First Multi-Agent Agronomy</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">
             Practical Crop Advice, <br />
             <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-400 bg-clip-text text-transparent">
               Even With Zero Internet.
             </span>
           </h1>
 
-          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+          <p className="text-slate-300 text-xs sm:text-base leading-relaxed px-1">
             Diagnose pest damage, blight, and nutrient deficiencies directly in the field. 
             Root deploys an offline-first team of specialized AI agents running on local Ollama intelligence and peer-verified Ethiopian agricultural knowledge.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 pt-2">
             <Link href="/diagnose" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold px-6 shadow-xl shadow-emerald-950/60">
+              <Button size="lg" className="w-full sm:w-auto min-h-[48px] bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold px-6 shadow-xl shadow-emerald-950/60">
                 Ask a Crop Question
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
-            <Link href="/dashboard" className="w-full sm:w-auto">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-200">
+            <Link href="/diagnose" className="w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto min-h-[48px] border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-200">
                 View Past Advice Cards
               </Button>
             </Link>
@@ -253,25 +218,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <nav aria-label="Mobile navigation" className="sm:hidden sticky bottom-0 z-30 border-t border-slate-800 bg-slate-950/95 backdrop-blur-md px-6 py-2 flex items-center justify-around text-[10px] text-slate-400">
-        <Link href="/" className="flex flex-col items-center gap-1 text-emerald-400 font-semibold">
-          <Leaf className="w-5 h-5" />
-          <span>Home</span>
-        </Link>
-        <Link href="/diagnose" className="flex flex-col items-center gap-1 hover:text-emerald-400 transition-colors">
-          <Compass className="w-5 h-5" />
-          <span>Diagnose</span>
-        </Link>
-        <Link href="/community" className="flex flex-col items-center gap-1 hover:text-emerald-400 transition-colors">
-          <Users className="w-5 h-5" />
-          <span>Community</span>
-        </Link>
-        <Link href="/profile" className="flex flex-col items-center gap-1 hover:text-emerald-400 transition-colors">
-          <Cpu className="w-5 h-5" />
-          <span>Profile</span>
-        </Link>
-      </nav>
+
 
       {/* Footer */}
       <footer className="border-t border-slate-900 py-6 text-center text-xs text-slate-500">

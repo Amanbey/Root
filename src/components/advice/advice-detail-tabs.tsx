@@ -29,33 +29,33 @@ export function AdviceDetailTabs({ card, farmerName, agentRun }: AdviceDetailTab
   return (
     <div className="space-y-6">
       {/* Tab Switcher */}
-      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900 border border-slate-800 max-w-md mx-auto">
+      <div className="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 rounded-2xl bg-slate-900 border border-slate-800 max-w-md mx-auto w-full">
         <button
           type="button"
           onClick={() => setActiveTab('card')}
-          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+          className={`flex-1 py-2 px-2 sm:px-3 rounded-xl text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 transition-all touch-manipulation min-h-[40px] ${
             activeTab === 'card'
               ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/50'
               : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
           }`}
         >
-          <Award className="w-3.5 h-3.5" />
-          <span>Advice Card (ምክረ ሐሳብ)</span>
+          <Award className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">Advice Card <span className="hidden sm:inline">(ምክረ ሐሳብ)</span></span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab('timeline')}
-          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+          className={`flex-1 py-2 px-2 sm:px-3 rounded-xl text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1.5 transition-all touch-manipulation min-h-[40px] ${
             activeTab === 'timeline'
               ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/50'
               : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
           }`}
         >
-          <Bot className="w-3.5 h-3.5" />
-          <span>5-Agent Deliberation</span>
+          <Bot className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">5-Agent Council</span>
           {timelineSteps.length > 0 && (
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-950 border border-emerald-500/40 text-emerald-300">
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-emerald-950 border border-emerald-500/40 text-emerald-300 shrink-0">
               {timelineSteps.length}
             </span>
           )}

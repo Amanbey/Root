@@ -244,11 +244,18 @@ export async function signUpAction(prevState: unknown, formData: FormData): Prom
 }
 
 /**
- * Sign out action
+ * Sign out action - fast, offline-resilient local session cleanup
  */
 export async function signOutAction(): Promise<{ success: boolean }> {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  try {
+    const supabase = await createClient();
+    await Promise.race([
+      supabase.auth.signOut({ scope: 'local' }),
+      new Promise((resolve) => setTimeout(resolve, 200)),
+    ]);
+  } catch (err) {
+    console.warn('Server signout fallback notice:', err);
+  }
   revalidatePath('/', 'layout');
   return { success: true };
 }

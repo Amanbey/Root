@@ -291,7 +291,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-2.5">
             {CROPS_LIST.map((crop) => {
               const isSelected = selectedCrop === crop.name;
               return (
@@ -299,14 +299,14 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
                   key={crop.name}
                   type="button"
                   onClick={() => setSelectedCrop(crop.name)}
-                  className={`p-2.5 rounded-xl border text-xs flex flex-col items-center justify-center text-center gap-1 transition-all ${
+                  className={`p-2 sm:p-2.5 min-h-[72px] sm:min-h-[78px] rounded-xl border text-xs flex flex-col items-center justify-center text-center gap-1 touch-manipulation active:scale-95 transition-all ${
                     isSelected
-                      ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold shadow-md shadow-emerald-950/40'
+                      ? 'bg-emerald-500/20 border-emerald-500 text-white font-bold shadow-md shadow-emerald-950/40 ring-1 ring-emerald-500/30'
                       : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
                   }`}
                 >
-                  <span className="text-xl">{crop.icon}</span>
-                  <span className="text-[11px] truncate w-full">{crop.label}</span>
+                  <span className="text-xl sm:text-2xl">{crop.icon}</span>
+                  <span className="text-[11px] leading-tight font-medium text-center line-clamp-2 px-0.5">{crop.label}</span>
                 </button>
               );
             })}
@@ -412,7 +412,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
                 id="q-region"
                 value={region}
                 onChange={(e) => setRegion(e.target.value as EthiopianRegion)}
-                className="w-full h-9 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full h-11 sm:h-9 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500"
               >
                 <option value="Oromia">Oromia (ኦሮሚያ)</option>
                 <option value="Amhara">Amhara (አማራ)</option>
@@ -434,7 +434,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
                 id="q-agroZone"
                 value={agroZone}
                 onChange={(e) => setAgroZone(e.target.value as AgroEcologicalZone)}
-                className="w-full h-9 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500"
+                className="w-full h-11 sm:h-9 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500"
               >
                 <option value="Weyna Dega">Weyna Dega (Midland 1500–2400m)</option>
                 <option value="Dega">Dega (Highland &gt;2400m)</option>
@@ -464,13 +464,13 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
             <span className="text-[11px] font-semibold text-slate-400 block">
               Quick Select Common Symptoms:
             </span>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {COMMON_SYMPTOM_TAGS.map((tag) => (
                 <button
                   key={tag}
                   type="button"
                   onClick={() => addSymptomTag(tag)}
-                  className="text-[10px] px-2.5 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-300 hover:border-emerald-500/50 hover:text-emerald-300 transition-colors"
+                  className="text-[11px] px-3 py-1.5 min-h-[34px] flex items-center rounded-full bg-slate-950 border border-slate-800 text-slate-300 hover:border-emerald-500/50 hover:text-emerald-300 touch-manipulation active:scale-95 transition-all"
                 >
                   + {tag}
                 </button>
@@ -484,18 +484,18 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
       <Button
         type="submit"
         disabled={isPending || isDeliberating}
-        className="w-full h-12 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-2 transition-all"
+        className="w-full min-h-[48px] sm:min-h-[50px] py-3 px-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-2 transition-all touch-manipulation"
       >
         {isPending || isDeliberating ? (
           <>
-            <Loader2 className="w-5 h-5 animate-spin" />
-            <span>5-Agent Council Deliberating • ኤጀንቶቹ በመወያየት ላይ ናቸው...</span>
+            <Loader2 className="w-5 h-5 animate-spin shrink-0" />
+            <span className="truncate">Council Deliberating • ኤጀንቶቹ በመወያየት ላይ ናቸው...</span>
           </>
         ) : (
           <>
-            <Bot className="w-5 h-5" />
-            <span>Deploy 5-Agent Agronomic Council • የግብርና ኤጀንቶች ጉባኤ ጀምር</span>
-            <ArrowRight className="w-4 h-4 ml-1" />
+            <Bot className="w-5 h-5 shrink-0" />
+            <span className="truncate">Start 5-Agent Diagnosis • የግብርና ኤጀንቶች ጉባኤ ጀምር</span>
+            <ArrowRight className="w-4 h-4 ml-1 shrink-0 hidden sm:inline" />
           </>
         )}
       </Button>

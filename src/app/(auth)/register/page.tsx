@@ -229,7 +229,7 @@ export default function RegisterPage() {
             <Button
               type="submit"
               disabled={isPending}
-              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold h-10 shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 mt-2"
+              className="w-full min-h-[44px] h-11 sm:h-10 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 mt-2 touch-manipulation"
             >
               {isPending ? (
                 <>
