@@ -59,8 +59,8 @@ export function SignOutButton({
       // Ignore server signout fallback
     }
 
-    // 3. Immediately hard-navigate to login page, cleanly wiping in-memory state
-    window.location.href = '/login?switch=true';
+    // 3. Immediately hard-navigate to landing page, cleanly wiping in-memory state
+    window.location.href = '/';
   };
 
   return (

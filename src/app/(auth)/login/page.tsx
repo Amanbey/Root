@@ -12,7 +12,8 @@ import {
   AlertCircle, 
   WifiOff, 
   CheckCircle2, 
-  Sparkles 
+  Sparkles,
+  Bot
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -136,7 +137,25 @@ function LoginForm() {
 
   return (
     <Card className="w-full max-w-md bg-slate-900/80 border border-slate-800 hover:border-emerald-400/80 hover:ring-1 hover:ring-emerald-400/40 hover:shadow-[0_0_30px_-5px_rgba(16,185,129,0.3)] shadow-2xl backdrop-blur-md transition-all duration-300">
-      <CardHeader className="space-y-1 text-center pb-4">
+      {/* Auth Gateway Mode Tabs (Sign In vs Register) */}
+      <div className="p-3 pb-0">
+        <div className="grid grid-cols-2 p-1 bg-slate-950/80 rounded-xl border border-slate-800">
+          <button
+            type="button"
+            className="py-2 text-xs font-bold rounded-lg bg-emerald-500 text-slate-950 shadow-md transition-all duration-200 cursor-default"
+          >
+            {t('auth_tab_login')}
+          </button>
+          <Link
+            href={`/register${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`}
+            className="py-2 text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-900 rounded-lg text-center transition-all duration-200 flex items-center justify-center"
+          >
+            {t('auth_tab_register')}
+          </Link>
+        </div>
+      </div>
+
+      <CardHeader className="space-y-1 text-center pb-4 pt-3">
         <CardTitle className="text-xl font-bold text-white">
           {t('auth_login_title')}
         </CardTitle>
@@ -146,6 +165,19 @@ function LoginForm() {
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {/* Contextual Banner if user arrived from clicking 'Ask a Question' */}
+        {redirectTo === '/diagnose' && (
+          <div className="p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/70 via-teal-950/60 to-slate-900 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2.5 shadow-sm">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shrink-0">
+              <Bot className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div>
+              <p className="font-bold text-white text-[12px]">{t('auth_intent_diagnose_title')}</p>
+              <p className="text-[11px] text-slate-300 leading-snug">{t('auth_intent_diagnose_desc')}</p>
+            </div>
+          </div>
+        )}
+
         {/* Offline Mode Active Banner */}
         {isOffline && (
           <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/50 text-amber-200 text-xs space-y-2 shadow-sm animate-in fade-in duration-300">
@@ -273,7 +305,10 @@ function LoginForm() {
       <CardFooter className="flex flex-col space-y-2 text-center text-xs text-slate-400 pt-0">
         <p>
           {t('auth_no_account')}{' '}
-          <Link href="/register" className="text-emerald-400 font-semibold hover:underline">
+          <Link
+            href={`/register${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`}
+            className="text-emerald-400 font-semibold hover:underline"
+          >
             {t('auth_register_farmer_link')}
           </Link>
         </p>

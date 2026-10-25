@@ -306,6 +306,18 @@ export interface Translations {
   auth_register_farmer_link: string;
   auth_reg_success_msg: string;
 
+  // Auth Flow & Gateway Prompts
+  auth_tab_login: string;
+  auth_tab_register: string;
+  auth_already_registered_prompt: string;
+  auth_new_user_prompt: string;
+  auth_intent_diagnose_title: string;
+  auth_intent_diagnose_desc: string;
+  auth_modal_title: string;
+  auth_modal_subtitle: string;
+  auth_modal_login_btn: string;
+  auth_modal_register_btn: string;
+
   // Offline Indicators
   offline_banner_queued: string;
   offline_banner_connected_queued: string;
@@ -613,6 +625,18 @@ export const translations: Record<SupportedLanguage, Translations> = {
     auth_register_farmer_link: 'Register Farmer Profile',
     auth_reg_success_msg: 'Registration successful! You can now sign in with your credentials below.',
 
+    // Auth Flow & Gateway Prompts
+    auth_tab_login: 'Sign In',
+    auth_tab_register: 'Register',
+    auth_already_registered_prompt: 'Already registered? Sign in',
+    auth_new_user_prompt: 'New to Root? Register as Farmer',
+    auth_intent_diagnose_title: 'Ask a Question / Diagnose Crop',
+    auth_intent_diagnose_desc: 'To ask a question and consult the AI Agricultural Council, please sign in or register your farmer profile.',
+    auth_modal_title: 'Ready to Diagnose Your Crops?',
+    auth_modal_subtitle: 'To ask a question or explore your farm advisory, please sign in if you already have an account, or register if you are new.',
+    auth_modal_login_btn: 'I Already Have an Account (Sign In)',
+    auth_modal_register_btn: 'I Am a New Farmer (Register Free)',
+
     // Offline Indicators
     offline_banner_queued: 'items queued',
     offline_banner_connected_queued: 'Connected • items awaiting sync',
@@ -917,6 +941,18 @@ export const translations: Record<SupportedLanguage, Translations> = {
     auth_register_farmer_link: 'የአርሶ አደር መገለጫ ይመዝገቡ',
     auth_reg_success_msg: 'ምዝገባው በተሳካ ሁኔታ ተጠናቋል! አሁን ባስገቡት መረጃ መግባት ይችላሉ።',
 
+    // Auth Flow & Gateway Prompts
+    auth_tab_login: 'ግባ',
+    auth_tab_register: 'ይመዝገቡ',
+    auth_already_registered_prompt: 'ቀደም ሲል ተመዝግበዋል? ይግቡ',
+    auth_new_user_prompt: 'ለሩት አዲስ ነዎት? እንደ ገበሬ ይመዝገቡ',
+    auth_intent_diagnose_title: 'ጥያቄ ይጠይቁ / የሰብል ምርመራ',
+    auth_intent_diagnose_desc: 'ጥያቄ ለመጠየቅ እና ባለ 5ቱ የኤጀንቶች ምክር ቤት ለማማከር፣ እባክዎ ይግቡ ወይም የገበሬ መገለጫዎን ይመዝገቡ።',
+    auth_modal_title: 'ሰብልዎን ለመመርመር ተዘጋጅተዋል?',
+    auth_modal_subtitle: 'ጥያቄ ለመጠየቅ ወይም ዳሽቦርድ ለመጠቀም፣ መለያ ካለዎት ይግቡ፣ አዲስ ከሆኑ ይመዝገቡ።',
+    auth_modal_login_btn: 'ቀደም ሲል መለያ አለኝ (ግባ)',
+    auth_modal_register_btn: 'አዲስ ገበሬ ነኝ (በነጻ ይመዝገቡ)',
+
     // Offline Indicators
     offline_banner_queued: 'ምርመራዎች በመጠባበቅ ላይ',
     offline_banner_connected_queued: 'ተገናኝቷል • ለማመሳሰል የተዘጋጁ ምርመራዎች',
@@ -1220,6 +1256,18 @@ export const translations: Record<SupportedLanguage, Translations> = {
     auth_login_header_sub: 'Qorannoo midhaanii, kaardii gorsaa fi toora ala hojjetu argadhaa',
     auth_register_farmer_link: 'Eenyummaa Qonnaan Bulaa Galmeessi',
     auth_reg_success_msg: 'Galmeen milkaa’inaan xumurameera! Amma seensaan fayyadamaa.',
+
+    // Auth Flow & Gateway Prompts
+    auth_tab_login: 'Seeni',
+    auth_tab_register: 'Galmaa’i',
+    auth_already_registered_prompt: 'Kanaan dura galmooftee? Seeni',
+    auth_new_user_prompt: 'Ruutiif haaraadha? Akka qonnaan bulttiitti galmaa’i',
+    auth_intent_diagnose_title: 'Gaaffii Gaafadhu / Midhaan Qoradhu',
+    auth_intent_diagnose_desc: 'Gaaffii gaafachuu fi gorsitoota 5 mariisisuuf, maaloo seeni ykn eenyummaa qonnaan bultummaa kee galmeessi.',
+    auth_modal_title: 'Midhaan keessan qorachuuf qophiidhaa?',
+    auth_modal_subtitle: 'Gaaffii gaafachuu fi daashboordii fayyadamuuf, akkaawuntii qabdu yoo ta’e seenaa, haaraa yoo taatan galmaa’aa.',
+    auth_modal_login_btn: 'Akkaawuntii qaba (Seeni)',
+    auth_modal_register_btn: 'Qonnaan Bulaa Haaraadha (Tola Galmaa’i)',
 
     // Offline Indicators
     offline_banner_queued: 'eeggachaa jiru',

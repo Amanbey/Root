@@ -91,6 +91,7 @@ export async function signUpAction(prevState: unknown, formData: FormData): Prom
   const region = (formData.get('region') as string) || 'Oromia';
   const agroZone = (formData.get('agroZone') as string) || 'Weyna Dega';
   const preferredLanguage = (formData.get('preferredLanguage') as string) || 'en';
+  const redirectTo = (formData.get('redirectTo') as string) || '/profile';
 
   const validated = registerSchema.safeParse({
     fullName,
@@ -214,13 +215,13 @@ export async function signUpAction(prevState: unknown, formData: FormData): Prom
   if (signInError) {
     return {
       success: true,
-      redirectTo: '/login?registered=success',
+      redirectTo: `/login?registered=success&redirectTo=${encodeURIComponent(redirectTo)}`,
     };
   }
 
   return {
     success: true,
-    redirectTo: '/profile',
+    redirectTo,
   };
 }
 
@@ -346,7 +347,7 @@ export async function updateFarmerProfileAction(profileUpdate: {
 
   const { error } = await supabase
     .from('farmer_profiles')
-    .upsert(upsertData as any);
+    .upsert(upsertData as Record<string, unknown>);
 
   if (error) {
     return { success: false, error: error.message };

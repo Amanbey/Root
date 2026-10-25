@@ -94,7 +94,7 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
         <div
           role="listbox"
           aria-label="Languages"
-          className="absolute right-0 top-full mt-2 w-48 sm:w-52 rounded-2xl bg-slate-950/95 border border-emerald-500/40 shadow-2xl shadow-emerald-950/80 ring-1 ring-emerald-400/30 backdrop-blur-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1"
+          className="absolute right-0 top-full mt-2 w-48 sm:w-52 rounded-2xl bg-slate-950/95 border border-emerald-500/40 shadow-2xl shadow-emerald-950/80 ring-1 ring-emerald-400/30 backdrop-blur-2xl p-1.5 z-[60] animate-in fade-in zoom-in-95 duration-150 space-y-1"
         >
           <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/80 flex items-center justify-between">
             <span>Language / ቋንቋ</span>
