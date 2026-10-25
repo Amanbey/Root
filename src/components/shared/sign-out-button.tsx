@@ -12,6 +12,7 @@ interface SignOutButtonProps {
   className?: string;
   showText?: boolean;
   text?: string;
+  textClassName?: string;
 }
 
 export function SignOutButton({
@@ -19,6 +20,7 @@ export function SignOutButton({
   className = '',
   showText = true,
   text,
+  textClassName = 'hidden lg:inline',
 }: SignOutButtonProps) {
   const { t } = useLanguage();
   const [isPending, setIsPending] = useState(false);
@@ -74,7 +76,7 @@ export function SignOutButton({
         <LogOut className="w-3.5 h-3.5 shrink-0" />
       )}
       {showText && (
-        <span className="ml-1.5 text-xs font-semibold hidden xs:inline">
+        <span className={`ml-1.5 text-xs font-semibold ${textClassName}`}>
           {isPending ? t('auth_logging_out') : (text || t('nav_sign_out'))}
         </span>
       )}

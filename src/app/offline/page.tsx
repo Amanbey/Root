@@ -96,7 +96,7 @@ export default function OfflinePage() {
         </div>
       </main>
 
-      <footer className="text-center text-xs text-slate-500 pb-2">
+      <footer className="text-center text-xs text-slate-500 pt-6 pb-28 md:pb-6">
         {t('footer_text')}
       </footer>
     </div>

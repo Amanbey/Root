@@ -38,7 +38,7 @@ export default async function DashboardPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 py-6 text-center text-xs text-slate-500">
+      <footer className="border-t border-slate-900 pt-6 pb-28 md:pb-6 text-center text-xs text-slate-500">
         Root Ethiopia • Agro-Ecological Advisory Engine • 100% Offline-First Multi-Agent Architecture
       </footer>
     </div>

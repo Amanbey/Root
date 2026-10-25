@@ -88,24 +88,24 @@ export function Navbar({ userEmail: propEmail, farmerName: propName, avatarUrl: 
     <>
       {/* Top Navbar for All Devices */}
       <header className="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md sticky top-0 z-30 transition-all duration-300">
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between gap-2">
+        <div className="w-full max-w-6xl mx-auto px-2.5 sm:px-4 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-2 overflow-x-hidden">
           {/* Brand Logo with Dynamic Hover Micro-Animation & Radiant Edge */}
-          <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0 transition-transform">
+          <Link href="/" className="flex items-center gap-1.5 sm:gap-2.5 group shrink-0 transition-transform">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-md shadow-emerald-950/40 border border-emerald-400/40 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_0_20px_-3px_rgba(16,185,129,0.5)] group-hover:border-emerald-300 group-hover:ring-2 group-hover:ring-emerald-400/40 transition-all duration-300 ease-out">
               <Leaf className="w-4 h-4 text-slate-950 stroke-[2.5] group-hover:scale-105 transition-transform" />
             </div>
-            <div>
-              <span className="font-extrabold text-base tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent group-hover:from-emerald-300 group-hover:to-teal-200 transition-all">
+            <div className="min-w-0">
+              <span className="font-extrabold text-sm sm:text-base tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent group-hover:from-emerald-300 group-hover:to-teal-200 transition-all truncate block">
                 {t('brand_name')}
               </span>
-              <span className="text-[10px] text-slate-400 block -mt-1 font-medium hidden sm:block group-hover:text-slate-300 transition-colors">
+              <span className="text-[10px] text-slate-400 block -mt-1 font-medium hidden sm:block group-hover:text-slate-300 transition-colors truncate">
                 {t('brand_tagline')}
               </span>
             </div>
           </Link>
 
           {/* Desktop & Tablet Links (md: >= 768px) with Dynamic Radiant Edge & Aura */}
-          <nav aria-label="Desktop navigation" className="hidden md:flex items-center gap-1.5">
+          <nav aria-label="Desktop navigation" className="hidden md:flex items-center gap-1 lg:gap-1.5 shrink min-w-0">
             {navLinks.map((link) => {
               const Icon = link.icon;
               const isActive = isRouteActive(link.href);
@@ -113,18 +113,18 @@ export function Navbar({ userEmail: propEmail, farmerName: propName, avatarUrl: 
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`group relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 ${
+                  className={`group relative flex items-center gap-1 lg:gap-1.5 px-2 lg:px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 ${
                     isActive
                       ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-400/70 shadow-[0_0_15px_-3px_rgba(16,185,129,0.3)] ring-1 ring-emerald-400/40'
                       : 'text-slate-300 hover:text-white hover:bg-slate-900/90 hover:border-emerald-500/50 hover:shadow-[0_0_15px_-3px_rgba(16,185,129,0.25)] hover:ring-1 hover:ring-emerald-400/30 border border-transparent'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 transition-transform duration-200 group-hover:scale-115 ${
+                  <Icon className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 group-hover:scale-115 ${
                     isActive ? 'text-emerald-400' : 'text-slate-400 group-hover:text-emerald-400'
                   }`} />
-                  <span className="relative z-10">{link.label}</span>
+                  <span className="relative z-10 truncate">{link.label}</span>
                   {isActive && (
-                    <span className="absolute -bottom-1 left-3 right-3 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+                    <span className="absolute -bottom-1 left-2.5 right-2.5 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
                   )}
                 </Link>
               );
@@ -137,10 +137,10 @@ export function Navbar({ userEmail: propEmail, farmerName: propName, avatarUrl: 
             <LanguageSwitcher />
 
             {isLoggedIn ? (
-              <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                 <Link
                   href="/profile"
-                  className="group flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-slate-200 hover:border-emerald-400/80 hover:bg-slate-900 hover:shadow-[0_0_18px_-3px_rgba(16,185,129,0.35)] hover:ring-1 hover:ring-emerald-400/40 hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
+                  className="group flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-slate-200 hover:border-emerald-400/80 hover:bg-slate-900 hover:shadow-[0_0_18px_-3px_rgba(16,185,129,0.35)] hover:ring-1 hover:ring-emerald-400/40 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 shrink-0"
                   title="Farmer Profile"
                 >
                   {avatarUrl ? (
@@ -155,20 +155,21 @@ export function Navbar({ userEmail: propEmail, farmerName: propName, avatarUrl: 
                       {(farmerName || userEmail || 'F')[0].toUpperCase()}
                     </div>
                   )}
-                  <span className="font-medium truncate max-w-[45px] xs:max-w-[75px] sm:max-w-[110px] group-hover:text-emerald-300 transition-colors">
+                  <span className="font-medium truncate max-w-[36px] xs:max-w-[50px] sm:max-w-[70px] md:max-w-[85px] lg:max-w-[120px] group-hover:text-emerald-300 transition-colors">
                     {farmerName || userEmail?.split('@')[0]}
                   </span>
                 </Link>
                 <SignOutButton
                   showText={true}
                   text={t('nav_sign_out')}
+                  textClassName="hidden lg:inline"
                   className="bg-red-950/40 border border-red-500/40 text-red-200 hover:bg-red-900/70 hover:text-white hover:border-red-400 hover:shadow-[0_0_18px_-3px_rgba(239,68,68,0.4)] hover:-translate-y-0.5 active:scale-95 px-2 sm:px-2.5 py-1 text-xs font-semibold h-8 min-h-[32px] rounded-xl shadow-sm shrink-0 transition-all duration-200"
                 />
               </div>
             ) : (
               <Link
                 href="/login"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold border border-emerald-400/40 hover:border-emerald-300 shadow-md shadow-emerald-950/50 hover:shadow-[0_0_20px_-3px_rgba(16,185,129,0.45)] hover:ring-1 hover:ring-emerald-400/50 hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold border border-emerald-400/40 hover:border-emerald-300 shadow-md shadow-emerald-950/50 hover:shadow-[0_0_20px_-3px_rgba(16,185,129,0.45)] hover:ring-1 hover:ring-emerald-400/50 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 shrink-0"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>{t('nav_sign_in')}</span>

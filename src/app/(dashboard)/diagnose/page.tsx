@@ -23,7 +23,7 @@ export default async function DiagnosePage() {
         pastQuestions={pastQuestions}
       />
 
-      <footer className="border-t border-slate-900 py-6 text-center text-xs text-slate-500">
+      <footer className="border-t border-slate-900 pt-6 pb-28 md:pb-6 text-center text-xs text-slate-500">
         Root Ethiopia • Agricultural Advisory Intelligence
       </footer>
     </div>
