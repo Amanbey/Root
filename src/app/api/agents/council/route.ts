@@ -7,6 +7,8 @@ import { NextRequest } from 'next/server';
 import { runAgriculturalCouncil } from '@/lib/agents/orchestrator';
 import { CouncilContextInput, CouncilStepEvent } from '@/lib/agents/types';
 
+import { resolveUserLanguage } from '@/lib/i18n/detect-language';
+
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +23,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    const resolvedLanguage = resolveUserLanguage(body.symptoms, body.preferredLanguage);
+
     const encoder = new TextEncoder();
 
     const stream = new ReadableStream({
@@ -31,7 +35,10 @@ export async function POST(req: NextRequest) {
         };
 
         try {
-          const result = await runAgriculturalCouncil(body, {
+          const result = await runAgriculturalCouncil({
+            ...body,
+            preferredLanguage: resolvedLanguage,
+          }, {
             onEvent: (event: CouncilStepEvent) => {
               sendEvent('step', event);
             },

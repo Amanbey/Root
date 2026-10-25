@@ -10,7 +10,8 @@ import {
   UrgencyLevel, 
   AdviceCard,
   AgentRole,
-  StageStatus
+  StageStatus,
+  SupportedLanguage
 } from '@/lib/types';
 import { Database } from '@/lib/supabase/database.types';
 
@@ -22,6 +23,7 @@ export interface CouncilContextInput {
   photoUrl?: string | null;
   region?: EthiopianRegion;
   agroZone?: AgroEcologicalZone;
+  preferredLanguage?: SupportedLanguage;
 }
 
 export interface DiagnosticAgentOutput {

@@ -8,7 +8,8 @@ import {
   submitAdviceFeedback 
 } from '@/lib/supabase/db-helpers';
 import { runAgriculturalCouncil } from '@/lib/agents/orchestrator';
-import { EthiopianCrop, EthiopianRegion, AgroEcologicalZone } from '@/lib/types';
+import { EthiopianCrop, EthiopianRegion, AgroEcologicalZone, SupportedLanguage } from '@/lib/types';
+import { resolveUserLanguage } from '@/lib/i18n/detect-language';
 
 export interface SubmitQuestionPayload {
   title: string;
@@ -17,6 +18,7 @@ export interface SubmitQuestionPayload {
   photoBase64?: string | null;
   region?: EthiopianRegion;
   agroZone?: AgroEcologicalZone;
+  preferredLanguage?: SupportedLanguage;
 }
 
 export interface SubmitQuestionResult {
@@ -89,7 +91,10 @@ export async function submitCropQuestionAction(payload: SubmitQuestionPayload): 
       isOffline: false,
     });
 
-    // 4. Dispatch the 5-Agent Agricultural Council
+    // 4. Resolve exact user language (from text script, user setting or UI)
+    const resolvedLanguage = resolveUserLanguage(payload.symptoms, payload.preferredLanguage);
+
+    // 5. Dispatch the 5-Agent Agricultural Council
     const councilResult = await runAgriculturalCouncil({
       questionId: question.id,
       userId,
@@ -98,6 +103,7 @@ export async function submitCropQuestionAction(payload: SubmitQuestionPayload): 
       photoUrl,
       region: payload.region,
       agroZone: payload.agroZone,
+      preferredLanguage: resolvedLanguage,
     });
 
     revalidatePath('/diagnose');

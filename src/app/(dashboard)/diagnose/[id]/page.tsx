@@ -4,6 +4,8 @@ export const revalidate = 0;
 import Link from 'next/link';
 
 import { Navbar } from '@/components/shared/navbar';
+import { QuestionDetailNav } from '@/components/advice/question-detail-nav';
+import { Footer } from '@/components/shared/footer';
 import { AdviceDetailTabs } from '@/components/advice/advice-detail-tabs';
 import { 
   getQuestionById, 
@@ -11,8 +13,6 @@ import {
   getAgentRunWithTimeline 
 } from '@/lib/supabase/db-helpers';
 import { getCurrentFarmerProfile } from '@/app/auth/actions';
-import { ArrowLeft, MessageSquarePlus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { OfflineCardDetailView } from '@/components/advice/offline-card-detail-view';
@@ -41,22 +41,7 @@ export default async function QuestionDetailPage({ params }: PageProps) {
 
       <main className="flex-1 max-w-4xl mx-auto px-4 py-6 sm:py-8 pb-24 sm:pb-12 w-full space-y-6">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center justify-between">
-          <Link
-            href="/diagnose"
-            className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Crop Diagnosis</span>
-          </Link>
-
-          <Link href="/diagnose">
-            <Button size="sm" variant="outline" className="border-slate-800 bg-slate-900 text-xs h-8">
-              <MessageSquarePlus className="w-3.5 h-3.5 mr-1 text-emerald-400" />
-              New Question
-            </Button>
-          </Link>
-        </div>
+        <QuestionDetailNav />
 
         {/* Question Summary Bar */}
         <Card className="bg-slate-900/60 border-slate-800">
@@ -108,9 +93,7 @@ export default async function QuestionDetailPage({ params }: PageProps) {
         )}
       </main>
 
-      <footer className="border-t border-slate-900 py-6 text-center text-xs text-slate-500">
-        Root Ethiopia • Agricultural Advisory Intelligence
-      </footer>
+      <Footer />
     </div>
   );
 }

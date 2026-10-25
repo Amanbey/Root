@@ -49,7 +49,7 @@ const CROPS_KEYS: Array<{ name: EthiopianCrop; icon: string }> = [
 export function QuestionForm({ initialProfile }: QuestionFormProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { t, tCrop, tZone } = useLanguage();
+  const { t, tCrop, tZone, language } = useLanguage();
 
   const [selectedCrop, setSelectedCrop] = useState<EthiopianCrop>(
     initialProfile?.main_crops?.[0] || 'Teff'
@@ -230,6 +230,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
           symptoms: symptoms.trim(),
           region,
           agroZone,
+          preferredLanguage: language,
         });
 
         const tempId = card.question_id;
@@ -259,6 +260,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
             photoBase64,
             region,
             agroZone,
+            preferredLanguage: language,
           },
           createdAt: Date.now(),
           attempts: 0,
@@ -295,6 +297,7 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
           photoBase64,
           region,
           agroZone,
+          preferredLanguage: language,
         });
 
         clearTimeout(timer1);

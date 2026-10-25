@@ -15,6 +15,7 @@ export async function executeDiagnosticAgent(
     region: input.region,
     agroZone: input.agroZone,
     photoUrl: input.photoUrl,
+    preferredLanguage: input.preferredLanguage,
   });
 
   const card = result.adviceCard;
