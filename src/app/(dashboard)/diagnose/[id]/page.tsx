@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+
 import { Navbar } from '@/components/shared/navbar';
 import { AdviceDetailTabs } from '@/components/advice/advice-detail-tabs';
 import { 

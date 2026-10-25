@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { Wifi, WifiOff, CheckCircle2, RefreshCw } from 'lucide-react';
 import { subscribeToSyncStatus, syncAllPendingData, SyncStatus } from '@/lib/offline/sync-manager';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 export function OfflineIndicator() {
+  const { language } = useLanguage();
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
     isOnline: true,
     isSyncing: false,
@@ -48,6 +50,20 @@ export function OfflineIndicator() {
     return null;
   }
 
+  const offlineNotice = language === 'am'
+    ? 'ከመስመር ውጭ (Offline) • በስልክዎ ላይ የተቀመጠው AI ይሰራል'
+    : language === 'om'
+    ? 'Toora Irraa Ala • AI n bilbila keessan irratti ni hojjeta'
+    : 'Offline Mode Active • Local AI & cached records ready';
+
+  const syncingNotice = language === 'am'
+    ? `ከደመናው ጋር በማመሳሰል ላይ (${pendingCount} ምርመራ)...`
+    : language === 'om'
+    ? `Waliin hidhamaa jira (${pendingCount})...`
+    : `Synchronizing ${pendingCount} offline ${pendingCount === 1 ? 'diagnosis' : 'diagnoses'} to cloud...`;
+
+  const syncNowText = language === 'am' ? 'አሁን አመሳስል' : language === 'om' ? 'Amma Hidhisi' : 'Sync Now';
+
   return (
     <aside aria-label="Network and offline synchronization banner" className="sticky top-0 z-50 w-full transition-all duration-300">
       {!isOnline ? (
@@ -55,12 +71,10 @@ export function OfflineIndicator() {
           <div className="flex items-center gap-2 mx-auto">
             <WifiOff className="w-3.5 h-3.5 text-slate-950 shrink-0" />
             <span>
-              Offline Mode Active • መስመር ውጭ{' '}
+              {offlineNotice}{' '}
               {pendingCount > 0 ? (
-                <strong className="underline underline-offset-2">({pendingCount} query waiting to sync)</strong>
-              ) : (
-                '(Instant advice available offline)'
-              )}
+                <strong className="underline underline-offset-2">({pendingCount} queued)</strong>
+              ) : null}
             </span>
           </div>
         </div>
@@ -68,9 +82,7 @@ export function OfflineIndicator() {
         <div className="bg-teal-600 text-white px-3 sm:px-4 py-1.5 flex items-center justify-between text-xs font-semibold shadow-md animate-in fade-in">
           <div className="flex items-center gap-2 mx-auto">
             <RefreshCw className="w-3.5 h-3.5 animate-spin text-white shrink-0" />
-            <span>
-              Synchronizing {pendingCount} offline {pendingCount === 1 ? 'diagnosis' : 'diagnoses'} to cloud database...
-            </span>
+            <span>{syncingNotice}</span>
           </div>
         </div>
       ) : showReconnected || pendingCount > 0 ? (
@@ -79,18 +91,30 @@ export function OfflineIndicator() {
             {pendingCount === 0 ? (
               <>
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-200 shrink-0" />
-                <span>Connected • All local diagnoses synchronized!</span>
+                <span>
+                  {language === 'am'
+                    ? 'ተገናኝቷል • ሁሉም ምርመራዎች ተመሳስለዋል!'
+                    : language === 'om'
+                    ? 'Hidhameera • Qorannoowwan hundi qindaa’aniiru!'
+                    : 'Connected • All local diagnoses synchronized!'}
+                </span>
               </>
             ) : (
               <>
                 <Wifi className="w-3.5 h-3.5 text-emerald-200 shrink-0" />
-                <span>Connected • {pendingCount} items queued</span>
+                <span>
+                  {language === 'am'
+                    ? `ተገናኝቷል • ${pendingCount} ምርመራዎች በመጠባበቅ ላይ`
+                    : language === 'om'
+                    ? `Hidhameera • ${pendingCount} eeggachaa jiru`
+                    : `Connected • ${pendingCount} items queued`}
+                </span>
                 <button
                   type="button"
                   onClick={() => syncAllPendingData()}
                   className="ml-2 px-2 py-0.5 rounded bg-emerald-700 hover:bg-emerald-800 text-[11px] font-bold underline"
                 >
-                  Sync Now
+                  {syncNowText}
                 </button>
               </>
             )}

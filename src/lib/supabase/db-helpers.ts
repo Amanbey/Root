@@ -480,3 +480,42 @@ export async function getUserQuestions(userId: string): Promise<Array<QuestionRo
     advice_card: q.advice_cards && q.advice_cards.length > 0 ? q.advice_cards[0] : null,
   }));
 }
+
+export interface FarmerDashboardSummary {
+  totalQuestions: number;
+  resolvedDiagnoses: number;
+  recentQuestions: Array<QuestionRow & { advice_card?: { id: string; diagnosis_name: string; urgency: string; confidence_score: number } | null }>;
+  peerRemedies: CommunityKnowledgeRow[];
+}
+
+/**
+ * 12. GET FARMER DASHBOARD SUMMARY (Real Database)
+ */
+export async function getFarmerDashboardSummary(userId: string, mainCrops: string[] = []): Promise<FarmerDashboardSummary> {
+  const questions = await getUserQuestions(userId);
+  const totalQuestions = questions.length;
+  const resolvedDiagnoses = questions.filter((q) => q.advice_card !== null).length;
+
+  // Query relevant community knowledge remedies for farmer's main crops
+  let peerRemedies: CommunityKnowledgeRow[] = [];
+  try {
+    const supabase = await createServerSupabase();
+    let query = supabase.from('community_knowledge').select('*');
+    if (mainCrops.length > 0) {
+      query = query.in('crop_type', mainCrops);
+    }
+    const { data } = await query
+      .order('verified_by_farmers_count', { ascending: false })
+      .limit(4);
+    peerRemedies = data || [];
+  } catch (e) {
+    console.warn('Dashboard community spotlight notice:', e);
+  }
+
+  return {
+    totalQuestions,
+    resolvedDiagnoses,
+    recentQuestions: questions,
+    peerRemedies,
+  };
+}

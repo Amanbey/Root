@@ -84,9 +84,9 @@ export default function HomePage() {
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
-            <Link href="/diagnose" className="w-full sm:w-auto">
+            <Link href="/dashboard" className="w-full sm:w-auto">
               <Button size="lg" variant="outline" className="w-full sm:w-auto min-h-[48px] border-slate-700 bg-slate-900/60 hover:bg-slate-800 text-slate-200">
-                View Past Advice Cards
+                Farmer Dashboard
               </Button>
             </Link>
           </div>

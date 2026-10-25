@@ -92,7 +92,7 @@ export async function syncAllPendingData(): Promise<{ syncedCount: number; faile
         await updateQueueItem({ ...item, status: 'syncing' });
 
         if (item.type === 'submit_question') {
-          const payload = item.payload as SubmitQuestionPayload;
+          const payload = item.payload as unknown as SubmitQuestionPayload;
           const result = await submitCropQuestionAction(payload);
 
           if (result.success && result.questionId) {
@@ -103,7 +103,7 @@ export async function syncAllPendingData(): Promise<{ syncedCount: number; faile
             throw new Error(result.error || 'Server rejected offline question');
           }
         } else if (item.type === 'vote_advice') {
-          const payload = item.payload as {
+          const payload = item.payload as unknown as {
             adviceCardId: string;
             vote: 'helpful' | 'unhelpful';
             userId?: string;
@@ -116,7 +116,7 @@ export async function syncAllPendingData(): Promise<{ syncedCount: number; faile
           await removeQueueItem(item.id);
           syncedCount++;
         } else if ((item.type as string) === 'upvote_remedy') {
-          const payload = item.payload as { remedyId: string };
+          const payload = item.payload as unknown as { remedyId: string };
           await upvoteRemedyAction(payload.remedyId);
           await removeQueueItem(item.id);
           syncedCount++;

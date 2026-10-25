@@ -3,6 +3,7 @@ import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { OfflineIndicator } from "@/components/shared/offline-indicator";
+import { LanguageProvider } from "@/lib/i18n/language-context";
 
 export const metadata: Metadata = {
   title: "Root – Offline-First Agricultural Advisory Platform",
@@ -44,12 +45,14 @@ export default function RootLayout({
       <body
         className="font-sans antialiased bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950"
       >
-        <OfflineIndicator />
-        <div className="flex-1 flex flex-col">
-          {children}
-        </div>
-        <InstallPrompt />
-        <ServiceWorkerRegister />
+        <LanguageProvider>
+          <OfflineIndicator />
+          <div className="flex-1 flex flex-col">
+            {children}
+          </div>
+          <InstallPrompt />
+          <ServiceWorkerRegister />
+        </LanguageProvider>
       </body>
     </html>
   );
