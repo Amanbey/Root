@@ -237,45 +237,71 @@ export async function signOutAction(): Promise<{ success: boolean }> {
   } catch (err) {
     console.warn('Server signout fallback notice:', err);
   }
+
+  try {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    cookieStore.delete('root_offline_session');
+    cookieStore.delete('root_offline_farmer');
+  } catch {
+    // ignore
+  }
+
   revalidatePath('/', 'layout');
   return { success: true };
 }
 
 /**
- * Fetch current farmer profile
+ * Fetch current farmer profile with seamless offline fallback
  */
 export async function getCurrentFarmerProfile(): Promise<FarmerProfile | null> {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return null;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile, error } = await supabase
+        .from('farmer_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (!error && profile) {
+        return profile as FarmerProfile;
+      }
+
+      // Fallback to basic profile with auth user info
+      return {
+        id: user.id,
+        full_name: user.user_metadata?.full_name || 'Farmer',
+        email: user.email,
+        phone: user.user_metadata?.phone,
+        avatar_url: user.user_metadata?.avatar_url || null,
+        region: 'Oromia',
+        agro_ecological_zone: 'Weyna Dega',
+        main_crops: ['Teff', 'Wheat'],
+        preferred_language: 'en',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+    }
+  } catch {
+    // Offline or network error
   }
 
-  const { data: profile, error } = await supabase
-    .from('farmer_profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
-  if (error || !profile) {
-    // Fallback to basic profile with auth user info
-    return {
-      id: user.id,
-      full_name: user.user_metadata?.full_name || 'Farmer',
-      email: user.email,
-      phone: user.user_metadata?.phone,
-      avatar_url: user.user_metadata?.avatar_url || null,
-      region: 'Oromia',
-      agro_ecological_zone: 'Weyna Dega',
-      main_crops: ['Teff', 'Wheat'],
-      preferred_language: 'en',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+  // Fallback to offline farmer profile stored in cookies
+  try {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    const offlineFarmerCookie = cookieStore.get('root_offline_farmer')?.value;
+    if (offlineFarmerCookie) {
+      return JSON.parse(decodeURIComponent(offlineFarmerCookie)) as FarmerProfile;
+    }
+  } catch {
+    // ignore
   }
 
-  return profile as FarmerProfile;
+  return null;
 }
 
 /**

@@ -26,7 +26,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CommunityKnowledgeRow } from '@/lib/supabase/db-helpers';
-import { upvoteRemedyAction, submitRemedyAction } from '@/app/community/actions';
+import { upvoteRemedyAction, submitRemedyAction } from '@/app/actions/community';
 import { useLanguage } from '@/lib/i18n/language-context';
 
 interface CommunityViewProps {

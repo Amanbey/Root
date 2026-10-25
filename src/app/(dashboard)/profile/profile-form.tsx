@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useTransition, useRef } from 'react';
+import { useState, useTransition, useRef, useEffect } from 'react';
+import { getActiveOfflineFarmerSync, setOfflineAuthCookies } from '@/lib/offline/auth';
 import { 
   User, 
   Phone, 
@@ -97,6 +98,28 @@ export function ProfileForm({ initialProfile, onAvatarChange }: ProfileFormProps
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [avatarStatus, setAvatarStatus] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // If initialProfile was not provided from server, load from local offline storage
+  useEffect(() => {
+    if (!initialProfile) {
+      const localFarmer = getActiveOfflineFarmerSync();
+      if (localFarmer) {
+        if (localFarmer.full_name) setFullName(localFarmer.full_name);
+        if (localFarmer.phone) setPhone(localFarmer.phone);
+        if (localFarmer.region) setRegion(localFarmer.region);
+        if (localFarmer.zone_name) setZoneName(localFarmer.zone_name);
+        if (localFarmer.woreda) setWoreda(localFarmer.woreda);
+        if (localFarmer.agro_ecological_zone) setAgroZone(localFarmer.agro_ecological_zone);
+        if (localFarmer.main_crops?.length) setSelectedCrops(localFarmer.main_crops);
+        if (localFarmer.preferred_language) setPreferredLanguage(localFarmer.preferred_language);
+        if (localFarmer.farm_size_hectares) setFarmSize(localFarmer.farm_size_hectares);
+        if (localFarmer.avatar_url) {
+          setAvatarUrl(localFarmer.avatar_url);
+          onAvatarChange?.(localFarmer.avatar_url);
+        }
+      }
+    }
+  }, [initialProfile, onAvatarChange]);
 
   // Password Change State
   const [newPassword, setNewPassword] = useState('');
@@ -209,29 +232,86 @@ export function ProfileForm({ initialProfile, onAvatarChange }: ProfileFormProps
     setStatusMessage(null);
 
     startTransition(async () => {
-      const result = await updateFarmerProfileAction({
-        fullName,
-        phone,
-        region,
-        zoneName,
-        woreda,
-        agroZone,
-        mainCrops: selectedCrops,
-        preferredLanguage,
-        farmSizeHectares: farmSize ? Number(farmSize) : undefined,
-        avatarUrl,
-      });
-
-      if (result.success) {
+      // Check if offline
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        const offlineProfile: FarmerProfile = {
+          id: initialProfile?.id || `offline_farmer_${Date.now()}`,
+          full_name: fullName,
+          phone,
+          region,
+          zone_name: zoneName,
+          woreda,
+          agro_ecological_zone: agroZone,
+          main_crops: selectedCrops,
+          preferred_language: preferredLanguage,
+          farm_size_hectares: farmSize ? Number(farmSize) : undefined,
+          avatar_url: avatarUrl,
+          created_at: initialProfile?.created_at || new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        setOfflineAuthCookies(offlineProfile);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('root_active_farmer', JSON.stringify(offlineProfile));
+        }
         setGlobalLanguage(preferredLanguage);
         setStatusMessage({
           type: 'success',
           text: t('prof_success_msg'),
         });
-      } else {
+        return;
+      }
+
+      try {
+        const result = await updateFarmerProfileAction({
+          fullName,
+          phone,
+          region,
+          zoneName,
+          woreda,
+          agroZone,
+          mainCrops: selectedCrops,
+          preferredLanguage,
+          farmSizeHectares: farmSize ? Number(farmSize) : undefined,
+          avatarUrl,
+        });
+
+        if (result.success) {
+          setGlobalLanguage(preferredLanguage);
+          setStatusMessage({
+            type: 'success',
+            text: t('prof_success_msg'),
+          });
+        } else {
+          setStatusMessage({
+            type: 'error',
+            text: result.error || 'Failed to update profile. Please try again.',
+          });
+        }
+      } catch {
+        // Fallback to local save if network drops
+        const offlineProfile: FarmerProfile = {
+          id: initialProfile?.id || `offline_farmer_${Date.now()}`,
+          full_name: fullName,
+          phone,
+          region,
+          zone_name: zoneName,
+          woreda,
+          agro_ecological_zone: agroZone,
+          main_crops: selectedCrops,
+          preferred_language: preferredLanguage,
+          farm_size_hectares: farmSize ? Number(farmSize) : undefined,
+          avatar_url: avatarUrl,
+          created_at: initialProfile?.created_at || new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        setOfflineAuthCookies(offlineProfile);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('root_active_farmer', JSON.stringify(offlineProfile));
+        }
+        setGlobalLanguage(preferredLanguage);
         setStatusMessage({
-          type: 'error',
-          text: result.error || 'Failed to update profile. Please try again.',
+          type: 'success',
+          text: t('prof_success_msg'),
         });
       }
     });

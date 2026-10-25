@@ -5,6 +5,7 @@ import { LogOut, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { signOutAction } from '@/app/auth/actions';
 import { createClient } from '@/lib/supabase/client';
+import { signOutOffline } from '@/lib/offline/auth';
 import { useLanguage } from '@/lib/i18n/language-context';
 
 interface SignOutButtonProps {
@@ -33,6 +34,7 @@ export function SignOutButton({
       // 1. Immediately wipe client-side session storage/cookies (sub-10ms)
       const supabase = createClient();
       await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+      signOutOffline();
       
       // Proactively clear any localStorage auth keys
       if (typeof window !== 'undefined' && window.localStorage) {
@@ -58,7 +60,7 @@ export function SignOutButton({
     }
 
     // 3. Immediately hard-navigate to login page, cleanly wiping in-memory state
-    window.location.href = '/login';
+    window.location.href = '/login?switch=true';
   };
 
   return (

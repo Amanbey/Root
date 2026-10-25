@@ -252,6 +252,15 @@ export interface Translations {
   auth_has_account: string;
   auth_login_link: string;
 
+  // Offline Mode & Auth
+  auth_offline_badge: string;
+  auth_offline_notice: string;
+  auth_btn_continue_offline: string;
+  auth_offline_reg_success: string;
+  auth_offline_login_success: string;
+  auth_offline_no_account_found: string;
+  auth_offline_create_profile: string;
+
   // Seasonal Advisory Radar
   season_priority: string;
   season_actions_heading: string;
@@ -550,6 +559,15 @@ export const translations: Record<SupportedLanguage, Translations> = {
     auth_has_account: 'Already have an account?',
     auth_login_link: 'Sign In',
 
+    // Offline Mode & Auth
+    auth_offline_badge: 'Offline Mode Active',
+    auth_offline_notice: 'You are working offline. You can sign in or register locally; your profile and diagnostic data will sync when internet connection is restored.',
+    auth_btn_continue_offline: 'Continue in Offline Mode',
+    auth_offline_reg_success: 'Registered locally in Offline Mode! All diagnostic and advisory tools are ready. Synced when online.',
+    auth_offline_login_success: 'Signed in in Offline Mode. Working with local agronomy records.',
+    auth_offline_no_account_found: 'No local account found for this email on this device. You can register offline or continue with an offline farmer profile.',
+    auth_offline_create_profile: 'Create Offline Profile',
+
     // Seasonal Advisory Radar
     season_priority: 'Seasonal Priority:',
     season_actions_heading: 'Critical Seasonal Actions',
@@ -845,6 +863,15 @@ export const translations: Record<SupportedLanguage, Translations> = {
     auth_has_account: 'ቀደም ሲል መለያ አለዎት?',
     auth_login_link: 'ግባ',
 
+    // Offline Mode & Auth
+    auth_offline_badge: 'ከመስመር ውጭ ሁነታ ነቅቷል',
+    auth_offline_notice: 'ከኢንተርኔት ተቋርጠው ከመስመር ውጭ እየሰሩ ነው። በአካባቢው መግባት ወይም መመዝገብ ይችላሉ፤ መለያዎ እና መረጃዎ ኢንተርኔት ሲገኝ ይመሳሰላል።',
+    auth_btn_continue_offline: 'ከመስመር ውጭ ቀጥል',
+    auth_offline_reg_success: 'ከመስመር ውጭ በአካባቢው ተመዝግቧል! ሁሉም የሰብል ምርመራ እና የምክር መሳሪያዎች ዝግጁ ናቸው። ኢንተርኔት ሲገኝ ይመሳሰላል።',
+    auth_offline_login_success: 'ከመስመር ውጭ በተሳካ ሁኔታ ገብተዋል። የአካባቢውን የግብርና መረጃዎች በመጠቀም ላይ ነዎት።',
+    auth_offline_no_account_found: 'በዚህ መሳሪያ ላይ ለዚህ ኢሜይል የተቀመጠ መለያ አልተገኘም። ከመስመር ውጭ መመዝገብ ወይም ከመስመር ውጭ መገለጫ ጋር መቀጠል ይችላሉ።',
+    auth_offline_create_profile: 'ከመስመር ውጭ መገለጫ ፍጠር',
+
     // Seasonal Advisory Radar
     season_priority: 'የወቅቱ ዋና ትኩረት፦',
     season_actions_heading: 'ወቅታዊ ተግባራት',
@@ -1139,6 +1166,15 @@ export const translations: Record<SupportedLanguage, Translations> = {
     auth_btn_registering: 'Uumamaa jira...',
     auth_has_account: 'Duraan akkaawuntii qabduu?',
     auth_login_link: 'Seeni',
+
+    // Offline Mode & Auth
+    auth_offline_badge: 'Haalli Sararaan Alaa Hojiirra Jira',
+    auth_offline_notice: 'Interneetii irraa addaan citanii sararaan ala hojjachaa jirtu. Asumaan seenuu ykn galmaa’uu dandeessu; pirofaayiliin fi qorannoon keessan yeroo toorri dhufu ni walsima.',
+    auth_btn_continue_offline: 'Sararaan Ala Ittifufi',
+    auth_offline_reg_success: 'Sararaan ala bakka kanatti galmaa’eera! Meeshaaleen qorannoo fi gorsaa hundi qophiidha. Toorri yoo dhufu ni walsima.',
+    auth_offline_login_success: 'Haala sararaan alaatiin milkaa’inaan seentaniittu. Galmeewwan qonnaa naannoo fayyadamaa jirtu.',
+    auth_offline_no_account_found: 'Meeshaa kana irratti imeelii kanaaf herregni hin argamne. Sararaan ala galmaa’uu ykn pirofaayilii sararaan alaatiin itti fufuu dandeessu.',
+    auth_offline_create_profile: 'Pirofaayilii Sararaan Alaa Uumi',
 
     // Seasonal Advisory Radar
     season_priority: 'Xiyyeeffannoo Waqtii:',

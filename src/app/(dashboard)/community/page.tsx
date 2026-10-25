@@ -3,11 +3,11 @@ export const revalidate = 0;
 
 import { getCurrentFarmerProfile } from '@/app/auth/actions';
 import { Navbar } from '@/components/shared/navbar';
-import { searchCommunityKnowledge } from '@/lib/supabase/db-helpers';
+import { searchCommunityKnowledge, CommunityKnowledgeRow } from '@/lib/supabase/db-helpers';
 import { CommunityView } from './community-view';
 
 interface CommunityPageProps {
-  searchParams: Promise<{
+  searchParams?: Promise<{
     q?: string;
     crop?: string;
     region?: string;
@@ -16,17 +16,24 @@ interface CommunityPageProps {
 }
 
 export default async function CommunityPage({ searchParams }: CommunityPageProps) {
-  const { q = '', crop = '', region = '', zone = '' } = await searchParams;
+  const resolvedParams = searchParams ? await searchParams : {};
+  const { q = '', crop = '', region = '', zone = '' } = resolvedParams;
   const profile = await getCurrentFarmerProfile();
 
-  // Retrieve community knowledge with all active filters
-  const knowledgeItems = await searchCommunityKnowledge({
-    query: q || undefined,
-    crop: crop || undefined,
-    region: region || undefined,
-    agroZone: zone || undefined,
-    limit: 30,
-  });
+  // Retrieve community knowledge with all active filters and resilient offline fallback
+  let knowledgeItems: CommunityKnowledgeRow[] = [];
+  try {
+    knowledgeItems = await searchCommunityKnowledge({
+      query: q || undefined,
+      crop: crop || undefined,
+      region: region || undefined,
+      agroZone: zone || undefined,
+      limit: 30,
+    });
+  } catch (err) {
+    console.warn('[Community Page] Knowledge retrieval notice:', err);
+    knowledgeItems = [];
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-950">

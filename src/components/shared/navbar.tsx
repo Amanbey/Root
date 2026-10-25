@@ -8,6 +8,7 @@ import { SignOutButton } from '@/components/shared/sign-out-button';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { createClient } from '@/lib/supabase/client';
+import { getActiveOfflineFarmerSync } from '@/lib/offline/auth';
 
 interface NavbarProps {
   userEmail?: string | null;
@@ -26,6 +27,15 @@ export function Navbar({ userEmail: propEmail, farmerName: propName, avatarUrl: 
     if (propEmail) setUserEmail(propEmail);
     if (propName) setFarmerName(propName);
     if (propAvatar) setAvatarUrl(propAvatar);
+
+    if (!propEmail && !propName) {
+      const offlineFarmer = getActiveOfflineFarmerSync();
+      if (offlineFarmer) {
+        setUserEmail(offlineFarmer.email || null);
+        setFarmerName(offlineFarmer.full_name || 'Farmer');
+        if (offlineFarmer.avatar_url) setAvatarUrl(offlineFarmer.avatar_url);
+      }
+    }
 
     try {
       const supabase = createClient();

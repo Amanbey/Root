@@ -12,7 +12,8 @@ import {
   getQueueCount 
 } from './db';
 import { submitCropQuestionAction, SubmitQuestionPayload, voteAdviceAction } from '@/app/actions/diagnose';
-import { upvoteRemedyAction } from '@/app/community/actions';
+import { upvoteRemedyAction } from '@/app/actions/community';
+import { signUpAction } from '@/app/auth/actions';
 
 export interface SyncStatus {
   isOnline: boolean;
@@ -120,6 +121,38 @@ export async function syncAllPendingData(): Promise<{ syncedCount: number; faile
           await upvoteRemedyAction(payload.remedyId);
           await removeQueueItem(item.id);
           syncedCount++;
+        } else if (item.type === 'register_farmer') {
+          const payload = item.payload as {
+            fullName: string;
+            email: string;
+            phone?: string;
+            password?: string;
+            region?: string;
+            agroZone?: string;
+            preferredLanguage?: string;
+          };
+          const formData = new FormData();
+          formData.append('fullName', payload.fullName);
+          formData.append('email', payload.email);
+          if (payload.phone) formData.append('phone', payload.phone);
+          if (payload.password) formData.append('password', payload.password);
+          formData.append('region', payload.region || 'Oromia');
+          formData.append('agroZone', payload.agroZone || 'Weyna Dega');
+          formData.append('preferredLanguage', payload.preferredLanguage || 'en');
+
+          const result = await signUpAction(null, formData);
+          if (
+            result.success || 
+            (result.error && (
+              result.error.toLowerCase().includes('already registered') || 
+              result.error.toLowerCase().includes('already exists')
+            ))
+          ) {
+            await removeQueueItem(item.id);
+            syncedCount++;
+          } else {
+            throw new Error(result.error || 'Server rejected registration sync');
+          }
         } else {
           // Unknown item type, discard
           await removeQueueItem(item.id);

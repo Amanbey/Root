@@ -8,7 +8,7 @@ import { openDB, IDBPDatabase } from 'idb';
 import { AdviceCard, OfflineQueueItem, QuestionSubmission } from '@/lib/types';
 
 const DB_NAME = 'root_offline_agronomy_db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 export interface OfflineStoredQuestion extends QuestionSubmission {
   adviceCard?: AdviceCard;
@@ -45,6 +45,12 @@ export function getOfflineDB(): Promise<IDBPDatabase> {
           const questionsStore = db.createObjectStore('offline_questions', { keyPath: 'id' });
           questionsStore.createIndex('by_synced', 'syncedOnline');
           questionsStore.createIndex('by_created_at', 'created_at');
+        }
+
+        // 4. Offline Farmers & Local Auth Store
+        if (!db.objectStoreNames.contains('offline_farmers')) {
+          const farmersStore = db.createObjectStore('offline_farmers', { keyPath: 'profile.email' });
+          farmersStore.createIndex('by_id', 'profile.id');
         }
       },
     });

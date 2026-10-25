@@ -1,14 +1,25 @@
 'use client';
 
-import { useState, useTransition, Suspense } from 'react';
+import { useState, useTransition, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Leaf, Lock, Mail, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { 
+  Leaf, 
+  Lock, 
+  Mail, 
+  ArrowRight, 
+  Loader2, 
+  AlertCircle, 
+  WifiOff, 
+  CheckCircle2, 
+  Sparkles 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { signInAction } from '@/app/auth/actions';
+import { signInOffline, createGuestOfflineSession } from '@/lib/offline/auth';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
 
@@ -21,23 +32,104 @@ function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isOffline, setIsOffline] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [showOfflineOption, setShowOfflineOption] = useState(false);
+
+  // Monitor online / offline network state reactively
+  useEffect(() => {
+    const updateOnlineStatus = () => {
+      const offline = typeof navigator !== 'undefined' ? !navigator.onLine : false;
+      setIsOffline(offline);
+      if (offline) setShowOfflineOption(true);
+    };
+
+    updateOnlineStatus();
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    return () => {
+      window.removeEventListener('online', updateOnlineStatus);
+      window.removeEventListener('offline', updateOnlineStatus);
+    };
+  }, []);
+
+  // Offline Login Handler
+  const handleOfflineSignIn = async (userEmail: string, userPass?: string) => {
+    try {
+      const result = await signInOffline(userEmail, userPass);
+      if (result.success && result.profile) {
+        setErrorMessage(null);
+        setSuccessMessage(t('auth_offline_login_success'));
+        setTimeout(() => {
+          router.push(redirectTo);
+        }, 600);
+        return true;
+      } else {
+        setShowOfflineOption(true);
+        setErrorMessage(t('auth_offline_no_account_found'));
+        return false;
+      }
+    } catch {
+      setShowOfflineOption(true);
+      setErrorMessage(t('auth_offline_no_account_found'));
+      return false;
+    }
+  };
+
+  // Instant Guest / Field Offline Session Handler
+  const handleContinueOffline = async () => {
+    setErrorMessage(null);
+    setSuccessMessage(t('auth_offline_login_success'));
+    try {
+      await createGuestOfflineSession(
+        email.trim() || undefined,
+        email.trim() ? email.split('@')[0].replace(/[._-]/g, ' ') : undefined
+      );
+      setTimeout(() => {
+        router.push(redirectTo);
+      }, 500);
+    } catch {
+      router.push(redirectTo);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage(null);
+    setSuccessMessage(null);
 
+    // If device is offline, authenticate strictly locally without touching the network
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      handleOfflineSignIn(email, password);
+      return;
+    }
+
+    // If online, attempt Supabase server action with graceful offline fallback
     const formData = new FormData();
     formData.append('email', email);
     formData.append('password', password);
     formData.append('redirectTo', redirectTo);
 
     startTransition(async () => {
-      const result = await signInAction(null, formData);
-      if (result && !result.success) {
-        setErrorMessage(result.error || 'Failed to sign in. Please verify your credentials.');
-      } else if (result?.redirectTo) {
-        router.push(result.redirectTo);
+      try {
+        const result = await signInAction(null, formData);
+        if (result && !result.success) {
+          // If server rejects credentials or server error
+          setErrorMessage(result.error || 'Failed to sign in. Please verify your credentials.');
+        } else if (result?.redirectTo) {
+          router.push(result.redirectTo);
+        }
+      } catch (networkError) {
+        // Network fetch threw (e.g. WiFi with no internet access or sudden disconnection)
+        console.warn('[Login] Network fetch failed, activating offline login mode:', networkError);
+        setIsOffline(true);
+        setShowOfflineOption(true);
+        const loggedIn = await handleOfflineSignIn(email, password);
+        if (!loggedIn) {
+          setErrorMessage(t('auth_offline_no_account_found'));
+        }
       }
     });
   };
@@ -53,17 +145,62 @@ function LoginForm() {
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="space-y-4">
+        {/* Offline Mode Active Banner */}
+        {isOffline && (
+          <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/50 text-amber-200 text-xs space-y-2 shadow-sm animate-in fade-in duration-300">
+            <div className="flex items-center gap-2 font-semibold text-amber-300">
+              <WifiOff className="w-4 h-4 shrink-0 text-amber-400" />
+              <span>{t('auth_offline_badge')}</span>
+            </div>
+            <p className="text-[11px] text-amber-200/90 leading-relaxed">
+              {t('auth_offline_notice')}
+            </p>
+            <Button
+              type="button"
+              onClick={handleContinueOffline}
+              size="sm"
+              className="w-full mt-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold border border-amber-300 shadow-md flex items-center justify-center gap-1.5 text-xs h-8"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{t('auth_btn_continue_offline')}</span>
+            </Button>
+          </div>
+        )}
+
+        {/* Account created notice */}
         {searchParams?.get('registered') === 'check-email' && (
-          <div className="mb-4 p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-xs">
+          <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-xs">
             ✓ {t('auth_reg_success_msg')}
           </div>
         )}
 
+        {/* Success message */}
+        {successMessage && (
+          <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-200 text-xs flex items-center gap-2 animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+            <span>{successMessage}</span>
+          </div>
+        )}
+
+        {/* Error message */}
         {errorMessage && (
-          <div className="mb-4 p-3 rounded-xl bg-red-950/50 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
-            <span>{errorMessage}</span>
+          <div className="p-3 rounded-xl bg-red-950/50 border border-red-500/40 text-red-200 text-xs flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+              <span>{errorMessage}</span>
+            </div>
+            {showOfflineOption && (
+              <Button
+                type="button"
+                onClick={handleContinueOffline}
+                size="sm"
+                className="w-full mt-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold border border-emerald-400/40 text-xs h-8"
+              >
+                <span>{t('auth_btn_continue_offline')}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Button>
+            )}
           </div>
         )}
 
@@ -114,11 +251,22 @@ function LoginForm() {
               </>
             ) : (
               <>
-                <span>{t('auth_btn_login')}</span>
+                <span>{isOffline ? t('auth_btn_login') : t('auth_btn_login')}</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
           </Button>
+
+          {/* Quick Offline Bypass Option */}
+          {!isOffline && (
+            <button
+              type="button"
+              onClick={handleContinueOffline}
+              className="w-full text-center text-[11px] text-slate-400 hover:text-emerald-400 transition-colors pt-1"
+            >
+              {t('auth_btn_continue_offline')} →
+            </button>
+          )}
         </form>
       </CardContent>
 

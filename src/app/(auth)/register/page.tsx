@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
@@ -14,17 +14,21 @@ import {
   Globe, 
   ArrowRight, 
   Loader2, 
-  AlertCircle 
+  AlertCircle,
+  WifiOff,
+  CheckCircle2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { signUpAction } from '@/app/auth/actions';
+import { registerOfflineFarmer } from '@/lib/offline/auth';
+import { EthiopianRegion, AgroEcologicalZone, SupportedLanguage } from '@/lib/types';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
 
-const REGIONS = [
+const REGIONS: EthiopianRegion[] = [
   'Oromia',
   'Amhara',
   'Tigray',
@@ -36,7 +40,7 @@ const REGIONS = [
   'Afar',
 ];
 
-const AGRO_ZONES = ['Weyna Dega', 'Dega', 'Kolla', 'Bereha'];
+const AGRO_ZONES: AgroEcologicalZone[] = ['Weyna Dega', 'Dega', 'Kolla', 'Bereha'];
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -46,21 +50,89 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [region, setRegion] = useState('Oromia');
-  const [agroZone, setAgroZone] = useState('Weyna Dega');
-  const [preferredLanguage, setPreferredLanguage] = useState(language || 'en');
+  const [region, setRegion] = useState<EthiopianRegion>('Oromia');
+  const [agroZone, setAgroZone] = useState<AgroEcologicalZone>('Weyna Dega');
+  const [preferredLanguage, setPreferredLanguage] = useState<SupportedLanguage>(
+    language || 'en'
+  );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isOffline, setIsOffline] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const handleLanguageChange = (newLang: 'en' | 'am' | 'om') => {
+  // Monitor network online / offline changes reactively
+  useEffect(() => {
+    const updateOnlineStatus = () => {
+      setIsOffline(typeof navigator !== 'undefined' ? !navigator.onLine : false);
+    };
+
+    updateOnlineStatus();
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    return () => {
+      window.removeEventListener('online', updateOnlineStatus);
+      window.removeEventListener('offline', updateOnlineStatus);
+    };
+  }, []);
+
+  const handleLanguageChange = (newLang: SupportedLanguage) => {
     setPreferredLanguage(newLang);
     setLanguage(newLang);
+  };
+
+  // Offline Registration Routine
+  const handleOfflineRegistration = async () => {
+    try {
+      await registerOfflineFarmer({
+        fullName: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim() || undefined,
+        password,
+        region,
+        agroZone,
+        preferredLanguage,
+      });
+
+      setErrorMessage(null);
+      setSuccessMessage(t('auth_offline_reg_success'));
+      setTimeout(() => {
+        router.push('/profile');
+      }, 700);
+      return true;
+    } catch (saveErr) {
+      console.warn('[Register] Offline registration error:', saveErr);
+      setErrorMessage('Failed to save offline profile locally. Please check your storage.');
+      return false;
+    }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage(null);
+    setSuccessMessage(null);
 
+    // Form validation
+    if (!fullName.trim() || fullName.trim().length < 2) {
+      setErrorMessage('Full name is required (at least 2 characters)');
+      return;
+    }
+    if (!email.trim() || !email.includes('@')) {
+      setErrorMessage('Please enter a valid email address');
+      return;
+    }
+    if (!password || password.length < 6) {
+      setErrorMessage('Password must be at least 6 characters');
+      return;
+    }
+
+    // If client is already offline, register completely locally
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      handleOfflineRegistration();
+      return;
+    }
+
+    // If online, perform Supabase server action with graceful offline fallback
     const formData = new FormData();
     formData.append('fullName', fullName);
     formData.append('email', email);
@@ -71,11 +143,18 @@ export default function RegisterPage() {
     formData.append('preferredLanguage', preferredLanguage);
 
     startTransition(async () => {
-      const result = await signUpAction(null, formData);
-      if (result && !result.success) {
-        setErrorMessage(result.error || 'Registration failed. Please check your details.');
-      } else if (result?.redirectTo) {
-        router.push(result.redirectTo);
+      try {
+        const result = await signUpAction(null, formData);
+        if (result && !result.success) {
+          setErrorMessage(result.error || 'Registration failed. Please check your details.');
+        } else if (result?.redirectTo) {
+          router.push(result.redirectTo);
+        }
+      } catch (networkError) {
+        // Network fetch threw (offline / disconnected in field)
+        console.warn('[Register] Network call failed, activating offline registration:', networkError);
+        setIsOffline(true);
+        await handleOfflineRegistration();
       }
     });
   };
@@ -114,9 +193,31 @@ export default function RegisterPage() {
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="space-y-4">
+          {/* Offline Mode Active Banner */}
+          {isOffline && (
+            <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/50 text-amber-200 text-xs space-y-1 shadow-sm animate-in fade-in duration-300">
+              <div className="flex items-center gap-2 font-semibold text-amber-300">
+                <WifiOff className="w-4 h-4 shrink-0 text-amber-400" />
+                <span>{t('auth_offline_badge')}</span>
+              </div>
+              <p className="text-[11px] text-amber-200/90 leading-relaxed">
+                {t('auth_offline_notice')}
+              </p>
+            </div>
+          )}
+
+          {/* Success Message Banner */}
+          {successMessage && (
+            <div className="p-3.5 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-200 text-xs flex items-center gap-2 animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+              <span>{successMessage}</span>
+            </div>
+          )}
+
+          {/* Error Message Banner */}
           {errorMessage && (
-            <div className="mb-4 p-3 rounded-lg bg-red-950/50 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
+            <div className="p-3 rounded-lg bg-red-950/50 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
               <span>{errorMessage}</span>
             </div>
@@ -202,7 +303,7 @@ export default function RegisterPage() {
                 <select
                   id="region"
                   value={region}
-                  onChange={(e) => setRegion(e.target.value)}
+                  onChange={(e) => setRegion(e.target.value as EthiopianRegion)}
                   className="w-full h-10 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500"
                 >
                   {REGIONS.map((r) => (
@@ -221,7 +322,7 @@ export default function RegisterPage() {
                 <select
                   id="agroZone"
                   value={agroZone}
-                  onChange={(e) => setAgroZone(e.target.value)}
+                  onChange={(e) => setAgroZone(e.target.value as AgroEcologicalZone)}
                   className="w-full h-10 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500"
                 >
                   {AGRO_ZONES.map((z) => (
@@ -242,7 +343,7 @@ export default function RegisterPage() {
               <select
                 id="preferredLanguage"
                 value={preferredLanguage}
-                onChange={(e) => handleLanguageChange(e.target.value as 'en' | 'am' | 'om')}
+                onChange={(e) => handleLanguageChange(e.target.value as SupportedLanguage)}
                 className="w-full h-10 px-3 rounded-md bg-slate-950/70 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500"
               >
                 <option value="en">English</option>

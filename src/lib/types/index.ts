@@ -152,7 +152,7 @@ export interface AdviceCard {
 
 export interface OfflineQueueItem {
   id: string;
-  type: 'submit_question' | 'vote_advice' | 'update_profile';
+  type: 'submit_question' | 'vote_advice' | 'update_profile' | 'register_farmer';
   payload: Record<string, unknown>;
   createdAt: number;
   attempts: number;

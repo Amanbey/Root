@@ -32,12 +32,18 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // IMPORTANT: Do not run code between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
+    user = authUser;
+  } catch {
+    // Supabase network unreachable or offline
+    user = null;
+  }
+
+  const offlineSession = request.cookies.get('root_offline_session')?.value;
 
   const isAuthPage =
     request.nextUrl.pathname.startsWith('/login') ||
@@ -48,19 +54,22 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/profile') ||
     request.nextUrl.pathname.startsWith('/diagnose');
 
-  // If user is not authenticated and attempts to access protected page
-  if (!user && isProtectedPath) {
+  // If user is not authenticated and has no offline session, and attempts to access protected page
+  if (!user && !offlineSession && isProtectedPath) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     url.searchParams.set('redirectTo', request.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
 
-  // If user is already authenticated and visits login or register
-  if (user && isAuthPage) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/profile';
-    return NextResponse.redirect(url);
+  // If user is already authenticated (or has offline session) and visits login or register
+  if ((user || offlineSession) && isAuthPage) {
+    // If explicitly switching accounts or signing in fresh, allow through
+    if (!request.nextUrl.searchParams.has('switch')) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/profile';
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;
