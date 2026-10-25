@@ -50,10 +50,10 @@ Smallholder farmers often operate in bright sunlight on affordable Android devic
 ## 📋 Implementation Roadmap
 
 - [x] **Phase 1: Project Foundation** (Next.js 15, shadcn/ui, PWA service worker, manifest, environment setup, domain types)
-- [ ] **Phase 2: Supabase Setup & Authentication** (Auth flows, login, registration, farmer profile)
-- [ ] **Phase 3: Database Schema & Types** (Postgres schema, pgvector extension, RLS security policies)
-- [ ] **Phase 4: Question Submission & Single-Agent Flow** (Text/photo submission, Ollama local integration, advice cards)
-- [ ] **Phase 5: Multi-Agent System** (5-agent council orchestration, live progress timeline, agent run history)
+- [x] **Phase 2: Supabase Setup & Authentication** (Auth flows, login, registration, farmer profile)
+- [x] **Phase 3: Database Schema & Types** (Postgres schema, pgvector extension, RLS security policies)
+- [x] **Phase 4: Question Submission & Single-Agent Flow** (Text/photo submission, Ollama local integration, advice cards)
+- [x] **Phase 5: Multi-Agent System** (5-agent council orchestration, live progress timeline, agent run history)
 - [ ] **Phase 6: Community Knowledge & Feedback** (Helpful/unhelpful voting loop, semantic vector search)
 - [ ] **Phase 7: Offline-First Architecture** (IndexedDB background sync, service worker sync handlers)
 - [ ] **Phase 8: Dashboard, Polish & Finalization** (Farmer dashboard, multilingual structure, final QA)

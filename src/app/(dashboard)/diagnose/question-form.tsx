@@ -21,9 +21,50 @@ import { Badge } from '@/components/ui/badge';
 import { EthiopianCrop, EthiopianRegion, AgroEcologicalZone, FarmerProfile } from '@/lib/types';
 import { submitCropQuestionAction } from '@/app/actions/diagnose';
 
+import { AgentCouncilTimeline, TimelineStepItem } from '@/components/agents/agent-council-timeline';
+import { AgentRole } from '@/lib/types';
+
 interface QuestionFormProps {
   initialProfile?: FarmerProfile | null;
 }
+
+const INITIAL_COUNCIL_STEPS: TimelineStepItem[] = [
+  {
+    id: 'step-orchestrator',
+    role: 'orchestrator',
+    title: 'Council Initialized: Query parsing & pipeline dispatch',
+    status: 'running',
+    summary: 'Validating crop taxonomy and assembling local context parameters.',
+  },
+  {
+    id: 'step-diagnostic',
+    role: 'diagnostic',
+    title: 'Diagnostic Agent: Pathogen & Leaf Blight Analysis',
+    status: 'idle',
+    summary: 'Awaiting image & symptom feature vectors for disease classification.',
+  },
+  {
+    id: 'step-context',
+    role: 'local_context',
+    title: 'Local Context Agent: Agro-Ecological & Seasonal Evaluation',
+    status: 'idle',
+    summary: 'Ready to factor in elevation, soil dynamics, and Meher/Belg risks.',
+  },
+  {
+    id: 'step-knowledge',
+    role: 'knowledge',
+    title: 'Community Knowledge Agent: Vector Wisdom Retrieval',
+    status: 'idle',
+    summary: 'Ready to query peer-verified solutions from neighboring Ethiopian farmers.',
+  },
+  {
+    id: 'step-advisor',
+    role: 'advisor',
+    title: 'Advisor Agent: Final Synthesis & Action Plan Creation',
+    status: 'idle',
+    summary: 'Awaiting specialist inputs to compile structured Advice Card.',
+  },
+];
 
 const CROPS_LIST: Array<{ name: EthiopianCrop; label: string; icon: string }> = [
   { name: 'Teff', label: 'Teff (ጤፍ)', icon: '🌱' },
@@ -65,6 +106,12 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  const [isDeliberating, setIsDeliberating] = useState(false);
+  const [deliberationSteps, setDeliberationSteps] = useState<TimelineStepItem[]>(INITIAL_COUNCIL_STEPS);
+  const [activeRole, setActiveRole] = useState<AgentRole>('orchestrator');
+  const [progressPercent, setProgressPercent] = useState(15);
+  const [consensusSummary, setConsensusSummary] = useState<string | null>(null);
+
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -104,27 +151,127 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
     }
 
     setErrorMessage(null);
+    setIsDeliberating(true);
+    setProgressPercent(20);
+    setActiveRole('orchestrator');
+
+    // Simulate animated timeline ticks while server council executes
+    const timer1 = setTimeout(() => {
+      setActiveRole('diagnostic');
+      setProgressPercent(40);
+      setDeliberationSteps((prev) =>
+        prev.map((s) =>
+          s.role === 'orchestrator'
+            ? { ...s, status: 'completed', durationMs: 120 }
+            : s.role === 'diagnostic'
+            ? { ...s, status: 'running' }
+            : s
+        )
+      );
+    }, 700);
+
+    const timer2 = setTimeout(() => {
+      setActiveRole('local_context');
+      setProgressPercent(65);
+      setDeliberationSteps((prev) =>
+        prev.map((s) =>
+          s.role === 'diagnostic'
+            ? { ...s, status: 'completed', summary: `Pathogen identified for ${selectedCrop}`, durationMs: 460 }
+            : s.role === 'local_context'
+            ? { ...s, status: 'running' }
+            : s
+        )
+      );
+    }, 1800);
+
+    const timer3 = setTimeout(() => {
+      setActiveRole('knowledge');
+      setProgressPercent(82);
+      setDeliberationSteps((prev) =>
+        prev.map((s) =>
+          s.role === 'local_context'
+            ? { ...s, status: 'completed', summary: `Adapted for ${agroZone} & seasonal risk`, durationMs: 310 }
+            : s.role === 'knowledge'
+            ? { ...s, status: 'running' }
+            : s
+        )
+      );
+    }, 2800);
+
+    const timer4 = setTimeout(() => {
+      setActiveRole('advisor');
+      setProgressPercent(92);
+      setDeliberationSteps((prev) =>
+        prev.map((s) =>
+          s.role === 'knowledge'
+            ? { ...s, status: 'completed', summary: 'Peer-verified community wisdom retrieved', durationMs: 290 }
+            : s.role === 'advisor'
+            ? { ...s, status: 'running' }
+            : s
+        )
+      );
+    }, 3800);
 
     startTransition(async () => {
-      const result = await submitCropQuestionAction({
-        title: title.trim() || `${selectedCrop} Disease Issue`,
-        cropType: selectedCrop,
-        symptoms: symptoms.trim(),
-        photoBase64,
-        region,
-        agroZone,
-      });
+      try {
+        const result = await submitCropQuestionAction({
+          title: title.trim() || `${selectedCrop} Disease Issue`,
+          cropType: selectedCrop,
+          symptoms: symptoms.trim(),
+          photoBase64,
+          region,
+          agroZone,
+        });
 
-      if (result.success && result.questionId) {
-        router.push(`/diagnose/${result.questionId}`);
-      } else {
-        setErrorMessage(result.error || 'Failed to analyze crop. Please retry.');
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+        clearTimeout(timer4);
+
+        if (result.success && result.questionId) {
+          setProgressPercent(100);
+          setConsensusSummary(
+            `5-Agent Council deliberation successful. Synthesized Advice Card #${result.adviceCardId?.substring(0, 8)}.`
+          );
+          setDeliberationSteps((prev) =>
+            prev.map((s) => ({ ...s, status: 'completed', durationMs: s.durationMs || 300 }))
+          );
+
+          // Brief delay so farmer sees 100% completion before transition
+          setTimeout(() => {
+            router.push(`/diagnose/${result.questionId}`);
+          }, 1100);
+        } else {
+          setIsDeliberating(false);
+          setErrorMessage(result.error || 'Failed to analyze crop. Please retry.');
+        }
+      } catch (err: unknown) {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+        clearTimeout(timer4);
+        setIsDeliberating(false);
+        const msg = err instanceof Error ? err.message : 'Deliberation failed';
+        setErrorMessage(msg);
       }
     });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
+      {/* Live Multi-Agent Council Timeline Modal / Hero when deliberating */}
+      {isDeliberating && (
+        <div className="p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/40 shadow-2xl shadow-emerald-950/70 backdrop-blur-xl animate-in fade-in duration-300 space-y-4">
+          <AgentCouncilTimeline
+            steps={deliberationSteps}
+            isLive={progressPercent < 100}
+            activeRole={activeRole}
+            progressPercent={progressPercent}
+            executionSummary={consensusSummary}
+          />
+        </div>
+      )}
+
       {errorMessage && (
         <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
@@ -336,18 +483,18 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
       {/* Submit Button */}
       <Button
         type="submit"
-        disabled={isPending}
-        className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-2"
+        disabled={isPending || isDeliberating}
+        className="w-full h-12 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-2 transition-all"
       >
-        {isPending ? (
+        {isPending || isDeliberating ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            <span>Diagnostic Agent Running (Ollama / Offline Engine)...</span>
+            <span>5-Agent Council Deliberating • ኤጀንቶቹ በመወያየት ላይ ናቸው...</span>
           </>
         ) : (
           <>
             <Bot className="w-5 h-5" />
-            <span>Deploy Diagnostic Agent • ምርመራ ጀምር</span>
+            <span>Deploy 5-Agent Agronomic Council • የግብርና ኤጀንቶች ጉባኤ ጀምር</span>
             <ArrowRight className="w-4 h-4 ml-1" />
           </>
         )}

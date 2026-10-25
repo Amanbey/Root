@@ -5,7 +5,7 @@
 
 import { createClient as createServerSupabase } from '@/lib/supabase/server';
 import { Database, Json } from '@/lib/supabase/database.types';
-import { AdviceCard, EthiopianCrop, EthiopianRegion, AgroEcologicalZone } from '@/lib/types';
+import { AdviceCard, EthiopianCrop, EthiopianRegion, AgroEcologicalZone, AgentRunDetails, AgentTimelineStepLog, AgentRole, StageStatus } from '@/lib/types';
 
 export type QuestionRow = Database['public']['Tables']['questions']['Row'];
 export type AdviceCardRow = Database['public']['Tables']['advice_cards']['Row'];
@@ -161,6 +161,171 @@ export async function logAgentTimelineStep(params: {
     output_payload: (params.outputPayload as unknown as Json) || null,
     completed_at: params.status !== 'running' ? new Date().toISOString() : null,
   });
+}
+
+/**
+ * 4b. UPDATE AGENT RUN STATUS & SUMMARY
+ */
+export async function updateAgentRun(params: {
+  id: string;
+  status: 'running' | 'completed' | 'failed';
+  executionSummary?: string | null;
+  totalDurationMs?: number | null;
+}) {
+  const supabase = await createServerSupabase();
+
+  if (isPlaceholderMode()) {
+    return;
+  }
+
+  await supabase
+    .from('agent_runs')
+    .update({
+      status: params.status,
+      execution_summary: params.executionSummary || null,
+      total_duration_ms: params.totalDurationMs || null,
+      completed_at: params.status !== 'running' ? new Date().toISOString() : null,
+    })
+    .eq('id', params.id);
+}
+
+/**
+ * 4c. GET AGENT RUN WITH TIMELINE LOGS
+ */
+export async function getAgentRunWithTimeline(questionId: string): Promise<AgentRunDetails | null> {
+  const supabase = await createServerSupabase();
+
+  if (isPlaceholderMode()) {
+    return {
+      id: `run-mock-${questionId}`,
+      question_id: questionId,
+      model_used: 'llama3.1:8b',
+      status: 'completed',
+      execution_summary:
+        '5-agent council completed full deliberation. Diagnostic Agent identified primary pathogen; Local Context Agent adapted interventions for Weyna Dega midlands; Community Knowledge Agent retrieved 2 peer-verified remedies (42 upvotes); Advisor Agent synthesized low-cost action card.',
+      total_duration_ms: 1480,
+      created_at: new Date(Date.now() - 3600000).toISOString(),
+      completed_at: new Date().toISOString(),
+      timeline_steps: [
+        {
+          id: 'step-1',
+          agent_run_id: `run-mock-${questionId}`,
+          agent_role: 'orchestrator',
+          step_title: 'Council Initialized: Query parsing & pipeline dispatch',
+          status: 'completed',
+          input_preview: 'Task: Multi-agent agricultural diagnostic council dispatch',
+          output_payload: { status: 'ready', pipeline: ['diagnostic', 'local_context', 'knowledge', 'advisor'] },
+          started_at: new Date(Date.now() - 1480).toISOString(),
+          completed_at: new Date(Date.now() - 1380).toISOString(),
+          duration_ms: 100,
+        },
+        {
+          id: 'step-2',
+          agent_run_id: `run-mock-${questionId}`,
+          agent_role: 'diagnostic',
+          step_title: 'Diagnostic Agent: Pathogen & Leaf Blight Analysis',
+          status: 'completed',
+          input_preview: 'Analyzing visual indicators, pustule shape, chlorosis, and crop taxonomy',
+          output_payload: {
+            pathogen: 'Puccinia striiformis (Wheat Stripe Rust)',
+            confidence: 94,
+            urgency: 'high',
+          },
+          started_at: new Date(Date.now() - 1380).toISOString(),
+          completed_at: new Date(Date.now() - 930).toISOString(),
+          duration_ms: 450,
+        },
+        {
+          id: 'step-3',
+          agent_run_id: `run-mock-${questionId}`,
+          agent_role: 'local_context',
+          step_title: 'Local Context Agent: Agro-Ecological & Seasonal Adaptation',
+          status: 'completed',
+          input_preview: 'Evaluating Weyna Dega altitude (2100m), Meher rain cycle, and Vertisol drainage',
+          output_payload: {
+            zone: 'Weyna Dega',
+            season: 'Late Meher',
+            microclimate_risk: 'High humidity spore transmission alert',
+            local_materials: ['Neem leaves', 'Wood ash', 'Compost tea'],
+          },
+          started_at: new Date(Date.now() - 930).toISOString(),
+          completed_at: new Date(Date.now() - 610).toISOString(),
+          duration_ms: 320,
+        },
+        {
+          id: 'step-4',
+          agent_run_id: `run-mock-${questionId}`,
+          agent_role: 'knowledge',
+          step_title: 'Community Knowledge Agent: Vector Wisdom Retrieval',
+          status: 'completed',
+          input_preview: 'Querying vector memory for peer-verified highland rust remedies',
+          output_payload: {
+            matches_found: 2,
+            top_verified_solution: 'Wood ash and neem extract spray tested by 42 farmers in East Shewa',
+            farmer_confidence: 'High (89% reported yield preservation)',
+          },
+          started_at: new Date(Date.now() - 610).toISOString(),
+          completed_at: new Date(Date.now() - 330).toISOString(),
+          duration_ms: 280,
+        },
+        {
+          id: 'step-5',
+          agent_run_id: `run-mock-${questionId}`,
+          agent_role: 'advisor',
+          step_title: 'Advisor Agent: Final Synthesis & Action Plan Creation',
+          status: 'completed',
+          input_preview: 'Synthesizing council consensus into low-literacy structured advice card',
+          output_payload: {
+            urgency: 'high',
+            immediate_steps: 3,
+            organic_remedies: 2,
+            accessibility_rating: 'Low-literacy visual priority',
+          },
+          started_at: new Date(Date.now() - 330).toISOString(),
+          completed_at: new Date().toISOString(),
+          duration_ms: 330,
+        },
+      ],
+    };
+  }
+
+  const { data: run, error: runError } = await supabase
+    .from('agent_runs')
+    .select('*')
+    .eq('question_id', questionId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (runError || !run) {
+    return null;
+  }
+
+  const { data: steps } = await supabase
+    .from('agent_timeline_logs')
+    .select('*')
+    .eq('agent_run_id', run.id)
+    .order('started_at', { ascending: true });
+
+  const timelineSteps: AgentTimelineStepLog[] = (steps || []).map((s) => ({
+    id: s.id,
+    agent_run_id: s.agent_run_id,
+    agent_role: s.agent_role as AgentRole,
+    step_title: s.step_title,
+    status: s.status as StageStatus,
+    input_preview: s.input_preview,
+    output_payload: s.output_payload as Record<string, unknown> | null,
+    started_at: s.started_at,
+    completed_at: s.completed_at,
+    duration_ms: s.completed_at
+      ? Math.max(0, new Date(s.completed_at).getTime() - new Date(s.started_at).getTime())
+      : undefined,
+  }));
+
+  return {
+    ...run,
+    timeline_steps: timelineSteps,
+  };
 }
 
 /**

@@ -1,8 +1,12 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Navbar } from '@/components/shared/navbar';
-import { AdviceCardView } from '@/components/advice/advice-card-view';
-import { getQuestionById, getAdviceCardByQuestionId } from '@/lib/supabase/db-helpers';
+import { AdviceDetailTabs } from '@/components/advice/advice-detail-tabs';
+import { 
+  getQuestionById, 
+  getAdviceCardByQuestionId, 
+  getAgentRunWithTimeline 
+} from '@/lib/supabase/db-helpers';
 import { getCurrentFarmerProfile } from '@/app/auth/actions';
 import { ArrowLeft, MessageSquarePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,6 +27,7 @@ export default async function QuestionDetailPage({ params }: PageProps) {
   }
 
   const adviceCard = await getAdviceCardByQuestionId(id);
+  const agentRun = await getAgentRunWithTimeline(id);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-950">
@@ -83,9 +88,13 @@ export default async function QuestionDetailPage({ params }: PageProps) {
           </CardContent>
         </Card>
 
-        {/* Advice Card Render */}
+        {/* Advice Card & Multi-Agent Deliberation Tabs */}
         {adviceCard ? (
-          <AdviceCardView card={adviceCard} farmerName={profile?.full_name} />
+          <AdviceDetailTabs 
+            card={adviceCard} 
+            farmerName={profile?.full_name} 
+            agentRun={agentRun} 
+          />
         ) : (
           <div className="p-8 text-center text-slate-400 text-xs rounded-xl bg-slate-900/40 border border-slate-800">
             Diagnosis card is still generating or unavailable.

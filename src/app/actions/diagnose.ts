@@ -5,12 +5,9 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { 
   createQuestion, 
-  createAgentRun, 
-  logAgentTimelineStep, 
-  createAdviceCard, 
   submitAdviceFeedback 
 } from '@/lib/supabase/db-helpers';
-import { runDiagnosticAgent } from '@/lib/ollama/diagnose';
+import { runAgriculturalCouncil } from '@/lib/agents/orchestrator';
 import { EthiopianCrop, EthiopianRegion, AgroEcologicalZone } from '@/lib/types';
 
 export interface SubmitQuestionPayload {
@@ -92,60 +89,15 @@ export async function submitCropQuestionAction(payload: SubmitQuestionPayload): 
       isOffline: false,
     });
 
-    // 4. Initialize Multi-Agent Run in DB
-    const agentRun = await createAgentRun(question.id, 'llama3.1:8b');
-
-    // 5. Log Timeline Start
-    await logAgentTimelineStep({
-      agentRunId: agentRun.id,
-      agentRole: 'diagnostic',
-      stepTitle: 'Diagnostic Agent: Analyzing Symptoms & Pathogen Signatures',
-      status: 'running',
-      inputPreview: `Crop: ${payload.cropType}, Symptoms: ${payload.symptoms.substring(0, 100)}...`,
-    });
-
-    // 6. Execute AI Diagnosis (Ollama with resilient offline fallback)
-    const diagnosisResult = await runDiagnosticAgent({
+    // 4. Dispatch the 5-Agent Agricultural Council
+    const councilResult = await runAgriculturalCouncil({
+      questionId: question.id,
+      userId,
       cropType: payload.cropType,
       symptoms: payload.symptoms,
+      photoUrl,
       region: payload.region,
       agroZone: payload.agroZone,
-      photoUrl,
-    });
-
-    // 7. Log Timeline Completion
-    await logAgentTimelineStep({
-      agentRunId: agentRun.id,
-      agentRole: 'diagnostic',
-      stepTitle: 'Diagnostic Agent: Identification Complete',
-      status: 'completed',
-      outputPayload: {
-        diagnosis: diagnosisResult.adviceCard.diagnosis_name,
-        confidence: diagnosisResult.adviceCard.confidence_score,
-        engine: diagnosisResult.engineUsed,
-        model: diagnosisResult.modelUsed,
-        durationMs: diagnosisResult.durationMs,
-      },
-    });
-
-    // 8. Create and Persist the Structured Advice Card
-    const savedCard = await createAdviceCard({
-      question_id: question.id,
-      agent_run_id: agentRun.id,
-      diagnosis_name: diagnosisResult.adviceCard.diagnosis_name,
-      scientific_name: diagnosisResult.adviceCard.scientific_name,
-      confidence_score: diagnosisResult.adviceCard.confidence_score,
-      urgency: diagnosisResult.adviceCard.urgency,
-      primary_crop: payload.cropType,
-      visual_indicators: diagnosisResult.adviceCard.visual_indicators,
-      probable_causes: diagnosisResult.adviceCard.probable_causes,
-      immediate_actions: diagnosisResult.adviceCard.immediate_actions,
-      organic_remedies: diagnosisResult.adviceCard.organic_remedies,
-      chemical_remedies: diagnosisResult.adviceCard.chemical_remedies || [],
-      preventive_measures: diagnosisResult.adviceCard.preventive_measures,
-      local_context_notes: diagnosisResult.adviceCard.local_context_notes,
-      recommended_season_action: diagnosisResult.adviceCard.recommended_season_action,
-      agent_summary: diagnosisResult.adviceCard.agent_summary,
     });
 
     revalidatePath('/diagnose');
@@ -154,7 +106,7 @@ export async function submitCropQuestionAction(payload: SubmitQuestionPayload): 
     return {
       success: true,
       questionId: question.id,
-      adviceCardId: savedCard.id,
+      adviceCardId: councilResult.adviceCard.id,
     };
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : 'Failed to diagnose crop problem';

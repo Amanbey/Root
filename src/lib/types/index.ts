@@ -98,6 +98,31 @@ export interface AgentTimelineStep {
   durationMs?: number;
 }
 
+export interface AgentTimelineStepLog {
+  id: string;
+  agent_run_id: string;
+  agent_role: AgentRole;
+  step_title: string;
+  status: StageStatus;
+  input_preview?: string | null;
+  output_payload?: Record<string, unknown> | null;
+  started_at: string;
+  completed_at?: string | null;
+  duration_ms?: number;
+}
+
+export interface AgentRunDetails {
+  id: string;
+  question_id: string;
+  model_used: string;
+  status: string;
+  execution_summary?: string | null;
+  total_duration_ms?: number | null;
+  created_at: string;
+  completed_at?: string | null;
+  timeline_steps: AgentTimelineStepLog[];
+}
+
 export type UrgencyLevel = 'low' | 'medium' | 'high' | 'critical';
 
 export interface AdviceCard {
