@@ -1,4 +1,4 @@
-const CACHE_NAME = 'root-cache-v2';
+const CACHE_NAME = 'root-cache-v3';
 const OFFLINE_URL = '/offline';
 
 const PRECACHE_ASSETS = [
@@ -56,11 +56,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip Next.js internal fast refresh, webpack, and action headers
+  // Skip Next.js internal requests, HMR, RSC router fetches, and Server Actions
   if (
-    url.pathname.includes('/_next/webpack-hmr') ||
-    url.pathname.includes('/__nextjs') ||
-    request.headers.get('next-action')
+    url.pathname.startsWith('/_next/') ||
+    url.pathname.startsWith('/__nextjs') ||
+    request.headers.has('next-action') ||
+    request.headers.has('RSC') ||
+    request.headers.has('Next-Router-State-Tree') ||
+    request.headers.has('Next-Router-Prefetch') ||
+    url.searchParams.has('_rsc')
   ) {
     return;
   }
@@ -146,11 +150,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Default: Network with safe cache fallback ensuring a valid Response is always returned
+  // Default: Network with safe cache fallback
   event.respondWith(
-    fetch(request).catch(async () => {
+    fetch(request).catch(async (error) => {
+      // If the browser aborted the request (e.g. cancelled prefetch or client redirect), propagate abort
+      if (error && error.name === 'AbortError') {
+        throw error;
+      }
       const cached = await caches.match(request);
       if (cached) return cached;
+
+      if (request.mode === 'navigate') {
+        const offlinePage = await caches.match(OFFLINE_URL);
+        if (offlinePage) return offlinePage;
+      }
+
       return new Response('', { status: 408, statusText: 'Request timed out or offline' });
     })
   );

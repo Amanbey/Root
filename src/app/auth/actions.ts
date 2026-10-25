@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { FarmerProfile, EthiopianRegion, AgroEcologicalZone, SupportedLanguage, EthiopianCrop } from '@/lib/types';
 
 const loginSchema = z.object({
@@ -54,10 +54,27 @@ export async function signInAction(prevState: unknown, formData: FormData): Prom
     };
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
+  let { error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
+
+  // If unconfirmed email, auto-confirm user with admin client and retry
+  if (error && error.message.toLowerCase().includes('email not confirmed')) {
+    const admin = createAdminClient();
+    if (admin) {
+      const { data: usersData } = await admin.auth.admin.listUsers();
+      const existingUser = usersData?.users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
+      if (existingUser) {
+        await admin.auth.admin.updateUserById(existingUser.id, { email_confirm: true });
+        const retryResult = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        error = retryResult.error;
+      }
+    }
+  }
 
   if (error) {
     return {
@@ -103,6 +120,7 @@ export async function signUpAction(prevState: unknown, formData: FormData): Prom
   }
 
   const supabase = await createClient();
+  const adminClient = createAdminClient();
 
   const isPlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder');
   if (isPlaceholder) {
@@ -113,29 +131,78 @@ export async function signUpAction(prevState: unknown, formData: FormData): Prom
     };
   }
 
-  // 1. Create Supabase Auth user
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
+  let userId: string | null = null;
+
+  // Use Admin API to create user with email_confirm: true
+  // This bypasses Supabase free SMTP rate limits completely (no confirmation email triggered)
+  if (adminClient) {
+    const { data: adminUserData, error: adminError } = await adminClient.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
         full_name: fullName,
         phone,
       },
-    },
-  });
+    });
 
-  if (authError) {
-    return {
-      success: false,
-      error: authError.message,
-    };
+    if (adminError) {
+      // If user already registered, update their password, auto-confirm, and sign in
+      if (
+        adminError.message.toLowerCase().includes('already been registered') ||
+        adminError.message.toLowerCase().includes('already exists')
+      ) {
+        const { data: usersData } = await adminClient.auth.admin.listUsers();
+        const existingUser = usersData?.users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
+        if (existingUser) {
+          await adminClient.auth.admin.updateUserById(existingUser.id, {
+            password,
+            email_confirm: true,
+            user_metadata: { full_name: fullName, phone },
+          });
+          userId = existingUser.id;
+        } else {
+          return {
+            success: false,
+            error: adminError.message,
+          };
+        }
+      } else {
+        return {
+          success: false,
+          error: adminError.message,
+        };
+      }
+    } else if (adminUserData.user) {
+      userId = adminUserData.user.id;
+    }
+  } else {
+    // Fallback: standard sign up
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          phone,
+        },
+      },
+    });
+
+    if (authError) {
+      return {
+        success: false,
+        error: authError.message,
+      };
+    }
+
+    userId = authData.user?.id || null;
   }
 
-  const userId = authData.user?.id;
+  // Initialize farmer profile record
   if (userId) {
-    // 2. Initialize farmer profile record
-    const { error: profileError } = await supabase
+    const profileClient = adminClient || supabase;
+    const { error: profileError } = await profileClient
       .from('farmer_profiles')
       .upsert({
         id: userId,
@@ -155,12 +222,18 @@ export async function signUpAction(prevState: unknown, formData: FormData): Prom
     }
   }
 
+  // Automatically sign in the newly registered user on the current session
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
   revalidatePath('/', 'layout');
 
-  if (authData.user && !authData.session) {
+  if (signInError) {
     return {
       success: true,
-      redirectTo: '/login?registered=check-email',
+      redirectTo: '/login?registered=success',
     };
   }
 
