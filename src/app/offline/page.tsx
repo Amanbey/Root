@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { WifiOff, RefreshCw, BookmarkCheck, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { OfflineSavedCardsClient } from '@/components/advice/offline-saved-cards-client';
 
 export default function OfflinePage() {
   const handleRetry = () => {
@@ -68,6 +69,8 @@ export default function OfflinePage() {
             </div>
           </CardContent>
         </Card>
+
+        <OfflineSavedCardsClient />
 
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <Button

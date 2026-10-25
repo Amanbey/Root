@@ -55,7 +55,7 @@ Smallholder farmers often operate in bright sunlight on affordable Android devic
 - [x] **Phase 4: Question Submission & Single-Agent Flow** (Text/photo submission, Ollama local integration, advice cards)
 - [x] **Phase 5: Multi-Agent System** (5-agent council orchestration, live progress timeline, agent run history)
 - [x] **Phase 6: Community Knowledge & Feedback** (Helpful/unhelpful voting loop, peer-verified remedy sharing, interactive symptom search)
-- [ ] **Phase 7: Offline-First Architecture** (IndexedDB background sync, service worker sync handlers)
+- [x] **Phase 7: Offline-First Architecture** (IndexedDB background sync, service worker sync handlers)
 - [ ] **Phase 8: Dashboard, Polish & Finalization** (Farmer dashboard, multilingual structure, final QA)
 
 ---

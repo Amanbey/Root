@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { syncAllPendingData } from '@/lib/offline/sync-manager';
 
 export function ServiceWorkerRegister() {
   useEffect(() => {
@@ -25,6 +26,19 @@ export function ServiceWorkerRegister() {
               });
             }
           });
+
+          // Listen for background sync triggers from Service Worker
+          navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data?.type === 'TRIGGER_BACKGROUND_SYNC') {
+              console.log('[Root PWA] Background sync triggered by Service Worker');
+              syncAllPendingData();
+            }
+          });
+
+          // Initial check if back online
+          if (navigator.onLine) {
+            syncAllPendingData();
+          }
 
           console.log('[Root PWA] Service Worker registered with scope:', registration.scope);
         } catch (error) {

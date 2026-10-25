@@ -9,6 +9,7 @@ import { getUserQuestions } from '@/lib/supabase/db-helpers';
 import { Bot, History, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { OfflineSavedCardsClient } from '@/components/advice/offline-saved-cards-client';
 
 export default async function DiagnosePage() {
   const profile = await getCurrentFarmerProfile();
@@ -40,6 +41,9 @@ export default async function DiagnosePage() {
 
         {/* Form */}
         <QuestionForm initialProfile={profile} />
+
+        {/* Offline Stored Diagnoses (Persistent IndexedDB) */}
+        <OfflineSavedCardsClient />
 
         {/* Real User's Past Diagnoses (100% Real Supabase Data) */}
         {pastQuestions.length > 0 && (

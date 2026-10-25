@@ -159,3 +159,16 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
 });
+
+// Background Sync handler: notify active windows to drain offline queue
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-offline-queue') {
+    event.waitUntil(
+      self.clients.matchAll({ type: 'window' }).then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: 'TRIGGER_BACKGROUND_SYNC' });
+        });
+      })
+    );
+  }
+});

@@ -15,6 +15,8 @@ import { ArrowLeft, MessageSquarePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { OfflineCardDetailView } from '@/components/advice/offline-card-detail-view';
+import { CacheCardClient } from '@/components/advice/cache-card-client';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -26,7 +28,7 @@ export default async function QuestionDetailPage({ params }: PageProps) {
   const question = await getQuestionById(id);
 
   if (!question) {
-    notFound();
+    return <OfflineCardDetailView id={id} profile={profile} />;
   }
 
   const adviceCard = await getAdviceCardByQuestionId(id);
@@ -34,6 +36,7 @@ export default async function QuestionDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-950">
+      <CacheCardClient card={adviceCard} />
       <Navbar userEmail={profile?.email} farmerName={profile?.full_name} />
 
       <main className="flex-1 max-w-4xl mx-auto px-4 py-6 sm:py-8 pb-24 sm:pb-12 w-full space-y-6">

@@ -10,7 +10,8 @@ import {
   Loader2, 
   AlertCircle, 
   ArrowRight,
-  Bot
+  Bot,
+  WifiOff
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,8 +19,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { EthiopianCrop, EthiopianRegion, AgroEcologicalZone, FarmerProfile } from '@/lib/types';
+import { EthiopianCrop, EthiopianRegion, AgroEcologicalZone, FarmerProfile, AdviceCard } from '@/lib/types';
 import { submitCropQuestionAction } from '@/app/actions/diagnose';
+import { generateOfflineAdviceCard } from '@/lib/offline/offline-expert';
+import { saveOfflineQuestion, enqueueOfflineItem, cacheAdviceCardLocally } from '@/lib/offline/db';
+import { requestBackgroundSync } from '@/lib/offline/sync-manager';
+import { AdviceCardView } from '@/components/advice/advice-card-view';
 
 import { AgentCouncilTimeline, TimelineStepItem } from '@/components/agents/agent-council-timeline';
 import { AgentRole } from '@/lib/types';
@@ -111,6 +116,18 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
   const [activeRole, setActiveRole] = useState<AgentRole>('orchestrator');
   const [progressPercent, setProgressPercent] = useState(15);
   const [consensusSummary, setConsensusSummary] = useState<string | null>(null);
+  const [offlineAdviceCard, setOfflineAdviceCard] = useState<AdviceCard | null>(null);
+  const [isOfflineDetected, setIsOfflineDetected] = useState(false);
+
+  useState(() => {
+    if (typeof window !== 'undefined') {
+      setIsOfflineDetected(!navigator.onLine);
+      const onOn = () => setIsOfflineDetected(false);
+      const onOff = () => setIsOfflineDetected(true);
+      window.addEventListener('online', onOn);
+      window.addEventListener('offline', onOff);
+    }
+  });
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -212,6 +229,82 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
       );
     }, 3800);
 
+    const handleOfflineExecution = async () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      clearTimeout(timer4);
+
+      try {
+        const card = generateOfflineAdviceCard({
+          cropType: selectedCrop,
+          symptoms: symptoms.trim(),
+          region,
+          agroZone,
+        });
+
+        const tempId = card.question_id;
+
+        // 1. Save locally in offline questions store
+        await saveOfflineQuestion(
+          {
+            id: tempId,
+            title: title.trim() || `${selectedCrop} Issue (Offline)`,
+            crop_type: selectedCrop,
+            symptoms_description: symptoms.trim(),
+            region,
+            agro_zone: agroZone,
+            status: 'queued',
+            is_offline_submission: true,
+            created_at: new Date().toISOString(),
+          },
+          card
+        );
+
+        // 2. Add to background sync queue
+        await enqueueOfflineItem({
+          id: tempId,
+          type: 'submit_question',
+          payload: {
+            title: title.trim() || `${selectedCrop} Disease Issue`,
+            cropType: selectedCrop,
+            symptoms: symptoms.trim(),
+            photoBase64,
+            region,
+            agroZone,
+          },
+          createdAt: Date.now(),
+          attempts: 0,
+          status: 'pending',
+        });
+
+        // 3. Cache the advice card locally
+        await cacheAdviceCardLocally(card);
+
+        // 4. Request native background sync
+        await requestBackgroundSync();
+
+        // 5. Complete animation and render offline card
+        setProgressPercent(100);
+        setConsensusSummary(
+          `⚡ Offline Advisory Engine complete. Card saved to local storage & queued to sync when online.`
+        );
+        setDeliberationSteps((prev) =>
+          prev.map((s) => ({ ...s, status: 'completed', durationMs: s.durationMs || 250 }))
+        );
+        setOfflineAdviceCard(card);
+      } catch (offlineErr: unknown) {
+        setIsDeliberating(false);
+        const errStr = offlineErr instanceof Error ? offlineErr.message : 'Offline diagnosis failed';
+        setErrorMessage(errStr);
+      }
+    };
+
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      handleOfflineExecution();
+      return;
+    }
+
     startTransition(async () => {
       try {
         const result = await submitCropQuestionAction({
@@ -242,17 +335,12 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
             router.push(`/diagnose/${result.questionId}`);
           }, 1100);
         } else {
-          setIsDeliberating(false);
-          setErrorMessage(result.error || 'Failed to analyze crop. Please retry.');
+          // If server failed due to network / connection, seamlessly fallback to offline engine
+          await handleOfflineExecution();
         }
-      } catch (err: unknown) {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-        clearTimeout(timer3);
-        clearTimeout(timer4);
-        setIsDeliberating(false);
-        const msg = err instanceof Error ? err.message : 'Deliberation failed';
-        setErrorMessage(msg);
+      } catch {
+        // If network threw exception, fallback to offline engine
+        await handleOfflineExecution();
       }
     });
   };
@@ -480,16 +568,40 @@ export function QuestionForm({ initialProfile }: QuestionFormProps) {
         </CardContent>
       </Card>
 
+      {/* Generated Offline Advice Card Display */}
+      {offlineAdviceCard && (
+        <div className="space-y-4 pt-4 border-t border-slate-800 animate-in fade-in duration-300">
+          <div className="p-3.5 rounded-xl bg-amber-950/60 border border-amber-500/40 text-amber-200 text-xs flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <WifiOff className="w-4 h-4 text-amber-400 shrink-0" />
+              <span>
+                <strong>100% Offline Advice Card:</strong> Generated by the local agronomy engine and stored in phone memory. Will auto-sync when network is restored.
+              </span>
+            </div>
+            <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] shrink-0">
+              Queued for Sync
+            </Badge>
+          </div>
+
+          <AdviceCardView card={offlineAdviceCard} farmerName={initialProfile?.full_name} />
+        </div>
+      )}
+
       {/* Submit Button */}
       <Button
         type="submit"
-        disabled={isPending || isDeliberating}
+        disabled={isPending || (isDeliberating && progressPercent < 100)}
         className="w-full min-h-[48px] sm:min-h-[50px] py-3 px-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-2 transition-all touch-manipulation"
       >
-        {isPending || isDeliberating ? (
+        {isPending || (isDeliberating && progressPercent < 100) ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin shrink-0" />
             <span className="truncate">Council Deliberating • ኤጀንቶቹ በመወያየት ላይ ናቸው...</span>
+          </>
+        ) : isOfflineDetected ? (
+          <>
+            <WifiOff className="w-4 h-4 text-amber-300 shrink-0" />
+            <span className="truncate">Diagnose Offline (Auto-Syncs Later) • ከመስመር ውጭ መርምር</span>
           </>
         ) : (
           <>
