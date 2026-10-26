@@ -22,7 +22,7 @@ test('offline-expert: generates fully formed offline AdviceCard in English', () 
   assert.ok(card.probable_causes.length > 0);
   assert.ok(card.immediate_actions.length > 0);
   assert.ok(card.organic_remedies.length > 0);
-  assert.ok(card.chemical_remedies.length > 0);
+  assert.ok(card.chemical_remedies && card.chemical_remedies.length > 0);
   assert.ok(card.preventive_measures.length > 0);
   assert.ok(card.local_context_notes.includes('Amhara'));
   assert.ok(card.agent_summary.includes('100% Offline Engine'));
